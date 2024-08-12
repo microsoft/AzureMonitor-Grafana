@@ -1,9 +1,0 @@
-enabled: true                   # Enable pull request assistant.
-branches:                       # Extension runs only on pull requests when target branch is in list of branches
-- main                          # Run extension only when target branch is main
-onPullRequestCreate:            # List of automated actions to take on a pull request create.
-- prompt: 'copilot: review'     # Perform code review on create of a pull request.
-  autoResolve: false            # Auto resolve code review feedback comment.
-  detailed: false               # Should the generated review feedback be detailed.
-- prompt: 'copilot: summary'    # Append pull request summary with an AI-Generated description.
-  autoResolve: true             # Auto resolve a comment posted after pull request summary is generated.
