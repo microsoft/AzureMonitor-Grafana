@@ -1,0 +1,38 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
+  "type": "app",
+  "name": "Azure Kubernetes Monitoring",
+  "id": "azure-azurekubernetesmonitoring-app",
+  "autoEnabled": true,
+  "preload": true,
+  "backend": true,
+  "executable": "gpx_azure_kubernetes_monitoring",
+  "info": {
+    "keywords": ["app"],
+    "description": "Monitor your azure kubernetes services",
+    "author": {
+      "name": "Azure"
+    },
+    "logos": {
+      "small": "img/logo.svg",
+      "large": "img/logo.svg"
+    },
+    "screenshots": [],
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
+  },
+  "includes": [
+    {
+      "type": "page",
+      "name": "Page One",
+      "path": "/a/%PLUGIN_ID%/clusternavigation",
+      "role": "Admin",
+      "addToNav": true,
+      "defaultNav": true
+    }
+  ],
+  "dependencies": {
+    "grafanaDependency": ">=10.2.0",
+    "plugins": []
+  }
+}
