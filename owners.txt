@@ -6,5 +6,5 @@
 ; about Ownership Enforcer can be found at https://aka.ms/ownershipenforcer.
 dhirajahuja
 jcolladokuri
-avdhanju
-oychan
+avidhanju
+yves-chan
