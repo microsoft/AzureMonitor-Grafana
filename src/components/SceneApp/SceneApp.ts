@@ -1,11 +1,11 @@
-import { SceneApp, SceneAppPage, sceneUtils } from "@grafana/scenes";
-import { getClusterOverviewScene } from "./Pages/Namespaces";
-import { getclustersScene } from "./Pages/Clusters";
-import { ConfigurationState } from "./SceneObjects/types";
-import { getClusterByWorkloadScene } from "./Pages/Workloads";
-import { getOverviewByNodeScene } from "./Pages/Nodes";
 import { PanelPlugin } from "@grafana/data";
+import { SceneApp, SceneAppPage, sceneUtils } from "@grafana/scenes";
+import { getclustersScene } from "./Pages/Clusters";
+import { getClusterOverviewScene } from "./Pages/Namespaces";
+import { getOverviewByNodeScene } from "./Pages/Nodes";
+import { getClusterByWorkloadScene } from "./Pages/Workloads";
 import { CustomTable, CustomTableVizFieldOptions, CustomTableVizOptions } from "./PanelVisualizations/CustomTable";
+import { ConfigurationState } from "./SceneObjects/types";
 
 const customTable = new PanelPlugin<CustomTableVizOptions, CustomTableVizFieldOptions>(CustomTable).useFieldConfig({
   useCustomConfig(builder) {
@@ -25,7 +25,7 @@ export function getSceneApp(_configState: Partial<ConfigurationState>, _setConfi
     const nodesTab = getOverviewByNodeScene();
     const myAppPage = new SceneAppPage({
         title: 'Azure Kubernetes Service Monitoring',
-        url: '/a/azure-azurekubernetesmonitoring-app/clusternavigation',
+        url: '/a/azure-cloudnativemonitoring-app/clusternavigation',
         // $variables: new SceneVariableSet({
         //   variables: [
         //       getDataSourcesVariableForType("grafana-azure-monitor-datasource", "AZMON_DS", "Azure Monitor Datasource"),

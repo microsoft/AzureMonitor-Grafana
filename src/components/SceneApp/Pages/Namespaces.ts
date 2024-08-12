@@ -1,22 +1,22 @@
 import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from "@grafana/scenes";
-import { getAlertSummaryDrilldownPage } from "./AlertSummaryDrilldown";
 import { GetClusterOverviewSceneQueries, TranformClusterOverviewData } from "../Queries/ClusterOverviewQueries";
+import { getAlertSummaryDrilldownPage } from "./AlertSummaryDrilldown";
 // import { ConfigurationState } from "../SceneObjects/types";
-import { VariableSelection } from "../SceneObjects/VariableSelection";
 import { createMappingFromSeries, getInstanceDatasourcesForType, getPromDatasource, getSceneQueryRunner } from "../Queries/queryUtil";
+import { VariableSelection } from "../SceneObjects/VariableSelection";
 // import { getPrometheusVariable } from "../Variables/prometheusVariables";
-import { azure_monitor_queries } from "../Queries/queries";
 import { ClusterMapping } from "types";
+import { azure_monitor_queries } from "../Queries/queries";
 // import { URLSearchParams } from "url";
+import { CLUSTER_VARIABLE, PROM_DS_VARIABLE } from "../../../constants";
 import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
 import { getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables } from "./sceneUtils";
-import { CLUSTER_VARIABLE, PROM_DS_VARIABLE } from "../../../constants";
 
 export let sharedVariableSelection: VariableSelection;
 
 export function getClusterOverviewScene(): SceneAppPage {
     const sceneTitle = "Namespaces";
-    const sceneUrl = "/a/azure-azurekubernetesmonitoring-app/clusternavigation/namespaces";
+    const sceneUrl = "/a/azure-cloudnativemonitoring-app/clusternavigation/namespaces";
     // always check first that there is at least one azure monitor datasource
     const azMonDatasources = getInstanceDatasourcesForType("grafana-azure-monitor-datasource");
     if (azMonDatasources.length === 0) {
@@ -97,11 +97,11 @@ export function getClusterOverviewScene(): SceneAppPage {
     });
     const clusterOverviewTab = new SceneAppPage({
       title: "Namespaces",
-      url: "/a/azure-azurekubernetesmonitoring-app/clusternavigation/namespaces",
+      url: "/a/azure-cloudnativemonitoring-app/clusternavigation/namespaces",
       getScene: () => scene,
       drilldowns: [
         {
-          routePath: '/a/azure-azurekubernetesmonitoring-app/clusternavigation/namespaces/alertsummary/:namespace',
+          routePath: '/a/azure-cloudnativemonitoring-app/clusternavigation/namespaces/alertsummary/:namespace',
           getPage: (routeMatch, parent) => getAlertSummaryDrilldownPage(routeMatch, parent, "namespaces")
         },
       ]

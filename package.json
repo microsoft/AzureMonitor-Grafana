@@ -1,7 +1,7 @@
 {
-  "name": "azure-kubernetes-monitoring",
+  "name": "azure-cloudnativemonitoring-app",
   "version": "1.0.0",
-  "description": "Monitor your azure kubernetes services",
+  "description": "Monitor your Azure Cloud Native services",
   "scripts": {
     "build": "webpack -c ./.config/webpack/webpack.config.ts --env production",
     "dev": "webpack -w -c ./.config/webpack/webpack.config.ts --env development",

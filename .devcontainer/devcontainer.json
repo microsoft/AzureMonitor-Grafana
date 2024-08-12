@@ -1,5 +1,5 @@
 {
-    "name": "Azure Kubernetes Monitoring Plugin",
+    "name": "Azure Cloud Native Monitoring Plugin",
     "build": {
       "dockerfile": "Dockerfile"
     },

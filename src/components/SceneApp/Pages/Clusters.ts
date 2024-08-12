@@ -1,10 +1,10 @@
-import { EmbeddedScene, SceneFlexLayout, SceneFlexItem, SceneAppPage, SceneTimePicker, SceneVariableSet, VariableValueSelectors, SceneQueryRunner, VizPanel, SceneRefreshPicker } from "@grafana/scenes";
+import { EmbeddedScene, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneQueryRunner, SceneRefreshPicker, SceneTimePicker, SceneVariableSet, VariableValueSelectors, VizPanel } from "@grafana/scenes";
+import { ClusterMapping } from "types";
+import { AGG_VAR, AZMON_DS_VARIABLE } from "../../../constants";
 import { GetClusterStatsQueries, GetClustersQuery, TransformData } from "../Queries/ClusterMappingQueries";
 import { azure_monitor_queries } from "../Queries/queries";
-import { ClusterMapping } from "types";
 import { createMappingFromSeries } from "../Queries/queryUtil";
 import { getCustomVariable, getDataSourcesVariableForType, getSubscriptionVariable } from "../Variables/variables";
-import { AZMON_DS_VARIABLE, AGG_VAR } from "../../../constants";
 
 
 
@@ -69,7 +69,7 @@ export function getclustersScene(): SceneAppPage {
 
     const clustersTab = new SceneAppPage({
         title: "Clusters",
-        url: "/a/azure-azurekubernetesmonitoring-app/clusternavigation/clusters",
+        url: "/a/azure-cloudnativemonitoring-app/clusternavigation/clusters",
         getScene: () => scene,
     });
     return clustersTab;

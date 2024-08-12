@@ -1,17 +1,17 @@
 import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from '@grafana/scenes';
+import { ClusterMapping } from 'types';
+import { CLUSTER_VARIABLE, PROM_DS_VARIABLE } from '../../../constants';
 import { GetClusterByWorkloadQueries, TransfomClusterByWorkloadData } from '../Queries/ClusterByWorkloadQueries';
+import { GetClustersQuery } from '../Queries/ClusterMappingQueries';
+import { azure_monitor_queries } from '../Queries/queries';
 import { createMappingFromSeries, getInstanceDatasourcesForType, getPromDatasource, getSceneQueryRunner } from '../Queries/queryUtil';
 import { getAlertSummaryDrilldownPage } from './AlertSummaryDrilldown';
 import { getComputeResourcesDrilldownPage } from './ComputeResourcesDrilldown';
 import { getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables } from './sceneUtils';
-import { ClusterMapping } from 'types';
-import { GetClustersQuery } from '../Queries/ClusterMappingQueries';
-import { azure_monitor_queries } from '../Queries/queries';
-import { CLUSTER_VARIABLE, PROM_DS_VARIABLE } from '../../../constants';
 
 export function getClusterByWorkloadScene() {
   const sceneTitle = 'Workloads';
-  const sceneUrl = '/a/azure-azurekubernetesmonitoring-app/clusternavigation/workloads';
+  const sceneUrl = '/a/azure-cloudnativemonitoring-app/clusternavigation/workloads';
   // always check first that there is at least one azure monitor datasource
   const azMonDatasources = getInstanceDatasourcesForType('grafana-azure-monitor-datasource');
   if (azMonDatasources.length === 0) {
@@ -104,17 +104,17 @@ export function getClusterByWorkloadScene() {
   const sceneAppPage =  new SceneAppPage({
     title: 'Workloads',
     getScene: () => scene,
-    url: '/a/azure-azurekubernetesmonitoring-app/clusternavigation/workloads',
+    url: '/a/azure-cloudnativemonitoring-app/clusternavigation/workloads',
   });
 
   sceneAppPage.setState({ drilldowns: [
     {
-      routePath: '/a/azure-azurekubernetesmonitoring-app/clusternavigation/workloads/alertsummary/:namespace',
+      routePath: '/a/azure-cloudnativemonitoring-app/clusternavigation/workloads/alertsummary/:namespace',
       getPage: (routeMatch, parent) => getAlertSummaryDrilldownPage(routeMatch, parent, "workloads"),
     },
     {
       routePath:
-        '/a/azure-azurekubernetesmonitoring-app/clusternavigation/workload/computeresources',
+        '/a/azure-cloudnativemonitoring-app/clusternavigation/workload/computeresources',
       getPage: getComputeResourcesDrilldownPage,
     },
   ]});

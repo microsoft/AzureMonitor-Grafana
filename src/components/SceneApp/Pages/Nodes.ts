@@ -1,15 +1,15 @@
 import { EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from "@grafana/scenes";
+import { ClusterMapping } from "types";
+import { CLUSTER_VARIABLE } from "../../../constants";
+import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
+import { GetNodeOverviewQueries, TransformNodeOverviewData } from "../Queries/NodeOverviewQueries";
+import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType, getSceneQueryRunner } from "../Queries/queryUtil";
 import { getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables } from "./sceneUtils";
-import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
-import { azure_monitor_queries } from "../Queries/queries";
-import { ClusterMapping } from "types";
-import { GetNodeOverviewQueries, TransformNodeOverviewData } from "../Queries/NodeOverviewQueries";
-import { CLUSTER_VARIABLE } from "../../../constants";
 
 export function getOverviewByNodeScene(): SceneAppPage {
     const sceneTitle = "Nodes";
-    const sceneUrl = "/a/azure-azurekubernetesmonitoring-app/clusternavigation/nodes";
+    const sceneUrl = "/a/azure-cloudnativemonitoring-app/clusternavigation/nodes";
     // always check first that there is at least one azure monitor datasource
     const azMonDatasources = getInstanceDatasourcesForType("grafana-azure-monitor-datasource");
     if (azMonDatasources.length === 0) {

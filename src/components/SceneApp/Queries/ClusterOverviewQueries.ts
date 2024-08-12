@@ -1,10 +1,10 @@
-import { CustomTransformOperator, SceneDataTransformer, SceneQueryRunner } from '@grafana/scenes';
-import { getPrometheusQuery, getAzureResourceGraphQuery } from './queryUtil';
-import { AZMON_DS_VARIABLE, CLUSTER_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE } from '../../../constants';
-import { DataSourceRef } from '@grafana/schema';
 import { DataFrame, DataLink } from '@grafana/data';
+import { CustomTransformOperator, SceneDataTransformer, SceneQueryRunner } from '@grafana/scenes';
+import { DataSourceRef } from '@grafana/schema';
 import { Observable, map } from 'rxjs';
+import { AZMON_DS_VARIABLE, CLUSTER_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE } from '../../../constants';
 import { getCustomFieldConfigBadge, getValidInvalidCustomFieldConfig } from './dataUtil';
+import { getAzureResourceGraphQuery, getPrometheusQuery } from './queryUtil';
 
 export function GetClusterOverviewSceneQueries() {
   const promDs: DataSourceRef = {
@@ -123,7 +123,7 @@ function getFieldConfigForField(name: string) {
   const alertLinks: DataLink[] = [
     {
       title: "Drill down to Alert Summary",
-      url: `/a/azure-azurekubernetesmonitoring-app/clusternavigation/namespaces/alertsummary/\${__data.fields.namespace}?\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}`,
+      url: `/a/azure-cloudnativemonitoring-app/clusternavigation/namespaces/alertsummary/\${__data.fields.namespace}?\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}`,
       targetBlank: false
     }
   ];
@@ -131,7 +131,7 @@ function getFieldConfigForField(name: string) {
   const namespaceLinks: DataLink[] = [
     {
       title: "Go to Workload",
-      url: `/a/azure-azurekubernetesmonitoring-app/clusternavigation/workloads?namespace=\${__data.fields.namespace}&\${${CLUSTER_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}`,
+      url: `/a/azure-cloudnativemonitoring-app/clusternavigation/workloads?namespace=\${__data.fields.namespace}&\${${CLUSTER_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}`,
       targetBlank: false
     }
   ]

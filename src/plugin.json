@@ -1,21 +1,21 @@
 {
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
   "type": "app",
-  "name": "Azure Kubernetes Monitoring",
-  "id": "azure-azurekubernetesmonitoring-app",
+  "name": "Azure Cloud Native Monitoring",
+  "id": "azure-cloudnativemonitoring-app",
   "autoEnabled": true,
   "preload": true,
   "backend": true,
-  "executable": "gpx_azure_kubernetes_monitoring",
+  "executable": "gpx_azure_cludnative_monitoring",
   "info": {
     "keywords": ["app"],
-    "description": "Monitor your azure kubernetes services",
+    "description": "Monitor your Azure Cloud Native services",
     "author": {
-      "name": "Azure"
+      "name": "Microsoft"
     },
     "logos": {
-      "small": "img/logo.svg",
-      "large": "img/logo.svg"
+      "small": "img/azure logo.svg",
+      "large": "img/azure logo.svg"
     },
     "screenshots": [],
     "version": "%VERSION%",
