@@ -54,6 +54,8 @@ A Grafana cloud-native app plugin designed to enhance monitoring capabilities.
 
 This Grafana App Plugin provides a seamless and enhanced monitoring experience for Azure Kubernetes Service (AKS) users. It integrates Azure, AKS, and Prometheus to offer a comprehensive view of your AKS environment.
 
+This plugin has a dependence on users having configured Azure Monitor and Prometheus plugin with the Azure Monitor managed service for Prom.
+
 ### Key Features
 
 **Simplified User Experience**: Users can access fully populated charts and experiences by selecting the cluster of interest. The plugin reduces the number of user inputs required, automatically discovering and populating variables such as Prometheus datasource and Log Analytics workspace.
