@@ -1,0 +1,57 @@
+{
+    "name": "Azure Kubernetes Monitoring Plugin",
+    "build": {
+      "dockerfile": "Dockerfile"
+    },
+    "containerEnv": {
+      "WORKSPACE_FOLDER": "${containerWorkspaceFolder}",
+      "NODE_OPTIONS": "--max_old_space_size=8192"
+    },
+    "forwardPorts": [],
+    "runArgs": [
+      "--env-file",
+      ".env",
+      "--add-host",
+      "host.docker.internal:host-gateway"
+    ],
+    "customizations": {
+      "vscode": {
+        "settings": {
+          "go.toolsManagement.checkForUpdates": "local",
+          "go.lintOnSave": "workspace",
+          "go.gopath": "/go",
+          "go.lintTool": "golangci-lint",
+          "go.lintFlags": ["--fast"],
+          "go.liveErrors": {
+            "enabled": true,
+            "delay": 500
+          },
+          "go.useLanguageServer": true,
+          "go.languageServerExperimentalFeatures": {
+            "diagnostics": true,
+            "documentLink": true
+          },
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+          }
+        },
+        "extensions": [
+          "golang.Go",
+          "esbenp.prettier-vscode",
+          "dbaeumer.vscode-eslint",
+          "editorconfig.editorconfig",
+          "bungcip.better-toml",
+          "ms-azuretools.vscode-docker",
+          "eamodio.gitlens",
+          "ms-cst-e.vscode-devskim",
+          "firsttris.vscode-jest-runner",
+          "Github.copilot",
+          "Github.copilot-chat",
+          "ms-azuretools.vscode-docker",
+          "redhat.vscode-yaml"
+        ]
+      }
+    },
+    "remoteUser": "vscode"
+  }
+  

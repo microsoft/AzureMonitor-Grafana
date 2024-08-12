@@ -1,0 +1,30 @@
+apiVersion: 1
+
+
+datasources:
+  - name: Azure Monitor
+    type: grafana-azure-monitor-datasource
+    uid: grafana-azure-monitor-datasource-oob
+    access: proxy
+    jsonData:
+      azureAuthType: clientsecret
+      cloudName: azuremonitor # See table below
+      tenantId: $__env{CONTOSO_TENANT_ID}
+      clientId: $__env{CONTOSO_CLIENT_ID}
+    secureJsonData:
+      clientSecret: $__env{CONTOSO_SECRET_ID}
+    version: 1
+    editable: true
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    editable: true
+    url: https://ch1-azuremonitorworkspace-vx3z.eastus.prometheus.monitor.azure.com
+    jsonData:
+      azureCredentials:
+        authType: clientsecret
+        azureCloud: AzureCloud
+        tenantId: $__env{CONTOSO_TENANT_ID}
+        clientId: $__env{CONTOSO_CLIENT_ID}
+    secureJsonData:
+      clientSecret: $__env{CONTOSO_SECRET_ID}
