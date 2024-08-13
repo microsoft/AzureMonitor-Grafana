@@ -6,7 +6,7 @@ import { AksIcon } from "components/img/AKSIcon";
 import React from "react";
 import { Observable, map } from "rxjs";
 import { ClusterMapping } from "types";
-import { AGG_VAR, AZMON_DS_VARIABLE, CLUSTER_VARIABLE, SUBSCRIPTION_VARIABLE } from "../../../constants";
+import { AGG_VAR, AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, SUBSCRIPTION_VARIABLE } from "../../../constants";
 import { getColorFieldConfig } from "../Visualizations/utils";
 import { castFieldNameToAgg, formatReadyTotal, getReducerValueFor, interpolateVariables } from "./dataUtil";
 import { azure_monitor_queries } from "./queries";
@@ -257,7 +257,7 @@ function getClustersCustomFieldConfig() {
             const isUnmonitored = cellValue.endsWith("_unmonitored") ?? false;
             const newCellValue = isUnmonitored ? `${cellValue.substring(0, cellValue.length - 12)} (Unmonitored)` : cellValue;
             const aksIcon = React.createElement(AksIcon, { greyOut: isUnmonitored });
-            const interpolatedLink = interpolateVariables(`/a/%PLUGIN_ID%/clusternavigation/namespaces?var-${CLUSTER_VARIABLE}=${newCellValue}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}`);
+            const interpolatedLink = interpolateVariables(`/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces?var-${CLUSTER_VARIABLE}=${newCellValue}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}`);
             const clusterValue = isUnmonitored ? `${newCellValue}` : React.createElement(
                 Link, 
                 { href: interpolatedLink, className: styles().link }, 

@@ -2,6 +2,7 @@ import { PanelPlugin } from "@grafana/data";
 import { SceneApp, SceneAppPage, sceneUtils } from "@grafana/scenes";
 import { AzureIcon } from "components/img/AzureIcon";
 import React from "react";
+import { AZURE_MONITORING_PLUGIN_ID } from "../../constants";
 import { getclustersScene } from "./Pages/Clusters";
 import { getClusterOverviewScene } from "./Pages/Namespaces";
 import { getOverviewByNodeScene } from "./Pages/Nodes";
@@ -27,7 +28,7 @@ export function getSceneApp(_configState: Partial<ConfigurationState>, _setConfi
     const nodesTab = getOverviewByNodeScene();
     const myAppPage = new SceneAppPage({
         title: 'Azure Cloud Native Monitoring',
-        url: '/a/%PLUGIN_ID%/clusternavigation',
+        url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation`,
         tabs: [clustersTab, clusterOverviewTab, workloadsTab, nodesTab],
         renderTitle: (title: string) => {
           return React.createElement('div', { style: { display: 'flex', alignItems: 'center' } },
