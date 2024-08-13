@@ -1,5 +1,7 @@
 import { PanelPlugin } from "@grafana/data";
 import { SceneApp, SceneAppPage, sceneUtils } from "@grafana/scenes";
+import { AzureIcon } from "components/img/AzureIcon";
+import React from "react";
 import { getclustersScene } from "./Pages/Clusters";
 import { getClusterOverviewScene } from "./Pages/Namespaces";
 import { getOverviewByNodeScene } from "./Pages/Nodes";
@@ -24,16 +26,15 @@ export function getSceneApp(_configState: Partial<ConfigurationState>, _setConfi
     const workloadsTab = getClusterByWorkloadScene();
     const nodesTab = getOverviewByNodeScene();
     const myAppPage = new SceneAppPage({
-        title: 'Azure Kubernetes Service Monitoring',
+        title: 'Azure Cloud Native Monitoring',
         url: '/a/azure-cloudnativemonitoring-app/clusternavigation',
-        // $variables: new SceneVariableSet({
-        //   variables: [
-        //       getDataSourcesVariableForType("grafana-azure-monitor-datasource", "AZMON_DS", "Azure Monitor Datasource"),
-        //       getSubscriptionVariable(),
-        //   ]
-        // }),
-        // controls: [ new VariableValueSelectors({}), new SceneTimePicker({}) ],
-        tabs: [clustersTab, clusterOverviewTab, workloadsTab, nodesTab]
+        tabs: [clustersTab, clusterOverviewTab, workloadsTab, nodesTab],
+        renderTitle: (title: string) => {
+          return React.createElement('div', { style: { display: 'flex', alignItems: 'center' } },
+            React.createElement(AzureIcon),
+            React.createElement('span', { style: { fontSize: "xx-large", paddingLeft: "15px" } }, title)
+          );
+        },
     });
     return new SceneApp({
       pages: [myAppPage],

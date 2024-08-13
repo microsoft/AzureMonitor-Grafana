@@ -2,7 +2,7 @@ import { css } from "@emotion/css";
 import { DataFrame, DataFrameWithValue, Field, FieldType } from "@grafana/data";
 import { CustomTransformOperator, SceneDataTransformer, SceneQueryRunner } from "@grafana/scenes";
 import { Icon, Link, TableCellDisplayMode, TableCustomCellOptions, TableFieldOptions } from "@grafana/ui";
-import { AksIcon } from "components/img/aks";
+import { AksIcon } from "components/img/AKSIcon";
 import React from "react";
 import { Observable, map } from "rxjs";
 import { ClusterMapping } from "types";
