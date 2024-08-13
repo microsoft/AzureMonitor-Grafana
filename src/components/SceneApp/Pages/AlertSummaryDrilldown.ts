@@ -2,6 +2,7 @@ import { EmbeddedScene, SceneAppPage, SceneAppPageLike, SceneFlexItem, SceneFlex
 import { GetPlatformAlertSumary, GetPromAlertsSummary, GetSummaryDetailsSceneQuery, GetTotalAlertsSummary } from "../Queries/AlertSumQueries";
 import { getStatPlatformAlerts, getStatPromAlerts, getStatTotalAlerts, getTableVisualizationAlertSummaryDetails } from "../Visualizations/AlertSummaryViz";
 import { getSharedSceneVariables } from "./sceneUtils";
+import { AZURE_MONITORING_PLUGIN_ID } from "../../../constants";
 
 function getAlertSummaryDrilldownScene(namespace: string) {
     // alertDetails 
@@ -67,7 +68,7 @@ export function getAlertSummaryDrilldownPage(routeMatch: SceneRouteMatch<{ names
     const namespace = decodeURIComponent(routeMatch.params.namespace);
     return new SceneAppPage({
       // Set up a particular namespace drill-down URL
-      url: `/a/azure-cloudnativemonitoring-app/clusternavigation/${sourcePage}/alertsummary/${encodeURIComponent(namespace)}`,
+      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/${sourcePage}/alertsummary/${encodeURIComponent(namespace)}`,
       // Important: Set this up for breadcrumbs to be built
       getParentPage: () => parent,
       title: `Alert Summary for namespace ${namespace}`,

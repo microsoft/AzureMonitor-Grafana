@@ -1,14 +1,11 @@
 import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from "@grafana/scenes";
 import { GetClusterOverviewSceneQueries, TranformClusterOverviewData } from "../Queries/ClusterOverviewQueries";
 import { getAlertSummaryDrilldownPage } from "./AlertSummaryDrilldown";
-// import { ConfigurationState } from "../SceneObjects/types";
 import { createMappingFromSeries, getInstanceDatasourcesForType, getPromDatasource, getSceneQueryRunner } from "../Queries/queryUtil";
 import { VariableSelection } from "../SceneObjects/VariableSelection";
-// import { getPrometheusVariable } from "../Variables/prometheusVariables";
 import { ClusterMapping } from "types";
 import { azure_monitor_queries } from "../Queries/queries";
-// import { URLSearchParams } from "url";
-import { CLUSTER_VARIABLE, PROM_DS_VARIABLE } from "../../../constants";
+import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, PROM_DS_VARIABLE } from "../../../constants";
 import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
 import { getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables } from "./sceneUtils";
 
@@ -16,7 +13,7 @@ export let sharedVariableSelection: VariableSelection;
 
 export function getClusterOverviewScene(): SceneAppPage {
     const sceneTitle = "Namespaces";
-    const sceneUrl = "/a/azure-cloudnativemonitoring-app/clusternavigation/namespaces";
+    const sceneUrl = `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces`;
     // always check first that there is at least one azure monitor datasource
     const azMonDatasources = getInstanceDatasourcesForType("grafana-azure-monitor-datasource");
     if (azMonDatasources.length === 0) {
@@ -97,11 +94,11 @@ export function getClusterOverviewScene(): SceneAppPage {
     });
     const clusterOverviewTab = new SceneAppPage({
       title: "Namespaces",
-      url: "/a/azure-cloudnativemonitoring-app/clusternavigation/namespaces",
+      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces`,
       getScene: () => scene,
       drilldowns: [
         {
-          routePath: '/a/azure-cloudnativemonitoring-app/clusternavigation/namespaces/alertsummary/:namespace',
+          routePath: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces/alertsummary/:namespace`,
           getPage: (routeMatch, parent) => getAlertSummaryDrilldownPage(routeMatch, parent, "namespaces")
         },
       ]

@@ -1,6 +1,6 @@
 import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from '@grafana/scenes';
 import { ClusterMapping } from 'types';
-import { CLUSTER_VARIABLE, PROM_DS_VARIABLE } from '../../../constants';
+import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, PROM_DS_VARIABLE } from '../../../constants';
 import { GetClusterByWorkloadQueries, TransfomClusterByWorkloadData } from '../Queries/ClusterByWorkloadQueries';
 import { GetClustersQuery } from '../Queries/ClusterMappingQueries';
 import { azure_monitor_queries } from '../Queries/queries';
@@ -11,7 +11,7 @@ import { getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariab
 
 export function getClusterByWorkloadScene() {
   const sceneTitle = 'Workloads';
-  const sceneUrl = '/a/azure-cloudnativemonitoring-app/clusternavigation/workloads';
+  const sceneUrl = `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workloads`;
   // always check first that there is at least one azure monitor datasource
   const azMonDatasources = getInstanceDatasourcesForType('grafana-azure-monitor-datasource');
   if (azMonDatasources.length === 0) {
@@ -104,17 +104,17 @@ export function getClusterByWorkloadScene() {
   const sceneAppPage =  new SceneAppPage({
     title: 'Workloads',
     getScene: () => scene,
-    url: '/a/azure-cloudnativemonitoring-app/clusternavigation/workloads',
+    url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workloads`,
   });
 
   sceneAppPage.setState({ drilldowns: [
     {
-      routePath: '/a/azure-cloudnativemonitoring-app/clusternavigation/workloads/alertsummary/:namespace',
+      routePath: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workloads/alertsummary/:namespace`,
       getPage: (routeMatch, parent) => getAlertSummaryDrilldownPage(routeMatch, parent, "workloads"),
     },
     {
       routePath:
-        '/a/azure-cloudnativemonitoring-app/clusternavigation/workload/computeresources',
+        `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources`,
       getPage: getComputeResourcesDrilldownPage,
     },
   ]});

@@ -257,7 +257,7 @@ function getClustersCustomFieldConfig() {
             const isUnmonitored = cellValue.endsWith("_unmonitored") ?? false;
             const newCellValue = isUnmonitored ? `${cellValue.substring(0, cellValue.length - 12)} (Unmonitored)` : cellValue;
             const aksIcon = React.createElement(AksIcon, { greyOut: isUnmonitored });
-            const interpolatedLink = interpolateVariables(`/a/azure-cloudnativemonitoring-app/clusternavigation/namespaces?var-${CLUSTER_VARIABLE}=${newCellValue}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}`);
+            const interpolatedLink = interpolateVariables(`/a/%PLUGIN_ID%/clusternavigation/namespaces?var-${CLUSTER_VARIABLE}=${newCellValue}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}`);
             const clusterValue = isUnmonitored ? `${newCellValue}` : React.createElement(
                 Link, 
                 { href: interpolatedLink, className: styles().link }, 

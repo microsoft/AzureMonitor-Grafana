@@ -1,6 +1,6 @@
 import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneAppPageLike, SceneFlexItem, SceneFlexLayout, sceneGraph, SceneRefreshPicker, SceneRouteMatch, SceneTimePicker, SceneVariableSet, TextBoxVariable, VariableValueSelectors } from "@grafana/scenes";
 import { ClusterMapping } from "types";
-import { CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, WORKLOAD_VAR } from "../../../constants";
+import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, WORKLOAD_VAR } from "../../../constants";
 import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
 import { GetAvgContainerBandwithReceivedSceneQuery, GetAvgContainerBandwithTransmittedSceneQuery, GetCPUQuotaSceneQuery, GetCPUUsageSceneQuery, GetMemoryQuotaPromSceneQueries, GetMemoryUsageSceneQuery, GetNetworkUsageSceneQueries, GetRateofReceivedPacketsDroppedSceneQuery, GetRateofReceivedPacketsSceneQuery, GetRateofTransmittedPacketsDroppedSceneQuery, GetRateofTransmittedPacketsSceneQuery, GetReceiveBandwidthSceneQuery, GetTransmitBandwidthSceneQuery, TransformData } from "../Queries/ComputeResourcesQueries";
 import { azure_monitor_queries } from "../Queries/queries";
@@ -225,14 +225,14 @@ export function getComputeResourcesDrilldownPage(_: SceneRouteMatch<{}>, parent:
   
     return new SceneAppPage({
       // Set up a particular namespace drill-down URL
-      url: `/a/azure-cloudnativemonitoring-app/clusternavigation/workload/computeresources`,
+      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources`,
       // Important: Set this up for breadcrumbs to be built
       getParentPage: () => parent,
       title: `Compute Resources`,
       getScene: () => getComputeResourcesDrilldownScene(),
       drilldowns: [
         {
-            routePath: `/a/azure-cloudnativemonitoring-app/clusternavigation/workload/computeresources/pods/logs/drilldown`,
+            routePath: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources/pods/logs/drilldown`,
             getPage: getPodWithLogsDrillDownPage
         }
       ]

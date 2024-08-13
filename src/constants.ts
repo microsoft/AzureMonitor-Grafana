@@ -18,3 +18,5 @@ export const PROM_DS_VARIABLE = "PROM_DS";
 export const AGG_VAR = "AGG_VAR";
 export const POD_VAR = "POD_VAR";
 export const NODE_VAR = "NODE_VAR";
+
+export const AZURE_MONITORING_PLUGIN_ID = "azure-cloudnativemonitoring-app"

@@ -27,7 +27,7 @@ export function getSceneApp(_configState: Partial<ConfigurationState>, _setConfi
     const nodesTab = getOverviewByNodeScene();
     const myAppPage = new SceneAppPage({
         title: 'Azure Cloud Native Monitoring',
-        url: '/a/azure-cloudnativemonitoring-app/clusternavigation',
+        url: '/a/%PLUGIN_ID%/clusternavigation',
         tabs: [clustersTab, clusterOverviewTab, workloadsTab, nodesTab],
         renderTitle: (title: string) => {
           return React.createElement('div', { style: { display: 'flex', alignItems: 'center' } },
