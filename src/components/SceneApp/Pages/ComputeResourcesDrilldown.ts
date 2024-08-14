@@ -1,14 +1,14 @@
-import { SceneRouteMatch, SceneAppPageLike, SceneAppPage, EmbeddedScene, SceneFlexLayout, SceneFlexItem, SceneVariableSet, VariableValueSelectors, DataSourceVariable, QueryVariable, sceneGraph, SceneTimePicker, SceneRefreshPicker, TextBoxVariable } from "@grafana/scenes";
-import { GetCPUUsageSceneQuery, GetCPUQuotaSceneQuery, TransformData, GetMemoryUsageSceneQuery, GetMemoryQuotaPromSceneQueries, GetNetworkUsageSceneQueries, GetReceiveBandwidthSceneQuery, GetTransmitBandwidthSceneQuery, GetAvgContainerBandwithReceivedSceneQuery, GetAvgContainerBandwithTransmittedSceneQuery, GetRateofReceivedPacketsSceneQuery, GetRateofTransmittedPacketsSceneQuery, GetRateofReceivedPacketsDroppedSceneQuery, GetRateofTransmittedPacketsDroppedSceneQuery } from "../Queries/ComputeResourcesQueries";
-import { createMappingFromSeries, getSceneQueryRunner } from "../Queries/queryUtil";
-import { getTableVisualizationCPUQuota, getTableVisualizationMemoryQuota, getTableVisualizationNetworkUsage, getTimeSeriesVisualization } from "../Visualizations/ComputeResourcesViz";
-import { getSharedSceneVariables } from "./sceneUtils";
-import { CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, WORKLOAD_VAR } from "../../../constants";
-import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
-import { azure_monitor_queries } from "../Queries/queries";
-import { getTextVariable, getPrometheusVariable } from "../Variables/variables";
-import { getPodWithLogsDrillDownPage } from "./PodWithLogsDrilldown";
+import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneAppPageLike, SceneFlexItem, SceneFlexLayout, sceneGraph, SceneRefreshPicker, SceneRouteMatch, SceneTimePicker, SceneVariableSet, TextBoxVariable, VariableValueSelectors } from "@grafana/scenes";
 import { ClusterMapping } from "types";
+import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, WORKLOAD_VAR } from "../../../constants";
+import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
+import { GetAvgContainerBandwithReceivedSceneQuery, GetAvgContainerBandwithTransmittedSceneQuery, GetCPUQuotaSceneQuery, GetCPUUsageSceneQuery, GetMemoryQuotaPromSceneQueries, GetMemoryUsageSceneQuery, GetNetworkUsageSceneQueries, GetRateofReceivedPacketsDroppedSceneQuery, GetRateofReceivedPacketsSceneQuery, GetRateofTransmittedPacketsDroppedSceneQuery, GetRateofTransmittedPacketsSceneQuery, GetReceiveBandwidthSceneQuery, GetTransmitBandwidthSceneQuery, TransformData } from "../Queries/ComputeResourcesQueries";
+import { azure_monitor_queries } from "../Queries/queries";
+import { createMappingFromSeries, getSceneQueryRunner } from "../Queries/queryUtil";
+import { getPrometheusVariable, getTextVariable } from "../Variables/variables";
+import { getTableVisualizationCPUQuota, getTableVisualizationMemoryQuota, getTableVisualizationNetworkUsage, getTimeSeriesVisualization } from "../Visualizations/ComputeResourcesViz";
+import { getPodWithLogsDrillDownPage } from "./PodWithLogsDrilldown";
+import { getSharedSceneVariables } from "./sceneUtils";
 
 function getComputeResourcesVariables() {
     const variables: Array<DataSourceVariable | QueryVariable | TextBoxVariable> = getSharedSceneVariables(true);
@@ -225,14 +225,14 @@ export function getComputeResourcesDrilldownPage(_: SceneRouteMatch<{}>, parent:
   
     return new SceneAppPage({
       // Set up a particular namespace drill-down URL
-      url: `/a/azure-azurekubernetesmonitoring-app/clusternavigation/workload/computeresources`,
+      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources`,
       // Important: Set this up for breadcrumbs to be built
       getParentPage: () => parent,
       title: `Compute Resources`,
       getScene: () => getComputeResourcesDrilldownScene(),
       drilldowns: [
         {
-            routePath: `/a/azure-azurekubernetesmonitoring-app/clusternavigation/workload/computeresources/pods/logs/drilldown`,
+            routePath: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources/pods/logs/drilldown`,
             getPage: getPodWithLogsDrillDownPage
         }
       ]

@@ -1,11 +1,14 @@
-import { SceneApp, SceneAppPage, sceneUtils } from "@grafana/scenes";
-import { getClusterOverviewScene } from "./Pages/Namespaces";
-import { getclustersScene } from "./Pages/Clusters";
-import { ConfigurationState } from "./SceneObjects/types";
-import { getClusterByWorkloadScene } from "./Pages/Workloads";
-import { getOverviewByNodeScene } from "./Pages/Nodes";
 import { PanelPlugin } from "@grafana/data";
+import { SceneApp, SceneAppPage, sceneUtils } from "@grafana/scenes";
+import { AzureIcon } from "components/img/AzureIcon";
+import React from "react";
+import { AZURE_MONITORING_PLUGIN_ID } from "../../constants";
+import { getclustersScene } from "./Pages/Clusters";
+import { getClusterOverviewScene } from "./Pages/Namespaces";
+import { getOverviewByNodeScene } from "./Pages/Nodes";
+import { getClusterByWorkloadScene } from "./Pages/Workloads";
 import { CustomTable, CustomTableVizFieldOptions, CustomTableVizOptions } from "./PanelVisualizations/CustomTable";
+import { ConfigurationState } from "./SceneObjects/types";
 
 const customTable = new PanelPlugin<CustomTableVizOptions, CustomTableVizFieldOptions>(CustomTable).useFieldConfig({
   useCustomConfig(builder) {
@@ -24,16 +27,15 @@ export function getSceneApp(_configState: Partial<ConfigurationState>, _setConfi
     const workloadsTab = getClusterByWorkloadScene();
     const nodesTab = getOverviewByNodeScene();
     const myAppPage = new SceneAppPage({
-        title: 'Azure Kubernetes Service Monitoring',
-        url: '/a/azure-azurekubernetesmonitoring-app/clusternavigation',
-        // $variables: new SceneVariableSet({
-        //   variables: [
-        //       getDataSourcesVariableForType("grafana-azure-monitor-datasource", "AZMON_DS", "Azure Monitor Datasource"),
-        //       getSubscriptionVariable(),
-        //   ]
-        // }),
-        // controls: [ new VariableValueSelectors({}), new SceneTimePicker({}) ],
-        tabs: [clustersTab, clusterOverviewTab, workloadsTab, nodesTab]
+        title: 'Azure Cloud Native Monitoring',
+        url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation`,
+        tabs: [clustersTab, clusterOverviewTab, workloadsTab, nodesTab],
+        renderTitle: (title: string) => {
+          return React.createElement('div', { style: { display: 'flex', alignItems: 'center' } },
+            React.createElement(AzureIcon),
+            React.createElement('span', { style: { fontSize: "xx-large", paddingLeft: "15px" } }, title)
+          );
+        },
     });
     return new SceneApp({
       pages: [myAppPage],

@@ -1,7 +1,8 @@
-import { SceneRouteMatch, SceneAppPageLike, SceneAppPage, EmbeddedScene, SceneFlexItem, SceneFlexLayout, SceneTimeRange, SceneVariableSet, VariableValueSelectors, SceneTimePicker, SceneRefreshPicker } from "@grafana/scenes";
-import { GetSummaryDetailsSceneQuery, GetTotalAlertsSummary, GetPromAlertsSummary, GetPlatformAlertSumary } from "../Queries/AlertSumQueries";
+import { EmbeddedScene, SceneAppPage, SceneAppPageLike, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneRouteMatch, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors } from "@grafana/scenes";
+import { GetPlatformAlertSumary, GetPromAlertsSummary, GetSummaryDetailsSceneQuery, GetTotalAlertsSummary } from "../Queries/AlertSumQueries";
 import { getStatPlatformAlerts, getStatPromAlerts, getStatTotalAlerts, getTableVisualizationAlertSummaryDetails } from "../Visualizations/AlertSummaryViz";
 import { getSharedSceneVariables } from "./sceneUtils";
+import { AZURE_MONITORING_PLUGIN_ID } from "../../../constants";
 
 function getAlertSummaryDrilldownScene(namespace: string) {
     // alertDetails 
@@ -67,7 +68,7 @@ export function getAlertSummaryDrilldownPage(routeMatch: SceneRouteMatch<{ names
     const namespace = decodeURIComponent(routeMatch.params.namespace);
     return new SceneAppPage({
       // Set up a particular namespace drill-down URL
-      url: `/a/azure-azurekubernetesmonitoring-app/clusternavigation/${sourcePage}/alertsummary/${encodeURIComponent(namespace)}`,
+      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/${sourcePage}/alertsummary/${encodeURIComponent(namespace)}`,
       // Important: Set this up for breadcrumbs to be built
       getParentPage: () => parent,
       title: `Alert Summary for namespace ${namespace}`,

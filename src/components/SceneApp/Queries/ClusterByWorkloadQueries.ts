@@ -1,10 +1,10 @@
-import { DataSourceRef } from "@grafana/schema";
-import { getAzureResourceGraphQuery, getPrometheusQuery } from "./queryUtil";
-import { AZMON_DS_VARIABLE, CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE, WORKLOAD_VAR } from "../../../constants";
-import { CustomTransformOperator, SceneDataTransformer, SceneQueryRunner } from "@grafana/scenes";
-import { Observable, map } from "rxjs";
 import { DataFrame, DataLink } from "@grafana/data";
+import { CustomTransformOperator, SceneDataTransformer, SceneQueryRunner } from "@grafana/scenes";
+import { DataSourceRef } from "@grafana/schema";
+import { Observable, map } from "rxjs";
+import { AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE, WORKLOAD_VAR } from "../../../constants";
 import { getCustomFieldConfigBadge, getValidInvalidCustomFieldConfig } from "./dataUtil";
+import { getAzureResourceGraphQuery, getPrometheusQuery } from "./queryUtil";
 
 export function GetClusterByWorkloadQueries(namespace: string) {
     const promDs: DataSourceRef = {
@@ -267,7 +267,7 @@ function getFieldConfigForField(name: string) {
   const workloadLinks: DataLink[] = [
     {
       title: "Drill down to Compute Resources",
-      url: `/a/azure-azurekubernetesmonitoring-app/clusternavigation/workload/computeresources?var-${NS_VARIABLE}=\${__data.fields.namespace}&var-${WORKLOAD_VAR}=\${__data.fields.workload}&\${${PROM_DS_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${${SUBSCRIPTION_VARIABLE}:queryparam}`,
+      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources?var-${NS_VARIABLE}=\${__data.fields.namespace}&var-${WORKLOAD_VAR}=\${__data.fields.workload}&\${${PROM_DS_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${${SUBSCRIPTION_VARIABLE}:queryparam}`,
       targetBlank: false
     }
   ];
@@ -275,7 +275,7 @@ function getFieldConfigForField(name: string) {
   const alertLinks: DataLink[] = [
     {
       title: "Drill down to Alert Summary",
-      url: `/a/azure-azurekubernetesmonitoring-app/clusternavigation/workloads/alertsummary/\${__data.fields.namespace}?\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}`,
+      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workloads/alertsummary/\${__data.fields.namespace}?\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}`,
       targetBlank: false
     }
   ];

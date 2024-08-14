@@ -1,15 +1,15 @@
 import { DataSourceVariable, EmbeddedScene, PanelBuilders, QueryVariable, SceneAppPage, SceneAppPageLike, SceneFlexItem, SceneFlexLayout, SceneQueryRunner, SceneRefreshPicker, SceneRouteMatch, SceneTimePicker, SceneVariableSet, VariableValueSelectors, sceneGraph } from "@grafana/scenes";
-import { CLUSTER_VARIABLE, NS_VARIABLE, POD_VAR, PROM_DS_VARIABLE } from "../../../constants";
-import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
-import { azure_monitor_queries } from "../Queries/queries";
-import { GetCPUQuotaQueries, GetCPUThrottlingQueries, GetCPUUsageQuery,  GetCurrentStorageIOQueries,  GetIOPSQueries,  GetIOPSRWQueries,  GetLASceneQueryFor, GetMemoryQuotaQueries, GetMemoryUsageQueries, GetRateQueriesFor, GetThroughputQueries, GetThrouputQueries, TransformCPUQuotaData, TransformCPUUsageData, TransformCurrentStorageData, TransformMemoryQuotaData } from "../Queries/PodWithLogsQueries";
-import { createMappingFromSeries, getSceneQueryRunner } from "../Queries/queryUtil";
-import { getSharedSceneVariables } from "./sceneUtils";
-import { getPrometheusVariable } from "../Variables/variables";
-import { getTableVizCPUQuota, getTimeSeriesViz, applyOverridesCPUUsage, getTableVizMemoryQuota, getTableVizCurrentStorage } from "../Visualizations/PodsWithLogsViz";
-import { getThresholdsConfig } from "../Visualizations/utils";
 import { GraphThresholdsStyleMode, ThresholdsMode } from "@grafana/schema";
 import { ClusterMapping } from "types";
+import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, POD_VAR, PROM_DS_VARIABLE } from "../../../constants";
+import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
+import { GetCPUQuotaQueries, GetCPUThrottlingQueries, GetCPUUsageQuery, GetCurrentStorageIOQueries, GetIOPSQueries, GetIOPSRWQueries, GetLASceneQueryFor, GetMemoryQuotaQueries, GetMemoryUsageQueries, GetRateQueriesFor, GetThroughputQueries, GetThrouputQueries, TransformCPUQuotaData, TransformCPUUsageData, TransformCurrentStorageData, TransformMemoryQuotaData } from "../Queries/PodWithLogsQueries";
+import { azure_monitor_queries } from "../Queries/queries";
+import { createMappingFromSeries, getSceneQueryRunner } from "../Queries/queryUtil";
+import { getPrometheusVariable } from "../Variables/variables";
+import { applyOverridesCPUUsage, getTableVizCPUQuota, getTableVizCurrentStorage, getTableVizMemoryQuota, getTimeSeriesViz } from "../Visualizations/PodsWithLogsViz";
+import { getThresholdsConfig } from "../Visualizations/utils";
+import { getSharedSceneVariables } from "./sceneUtils";
 
 function getPodWithLogsVariables() {
     const variables = getSharedSceneVariables(true);
@@ -427,7 +427,7 @@ function getPodWithLogsDrilldownScene() {
 
 export function getPodWithLogsDrillDownPage(_: SceneRouteMatch<{}>, parent: SceneAppPageLike) {
     return new SceneAppPage({
-        url: `/a/azure-azurekubernetesmonitoring-app/clusternavigation/workload/computeresources/pods/logs/drilldown`,
+        url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources/pods/logs/drilldown`,
         title: `Pod with Logs`,
         getScene: () => getPodWithLogsDrilldownScene(),
         getParentPage: () => parent,

@@ -1,7 +1,7 @@
 import { PanelBuilders } from "@grafana/scenes";
 import { FieldColorModeId, StackingMode, VisibilityMode } from "@grafana/schema";
+import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, POD_VAR, WORKLOAD_VAR } from "../../../constants";
 import { applyOverrideForTableViz } from "./utils";
-import { POD_VAR, CLUSTER_VARIABLE, NS_VARIABLE, WORKLOAD_VAR } from "../../../constants";
 
 export function getTableVisualizationCPUQuota() {
     const tableViz = PanelBuilders.table().setTitle("CPU Quota");
@@ -41,7 +41,7 @@ export function getTableVisualizationCPUQuota() {
         dataLinks: [
             {
                 title: "Drilldown to Logs",
-                url: `/a/azure-azurekubernetesmonitoring-app/clusternavigation/workload/computeresources/pods/logs/drilldown?var-${POD_VAR}=\${__data.fields.pod}&\${${CLUSTER_VARIABLE}:queryparam}&\${${NS_VARIABLE}:queryparam}&\${${WORKLOAD_VAR}:queryparam}`
+                url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources/pods/logs/drilldown?var-${POD_VAR}=\${__data.fields.pod}&\${${CLUSTER_VARIABLE}:queryparam}&\${${NS_VARIABLE}:queryparam}&\${${WORKLOAD_VAR}:queryparam}`
             }
         ]
     });
@@ -93,7 +93,7 @@ export function getTableVisualizationMemoryQuota() {
         dataLinks: [
             {
                 title: "Drilldown to Logs",
-                url: `/a/azure-azurekubernetesmonitoring-app/clusternavigation/workload/computeresources/pods/logs/drilldown?var-${POD_VAR}=\${__data.fields.pod}&\${${CLUSTER_VARIABLE}:queryparam}&\${${NS_VARIABLE}:queryparam}&\${${WORKLOAD_VAR}:queryparam}`
+                url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources/pods/logs/drilldown?var-${POD_VAR}=\${__data.fields.pod}&\${${CLUSTER_VARIABLE}:queryparam}&\${${NS_VARIABLE}:queryparam}&\${${WORKLOAD_VAR}:queryparam}`
             }
         ]
     });
@@ -145,7 +145,7 @@ export function getTableVisualizationNetworkUsage() {
         dataLinks: [
             {
                 title: "Drilldown to Logs",
-                url: `/a/azure-azurekubernetesmonitoring-app/clusternavigation/workload/computeresources/pods/logs/drilldown?var-${POD_VAR}=\${__data.fields.pod}&\${${CLUSTER_VARIABLE}:queryparam}&\${${NS_VARIABLE}:queryparam}&\${${NS_VARIABLE}:queryparam}`
+                url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources/pods/logs/drilldown?var-${POD_VAR}=\${__data.fields.pod}&\${${CLUSTER_VARIABLE}:queryparam}&\${${NS_VARIABLE}:queryparam}&\${${NS_VARIABLE}:queryparam}`
             }
         ]
     });

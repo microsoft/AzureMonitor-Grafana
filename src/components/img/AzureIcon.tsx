@@ -1,0 +1,31 @@
+import React from "react";
+
+export const AzureIcon = () => {
+  return (
+        <svg viewBox="0 0 18 18" height="35" width="35" xmlns="http://www.w3.org/2000/svg" id="ae8505cb-6c36-46e6-bd33-4351ef849014">
+        <defs>
+            <linearGradient gradientUnits="userSpaceOnUse" gradientTransform="matrix(1, 0, 0, -1, 820, 110)" y2="92.8949" x2="-816.8524" y1="107.4208" x1="-811.9354" id="edb2ea05-4c60-42fb-9b9a-0edf2b99dad4">
+            <stop stopColor="#114a8b" offset="0"></stop>
+            <stop stopColor="#0669bc" offset="1"></stop>
+            </linearGradient>
+            <linearGradient gradientUnits="userSpaceOnUse" gradientTransform="matrix(1, 0, 0, -1, 820, 110)" y2="93.4649" x2="-805.6376" y1="107.8446" x1="-811.0349" id="ac228590-1978-4cad-a0d4-e155e1dae5a8">
+            <stop stopColor="#3ccbf4" offset="0"></stop>
+            <stop stopColor="#2892df" offset="1"></stop>
+            </linearGradient>
+        </defs>
+        <g>
+            <path fill="url(#edb2ea05-4c60-42fb-9b9a-0edf2b99dad4)" d="M6.33,1.462h4.7434L6.1559,16.0328a.7427.7427,0,0,1-.7037.5052H1.7432a.7426.7426,0,0,1-.7036-.98L5.6265,1.9671A.7426.7426,0,0,1,6.33,1.462Z"></path>
+            <path fill="#0078d4" d="M12.8793,10.9543H5.4035a.3454.3454,0,0,0-.2357.5979l5.1264,4.7859a.743.743,0,0,0,.5069.2h4.2366Z"></path>
+            <g opacity="0.5">
+            <path d="M11.5483,16.538h3.4851l-2.1585-5.5837H10.0326L11.677,15.821A.751.751,0,0,1,11.5483,16.538Z"></path>
+            <path d="M8.951,7.7477,11.0724,1.462H6.7685a.7538.7538,0,0,1,.1437.2515Z"></path>
+            </g>
+            <g opacity="0.5">
+            <path fillOpacity="0.5" d="M6.5,1.462l2.3127,6.7.32-.953L7.1965,1.462Z"></path>
+            <path fillOpacity="0.5" d="M10.8816,16.5379l4.1521,0-3.1525,0a1.0256,1.0256,0,0,0,.061-.8064L10.328,10.9542h-.59l1.6746,4.9563a.4752.4752,0,0,1-.45.6274Z"></path>
+            </g>
+            <path fill="url(#ac228590-1978-4cad-a0d4-e155e1dae5a8)" d="M12.3736,1.9672A.7427.7427,0,0,0,11.67,1.462H6.3854A.7536.7536,0,0,1,7.1,1.9748l4.5794,13.5685a.7536.7536,0,0,1-.714.9947h5.2919a.7427.7427,0,0,0,.7036-.98Z"></path>
+        </g>
+        </svg>
+  );
+};

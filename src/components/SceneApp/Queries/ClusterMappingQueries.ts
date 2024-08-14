@@ -1,16 +1,16 @@
-import { CustomTransformOperator, SceneDataTransformer, SceneQueryRunner } from "@grafana/scenes";
-import { getAMWToGrana, getAzureResourceGraphQuery, getLogAnalyticsQuery, getPrometheusQuery } from "./queryUtil";
-import { azure_monitor_queries } from "./queries";
-import { ClusterMapping } from "types";
-import { DataFrame, Field, FieldType, DataFrameWithValue } from "@grafana/data";
-import { Observable, map } from "rxjs";
-import { castFieldNameToAgg, formatReadyTotal, getReducerValueFor, interpolateVariables } from "./dataUtil";
-import { Icon, Link, TableCellDisplayMode, TableCustomCellOptions, TableFieldOptions } from "@grafana/ui";
-import React from "react";
-import { AksIcon } from "components/img/aks";
-import { getColorFieldConfig } from "../Visualizations/utils";
-import { SUBSCRIPTION_VARIABLE, AGG_VAR, CLUSTER_VARIABLE, AZMON_DS_VARIABLE } from "../../../constants";
 import { css } from "@emotion/css";
+import { DataFrame, DataFrameWithValue, Field, FieldType } from "@grafana/data";
+import { CustomTransformOperator, SceneDataTransformer, SceneQueryRunner } from "@grafana/scenes";
+import { Icon, Link, TableCellDisplayMode, TableCustomCellOptions, TableFieldOptions } from "@grafana/ui";
+import { AksIcon } from "components/img/AKSIcon";
+import React from "react";
+import { Observable, map } from "rxjs";
+import { ClusterMapping } from "types";
+import { AGG_VAR, AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, SUBSCRIPTION_VARIABLE } from "../../../constants";
+import { getColorFieldConfig } from "../Visualizations/utils";
+import { castFieldNameToAgg, formatReadyTotal, getReducerValueFor, interpolateVariables } from "./dataUtil";
+import { azure_monitor_queries } from "./queries";
+import { getAMWToGrana, getAzureResourceGraphQuery, getLogAnalyticsQuery, getPrometheusQuery } from "./queryUtil";
 
 export function GetClustersQuery(query: string): SceneQueryRunner {
     const azMonQuery = {
@@ -257,7 +257,7 @@ function getClustersCustomFieldConfig() {
             const isUnmonitored = cellValue.endsWith("_unmonitored") ?? false;
             const newCellValue = isUnmonitored ? `${cellValue.substring(0, cellValue.length - 12)} (Unmonitored)` : cellValue;
             const aksIcon = React.createElement(AksIcon, { greyOut: isUnmonitored });
-            const interpolatedLink = interpolateVariables(`/a/azure-azurekubernetesmonitoring-app/clusternavigation/namespaces?var-${CLUSTER_VARIABLE}=${newCellValue}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}`);
+            const interpolatedLink = interpolateVariables(`/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces?var-${CLUSTER_VARIABLE}=${newCellValue}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}`);
             const clusterValue = isUnmonitored ? `${newCellValue}` : React.createElement(
                 Link, 
                 { href: interpolatedLink, className: styles().link }, 
