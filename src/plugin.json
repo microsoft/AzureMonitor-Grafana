@@ -6,7 +6,7 @@
   "autoEnabled": true,
   "preload": true,
   "backend": true,
-  "executable": "gpx_azure_cludnative_monitoring",
+  "executable": "gpx_azure_cloudnative_monitoring",
   "info": {
     "keywords": ["app"],
     "description": "Monitor your Azure Cloud Native services",
