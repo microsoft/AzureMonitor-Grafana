@@ -11,7 +11,7 @@ import { getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariab
 
 export let sharedVariableSelection: VariableSelection;
 
-export function getClusterOverviewScene(): SceneAppPage {
+export function getNamespacesScene(): SceneAppPage {
     const sceneTitle = "Namespaces";
     const sceneUrl = `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces`;
     // always check first that there is at least one azure monitor datasource
