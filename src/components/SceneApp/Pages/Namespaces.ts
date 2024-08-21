@@ -1,12 +1,15 @@
 import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from "@grafana/scenes";
-import { GetClusterOverviewSceneQueries, TranformClusterOverviewData } from "../Queries/ClusterOverviewQueries";
-import { getAlertSummaryDrilldownPage } from "./AlertSummaryDrilldown";
-import { createMappingFromSeries, getInstanceDatasourcesForType, getPromDatasource, getSceneQueryRunner } from "../Queries/queryUtil";
-import { VariableSelection } from "../SceneObjects/VariableSelection";
+import { SeverityLevel } from "@microsoft/applicationinsights-web";
+import { trackException } from "appInsights";
 import { ClusterMapping } from "types";
-import { azure_monitor_queries } from "../Queries/queries";
+import { stringify } from "utils/stringify";
 import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, PROM_DS_VARIABLE } from "../../../constants";
 import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
+import { GetClusterOverviewSceneQueries, TranformClusterOverviewData } from "../Queries/ClusterOverviewQueries";
+import { azure_monitor_queries } from "../Queries/queries";
+import { createMappingFromSeries, getInstanceDatasourcesForType, getPromDatasource, getSceneQueryRunner } from "../Queries/queryUtil";
+import { VariableSelection } from "../SceneObjects/VariableSelection";
+import { getAlertSummaryDrilldownPage } from "./AlertSummaryDrilldown";
 import { getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables } from "./sceneUtils";
 
 export let sharedVariableSelection: VariableSelection;
@@ -69,9 +72,20 @@ export function getNamespacesScene(): SceneAppPage {
       const promDSVar = sceneGraph.lookupVariable(PROM_DS_VARIABLE, scene) as DataSourceVariable;
       const clusterVarSub = clusterVar?.subscribeToState((state) => {
         const newSelectedCluster = state.value.toString();
-        const newPromDs = clusterMappings[newSelectedCluster]?.promDs;
-        if (!!newPromDs && newPromDs.uid) {
-          promDSVar.changeValueTo(newPromDs.uid);
+        try {
+          const newPromDs = clusterMappings[newSelectedCluster]?.promDs;
+          if (!!newPromDs && newPromDs.uid) {
+            promDSVar.changeValueTo(newPromDs.uid);
+          }
+        } catch (e) {
+          trackException({
+            exception: e instanceof Error ? e : new Error(stringify(e)),
+            severityLevel: SeverityLevel.Error,
+            properties: {
+              reporter: "Scene.Main.NamespacesScene",
+              action: "changePromVariableOnClusterChange"
+            }
+          });
         }
       });
       
@@ -80,10 +94,21 @@ export function getNamespacesScene(): SceneAppPage {
         if (state.data?.state === "Done") {
           const workspaceData = state.data?.series.filter((s) => s.refId === "workspaces");
           const clusterData = state.data?.series.filter((s) => s.refId === "clusters");
-          clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values);
-          const promDs = getPromDatasource(clusterMappings, promDatasources);
-          if (!!promDs && promDs.uid) {
-            promDSVar.changeValueTo(promDs.uid);
+          try {
+            clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values);
+            const promDs = getPromDatasource(clusterMappings, promDatasources);
+            if (!!promDs && promDs.uid) {
+              promDSVar.changeValueTo(promDs.uid);
+            }
+          } catch (e) {
+            trackException({
+              exception: e instanceof Error ? e : new Error(stringify(e)),
+              severityLevel: SeverityLevel.Error,
+              properties: {
+                reporter: "Scene.Main.NamespacesScene",
+                action: "changePromVariableonClusterDataChange"
+              }
+            });
           }
         }
       });
