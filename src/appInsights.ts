@@ -63,6 +63,9 @@ const getAppInsights = async (): Promise<ApplicationInsights> => {
 const getAMGRegion = () => {
   const host = window.location.host;
   if (host.includes("grafana.azure.com") || host.includes("azgrafana")) {
+    // this split is to extract the region from the Azure Managed Grafana instance URL
+    // e.g. name-hash.region.grafana.azure.com
+    // e.g. name.region.azgrafana.com
     const splits = host.split(".");
     return splits && splits.length > 1 ? splits[1] : undefined;
   }
