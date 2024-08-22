@@ -1,6 +1,9 @@
 import { DataSourceVariable, EmbeddedScene, PanelBuilders, QueryVariable, SceneAppPage, SceneAppPageLike, SceneFlexItem, SceneFlexLayout, SceneQueryRunner, SceneRefreshPicker, SceneRouteMatch, SceneTimePicker, SceneVariableSet, VariableValueSelectors, sceneGraph } from "@grafana/scenes";
 import { GraphThresholdsStyleMode, ThresholdsMode } from "@grafana/schema";
+import { SeverityLevel } from "@microsoft/applicationinsights-web";
+import { trackException } from "appInsights";
 import { ClusterMapping } from "types";
+import { stringify } from "utils/stringify";
 import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, POD_VAR, PROM_DS_VARIABLE } from "../../../constants";
 import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
 import { GetCPUQuotaQueries, GetCPUThrottlingQueries, GetCPUUsageQuery, GetCurrentStorageIOQueries, GetIOPSQueries, GetIOPSRWQueries, GetLASceneQueryFor, GetMemoryQuotaQueries, GetMemoryUsageQueries, GetRateQueriesFor, GetThroughputQueries, GetThrouputQueries, TransformCPUQuotaData, TransformCPUUsageData, TransformCurrentStorageData, TransformMemoryQuotaData } from "../Queries/PodWithLogsQueries";
@@ -352,9 +355,22 @@ function getPodWithLogsDrilldownScene() {
         const clusterVarSub = clusterVar.subscribeToState((state) => {
             if (!!state.value) {
                 const selectedCluster = state.value.toString();
-                const newPromDs = clusterMappings[selectedCluster]?.promDs;
-                if (!!newPromDs && newPromDs.uid) {
-                    promDSVar.changeValueTo(newPromDs.uid);
+                try {
+                    const newPromDs = clusterMappings[selectedCluster]?.promDs;
+                    if (!!newPromDs && newPromDs.uid) {
+                        promDSVar.changeValueTo(newPromDs.uid);
+                    }
+                } catch (e) {
+                    trackException({
+                        exception: e instanceof Error ? e : new Error(stringify(e)),
+                        severityLevel: SeverityLevel.Error,
+                        properties: {
+                            reporter: "Scene.Drilldown.PodWithLogsDrilldown",
+                            referer: "Scene.Drilldown.ComputeResourcesDrilldown",
+                            action: "changePromVariableOnClusterChange"
+                        }
+                    });
+                    throw new Error(stringify(e));
                 }
             }
         });
@@ -374,44 +390,57 @@ function getPodWithLogsDrilldownScene() {
                 const kubeEventsPodQueries = GetLASceneQueryFor("KubeEventsPods", clusterVar.getValue().toString(), clusterMappings, "logs", undefined);
                 const podContainerLogsQueries = GetLASceneQueryFor("ContainerLogs", clusterVar.getValue().toString(), clusterMappings, "logs", undefined);
 
-                if (!!kubeWarningEventsQueries) {
-                    kubeWarningEventsData.setState({ queries: [kubeWarningEventsQueries] });
-                    kubeWarningEventsData.runQueries();
-                }
-
-                if (!!syslogEmergencyQueries) {
-                    syslogEmergencyData.setState({ queries: [syslogEmergencyQueries] });
-                    syslogEmergencyData.runQueries();
-                }
-
-                if (!!syslogAlertQueries) {
-                    syslogAlertData.setState({ queries: [syslogAlertQueries] });
-                    syslogAlertData.runQueries();
-                }
-
-                if (!!syslogErrorsQueries) {
-                    syslogErrorsData.setState({ queries: [syslogErrorsQueries] });
-                    syslogErrorsData.runQueries();
-                }
-
-                if (!!syslogWarningQueries) {
-                    syslogWarningData.setState({ queries: [syslogWarningQueries] });
-                    syslogWarningData.runQueries();
-                }
-
-                if (!!syslogCriticalQueries) {
-                    syslogCriticalData.setState({ queries: [syslogCriticalQueries] });
-                    syslogCriticalData.runQueries();
-                }
-
-                if (!!kubeEventsPodQueries) {
-                    kubeEventsForPodData.setState({ queries: [kubeEventsPodQueries] });
-                    kubeEventsForPodData.runQueries();
-                }
-
-                if (!!podContainerLogsQueries) {
-                    podContainerLogsData.setState({ queries: [podContainerLogsQueries] });
-                    podContainerLogsData.runQueries();
+                try {
+                    if (!!kubeWarningEventsQueries) {
+                        kubeWarningEventsData.setState({ queries: [kubeWarningEventsQueries] });
+                        kubeWarningEventsData.runQueries();
+                    }
+    
+                    if (!!syslogEmergencyQueries) {
+                        syslogEmergencyData.setState({ queries: [syslogEmergencyQueries] });
+                        syslogEmergencyData.runQueries();
+                    }
+    
+                    if (!!syslogAlertQueries) {
+                        syslogAlertData.setState({ queries: [syslogAlertQueries] });
+                        syslogAlertData.runQueries();
+                    }
+    
+                    if (!!syslogErrorsQueries) {
+                        syslogErrorsData.setState({ queries: [syslogErrorsQueries] });
+                        syslogErrorsData.runQueries();
+                    }
+    
+                    if (!!syslogWarningQueries) {
+                        syslogWarningData.setState({ queries: [syslogWarningQueries] });
+                        syslogWarningData.runQueries();
+                    }
+    
+                    if (!!syslogCriticalQueries) {
+                        syslogCriticalData.setState({ queries: [syslogCriticalQueries] });
+                        syslogCriticalData.runQueries();
+                    }
+    
+                    if (!!kubeEventsPodQueries) {
+                        kubeEventsForPodData.setState({ queries: [kubeEventsPodQueries] });
+                        kubeEventsForPodData.runQueries();
+                    }
+    
+                    if (!!podContainerLogsQueries) {
+                        podContainerLogsData.setState({ queries: [podContainerLogsQueries] });
+                        podContainerLogsData.runQueries();
+                    }
+                } catch (e) {
+                    trackException({
+                        exception: e instanceof Error ? e : new Error(stringify(e)),
+                        severityLevel: SeverityLevel.Error,
+                        properties: {
+                            reporter: "Scene.Drilldown.PodWithLogsDrilldown",
+                            referer: "Scene.Drilldown.ComputeResourcesDrilldown",
+                            action: "createAndRunQueries"
+                        }
+                    });
+                    throw new Error(stringify(e));
                 }
             }
         });

@@ -1,5 +1,8 @@
 import { EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from "@grafana/scenes";
+import { SeverityLevel } from "@microsoft/applicationinsights-web";
+import { trackException } from "appInsights";
 import { ClusterMapping } from "types";
+import { stringify } from "utils/stringify";
 import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE } from "../../../constants";
 import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
 import { GetNodeOverviewQueries, TransformNodeOverviewData } from "../Queries/NodeOverviewQueries";
@@ -68,20 +71,44 @@ export function getOverviewByNodeScene(): SceneAppPage {
         const clusterVar = sceneGraph.lookupVariable(CLUSTER_VARIABLE, scene) as QueryVariable;
         const clusterVarSub = clusterVar?.subscribeToState((state) => {
             const newSelectedCluster = state.value.toString();
-            const newQueries = GetNodeOverviewQueries(clusterMappings, [newSelectedCluster]);
-            nodeOverviewData.setState({ queries: newQueries });
-            nodeOverviewData.runQueries();
+            try {
+                const newQueries = GetNodeOverviewQueries(clusterMappings, [newSelectedCluster]);
+                nodeOverviewData.setState({ queries: newQueries });
+                nodeOverviewData.runQueries();
+            } catch (e) {
+                trackException({
+                    exception: e instanceof Error ? e : new Error(stringify(e)),
+                    severityLevel: SeverityLevel.Error,
+                    properties: {
+                      reporter: "Scene.Main.NodesScene",
+                      action: "runQueriesOnClusterChange"
+                    }
+                });
+                throw new Error(stringify(e));
+            }
         });
 
-        // if clujster mappings get updated, also rerun the queries
+        // if cluster mappings get updated, also rerun the queries
         const clusterDataSub = clusterData.subscribeToState((state) => {
             if (state.data?.state === "Done") {
                 const workspaceData = state.data?.series.filter((s) => s.refId === "workspaces");
                 const clusterData = state.data?.series.filter((s) => s.refId === "clusters");
-                clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values, clusterData[0]?.fields[2]?.values);
-                const newQueries = GetNodeOverviewQueries(clusterMappings, [clusterVar.state.value.toString()]);
-                nodeOverviewData.setState({ queries: newQueries });
-                nodeOverviewData.runQueries();
+                try {
+                    clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values, clusterData[0]?.fields[2]?.values);
+                    const newQueries = GetNodeOverviewQueries(clusterMappings, [clusterVar.state.value.toString()]);
+                    nodeOverviewData.setState({ queries: newQueries });
+                    nodeOverviewData.runQueries();
+                } catch (e) {
+                    trackException({
+                        exception: e instanceof Error ? e : new Error(stringify(e)),
+                        severityLevel: SeverityLevel.Error,
+                        properties: {
+                          reporter: "Scene.Main.NodesScene",
+                          action: "runQueriesOnClusterMappingsChange"
+                        }
+                    });
+                    throw new Error(stringify(e));
+                }
             }
         });
         return () => {

@@ -67,6 +67,8 @@
     "@grafana/scenes": "^3.9.1",
     "@grafana/schema": "11.0.2",
     "@grafana/ui": "11.0.2",
+    "@microsoft/applicationinsights-web": "^3.3.1",
+    "@types/uuid": "^10.0.0",
     "@uifabric/merge-styles": "^7.20.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
