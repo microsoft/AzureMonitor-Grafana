@@ -1,8 +1,3 @@
-<!--=========================TODO=============================
-======================================================================================
-add screenshots here once they have been uploaded to github and a URL can be used for reference
-======================================================================================
-====================================================================================-->
 # Azure Cloud Native Monitoring
 
 ## Overview
@@ -32,3 +27,9 @@ If this plugin has not yet been enabled on your Grafana instance, Click on Insta
 ![Grafana Navigation Bar](https://github.com/user-attachments/assets/4fbd8df3-3150-4386-83b3-93fb63a2dc5f)
 
 Simply click on it and start your troubleshooting journey!
+
+## Contributing
+
+Please go to our [repo](https://github.com/microsoft/AzureMonitor-Grafana) to learn more about how to contribute
+
+If you would like to report an issue or provide feedback, please open a [github issue](https://github.com/microsoft/AzureMonitor-Grafana/issues)
