@@ -86,6 +86,7 @@ export function getNamespacesScene(): SceneAppPage {
               action: "changePromVariableOnClusterChange"
             }
           });
+          throw new Error(stringify(e));
         }
       });
       
@@ -109,6 +110,7 @@ export function getNamespacesScene(): SceneAppPage {
                 action: "changePromVariableonClusterDataChange"
               }
             });
+            throw new Error(stringify(e));
           }
         }
       });

@@ -217,6 +217,7 @@ function getComputeResourcesDrilldownScene() {
                         action: "changePromVariableOnClusterChange"
                     }
                 });
+                throw new Error(stringify(e));
             }
           });
         
@@ -228,15 +229,16 @@ function getComputeResourcesDrilldownScene() {
           try {
               clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values);
           } catch (e) {
-              trackException({
-                  exception: e instanceof Error ? e : new Error(stringify(e)),
-                  severityLevel: SeverityLevel.Error,
-                  properties: {
-                      reporter: "Scene.Drilldown.ComputeResources",
-                      referer: "Scene.Main.WorkloadsScene",
-                      action: "createClusterMappings"
-                  }
-              });
+            trackException({
+                exception: e instanceof Error ? e : new Error(stringify(e)),
+                severityLevel: SeverityLevel.Error,
+                properties: {
+                    reporter: "Scene.Drilldown.ComputeResources",
+                    referer: "Scene.Main.WorkloadsScene",
+                    action: "createClusterMappings"
+                }
+            });
+            throw new Error(stringify(e));
           }
         }
       });

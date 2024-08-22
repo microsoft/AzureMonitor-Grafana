@@ -370,6 +370,7 @@ function getPodWithLogsDrilldownScene() {
                             action: "changePromVariableOnClusterChange"
                         }
                     });
+                    throw new Error(stringify(e));
                 }
             }
         });
@@ -439,6 +440,7 @@ function getPodWithLogsDrilldownScene() {
                             action: "createAndRunQueries"
                         }
                     });
+                    throw new Error(stringify(e));
                 }
             }
         });

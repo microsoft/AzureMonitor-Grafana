@@ -94,6 +94,7 @@ export function getClusterByWorkloadScene() {
               action: "changePromVariableOnClusterChange"
             }
           });
+          throw new Error(stringify(e));
         }
       });
     
@@ -117,6 +118,7 @@ export function getClusterByWorkloadScene() {
               action: "changePromVariableonClusterDataChange"
             }
           });
+          throw new Error(stringify(e));
         }
       }
     });

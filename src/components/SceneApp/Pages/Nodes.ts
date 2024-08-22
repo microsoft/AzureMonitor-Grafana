@@ -83,7 +83,8 @@ export function getOverviewByNodeScene(): SceneAppPage {
                       reporter: "Scene.Main.NodesScene",
                       action: "runQueriesOnClusterChange"
                     }
-                  });
+                });
+                throw new Error(stringify(e));
             }
         });
 
@@ -105,7 +106,8 @@ export function getOverviewByNodeScene(): SceneAppPage {
                           reporter: "Scene.Main.NodesScene",
                           action: "runQueriesOnClusterMappingsChange"
                         }
-                      });
+                    });
+                    throw new Error(stringify(e));
                 }
             }
         });

@@ -73,6 +73,7 @@ export function getclustersScene(): SceneAppPage {
                 action: "createAndRunQueries"
               }
             });
+            throw new Error(stringify(e));
           }
         }
       });
