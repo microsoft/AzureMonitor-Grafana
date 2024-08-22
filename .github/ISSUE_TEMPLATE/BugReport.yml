@@ -1,0 +1,50 @@
+name: New Bug Report
+description: File a bug report
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report an issue with the plugin
+
+        Please try to give your issue a good title that is descriptive of the problem you are facing.
+  - type: markdown
+    attributes:
+      value: |
+        **HINT:** Try [searching](https://github.com/microsoft/AzureMonitor-Grafana/issues) for similar issues.
+
+        **If you are reportring a security vulnerability** [Go here instead](https://github.com/microsoft/AzureMonitor-Grafana/security/policy). 
+
+  - type: textarea
+    attributes:
+      label: What happened?
+      description: "Include screen recordings or screenshots if possible"
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: What was the expected behavior?
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Did this work before?
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: How do we reproduce it?
+      placeholder: "Steps to reproduce..."
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  
+  - type: input
+    attributes:
+        label: What version of our plugin are you using?
+        placeholder: "ex. 1.1.1"
