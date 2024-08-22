@@ -8,7 +8,7 @@
   "backend": true,
   "executable": "gpx_azure_cloudnative_monitoring",
   "info": {
-    "keywords": ["app"],
+    "keywords": ["app", "azure", "cloud", "native", "aks", "kubernetes", "monitoring"],
     "description": "Monitor your Azure Cloud Native services",
     "author": {
       "name": "Microsoft"
@@ -41,7 +41,7 @@
     }
   ],
   "dependencies": {
-    "grafanaDependency": ">=10.2.0",
+    "grafanaDependency": ">=10.4.0",
     "plugins": [
       {
         "id": "grafana-azure-monitor-datasource",
