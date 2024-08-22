@@ -72,6 +72,7 @@ const getAMGRegion = () => {
   return undefined;
 };
 
+// This function is used to report exceptions on the plugin anonyumously.
 export const trackException = async (exception: IExceptionTelemetry, customProperties?: ICustomProperties) => {
   const appInsights = await getAppInsights();
   appInsights.trackException(exception, customProperties);
