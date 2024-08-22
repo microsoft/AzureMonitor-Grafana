@@ -1,0 +1,15 @@
+name: Feature Requests
+description: We welcome feedback! Please let us know what you would like to see in the plugin.
+body:
+  - type: textarea
+    attributes:
+      label: What should we add?
+      description: "A brief description of the feature you would like to see added."
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Why do we need this?
+      description: "Tell us what problem you're trying to solve."
+    validations:
+      required: true
