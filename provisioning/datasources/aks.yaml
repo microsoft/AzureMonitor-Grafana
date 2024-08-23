@@ -9,10 +9,10 @@ datasources:
     jsonData:
       azureAuthType: clientsecret
       cloudName: azuremonitor # See table below
-      tenantId: $__env{CONTOSO_TENANT_ID}
-      clientId: $__env{CONTOSO_CLIENT_ID}
+      tenantId: $__env{TENANT_ID}
+      clientId: $__env{CLIENT_ID}
     secureJsonData:
-      clientSecret: $__env{CONTOSO_SECRET_ID}
+      clientSecret: $__env{SECRET_ID}
     version: 1
     editable: true
   - name: Prometheus
@@ -24,7 +24,7 @@ datasources:
       azureCredentials:
         authType: clientsecret
         azureCloud: AzureCloud
-        tenantId: $__env{CONTOSO_TENANT_ID}
-        clientId: $__env{CONTOSO_CLIENT_ID}
+        tenantId: $__env{TENANT_ID}
+        clientId: $__env{CLIENT_ID}
     secureJsonData:
-      clientSecret: $__env{CONTOSO_SECRET_ID}
+      clientSecret: $__env{SECRET_ID}
