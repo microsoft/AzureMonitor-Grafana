@@ -178,6 +178,11 @@ function GetNestedTable(data: DataFrame[]): DataFrame[] {
             newFrames.push(frame);
         }
     }
+    if (newFrames.length !== 2) {
+        // frames do not yet include nested frames
+        // return empty
+        return [];
+    }
     console.log("new frames: ", newFrames);
     return newFrames;
 }
