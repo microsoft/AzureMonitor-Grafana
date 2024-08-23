@@ -279,7 +279,8 @@ function getClustersCustomFieldConfig() {
     const custerFieldConfig: TableFieldOptions = {
         align: "auto",
         cellOptions: clusterOptions,
-        inspect: false
+        inspect: false,
+        minWidth: 375
     };
 
     return custerFieldConfig;
