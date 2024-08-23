@@ -3,7 +3,7 @@ import { CustomTransformOperator, SceneDataTransformer, SceneQueryRunner } from 
 import { DataSourceRef } from "@grafana/schema";
 import { Observable, map } from "rxjs";
 import { AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE, WORKLOAD_VAR } from "../../../constants";
-import { getCustomFieldConfigBadge, getValidInvalidCustomFieldConfig } from "./dataUtil";
+import { formatReadyTotal, getCustomFieldConfigBadge, getValidInvalidCustomFieldConfig } from "./dataUtil";
 import { getAzureResourceGraphQuery, getPrometheusQuery } from "./queryUtil";
 
 export function GetClusterByWorkloadQueries(namespace: string) {
@@ -121,26 +121,6 @@ export function TransfomClusterByWorkloadData(data: SceneQueryRunner) {
                 }
             },
             {
-                id: "calculateField",
-                options: {
-                  alias: "Ready / Total",
-                  binary: {
-                    left: "Value #F (sum)",
-                    operator: "-",
-                    reducer: "sum",
-                    right: "Value #D (sum)"
-                  },
-                  mode: "reduceRow",
-                  reduce: {
-                    include: [
-                      "Value #D",
-                      "Value #F"
-                    ],
-                    reducer: "diff"
-                  }
-                }
-            },
-            {
               id: "calculateField",
               options: {
                 alias: "Cluster Alerts",
@@ -153,82 +133,68 @@ export function TransfomClusterByWorkloadData(data: SceneQueryRunner) {
                 }
               }
           },
-            customTranformCellOptions(),
-            {
-                id: "organize",
-                options: {
-                  excludeByName: {
-                    "namespace 2": true,
-                    "namespace 3": true,
-                    "namespace 4": true,
-                    "namespace 5": true,
-                    "workload 2": true,
-                    "workload 3": true,
-                    "workload 4": true,
-                    "workload 5": true,
-                    "workload_type 2": true,
-                    "workload_type 3": true,
-                    "workload_type 4": true,
-                    "workload_type 5": true
-                  },
-                  indexByName: {
-                    "workload 1": 0,
-                    "namespace 1": 1,
-                    "workload_type 1": 2,
-                    "Value #D": 3,
-                    "Value #F": 4,
-                    "Ready / Total": 5,
-                    "Value #E (sum)": 6,
-                    "Value #C (sum)": 7,
-                  },
-                  renameByName: {
-                    "workload 1": "Workload",
-                    "namespace 1": "Namespace",
-                    "workload_type 1": "Workload Type",
-                    "Value #E (sum)": "Updated",
-                    "Value #C (sum)": "Available",
-                    "Value #D": "Ready",
-                    "Value #F": "Total",
+          customTranformCellOptions(),
+          {
+              id: "organize",
+              options: {
+                excludeByName: {
+                  "namespace 2": true,
+                  "namespace 3": true,
+                  "namespace 4": true,
+                  "namespace 5": true,
+                  "workload 2": true,
+                  "workload 3": true,
+                  "workload 4": true,
+                  "workload 5": true,
+                  "workload_type 2": true,
+                  "workload_type 3": true,
+                  "workload_type 4": true,
+                  "workload_type 5": true
+                },
+                indexByName: {
+                  "workload 1": 0,
+                  "namespace 1": 1,
+                  "workload_type 1": 2,
+                  "Value #D": 3,
+                  "Value #F": 4,
+                  "Value #E (sum)": 5,
+                  "Value #C (sum)": 6,
+                },
+                renameByName: {
+                  "workload 1": "Workload",
+                  "namespace 1": "Namespace",
+                  "workload_type 1": "Workload Type",
+                  "Value #E (sum)": "Updated",
+                  "Value #C (sum)": "Available",
+                  "Value #D": "Ready / Total",
+                  "Value #F": "Total",
+                }
+              }
+          },
+          {
+              id: "convertFieldType",
+              options: {
+                conversions: [
+                  {
+                    destinationType: "enum",
+                    targetField: "container (uniqueValues)"
                   }
-                }
-            },
-            {
-                id: "convertFieldType",
-                options: {
-                  conversions: [
-                    {
-                      destinationType: "string",
-                      targetField: "Ready"
-                    },
-                    {
-                      destinationType: "string",
-                      targetField: "Total"
-                    },
-                    {
-                      destinationType: "enum",
-                      targetField: "container (uniqueValues)"
-                    },
-                    {
-                      destinationType: "string",
-                      targetField: "Ready / Total"
-                    }
-                  ],
-                  fields: {}
-                }
-            },
-            {
-                id: "organize",
-                options: {
-                  excludeByName: {
-                    Alerts: false,
-                    "Alerts (sum)": true
-                  },
-                  indexByName: {},
-                  renameByName: {
-                    "Ready / Total": "Not Ready"
-                  }
-                }
-            },
+                ],
+                fields: {}
+              }
+          },
+          {
+              id: "organize",
+              options: {
+                excludeByName: {
+                  Alerts: false,
+                  "Alerts (sum)": true,
+                  "Total": true,
+                },
+                indexByName: {},
+                renameByName: {}
+              }
+          },
         ]
     });
 
@@ -246,20 +212,31 @@ const customTranformCellOptions: () => CustomTransformOperator =
 
 function GetIconsOnCells(dataFrames: DataFrame[]): DataFrame[] {
   const newFrames: DataFrame[] = [];
-  for (const frame of dataFrames) {
-    const newFields = frame.fields.map((field) => {
-      const fieldWithConfig = {
-        ...field,
-        config: getFieldConfigForField(field.name)
-      }
-      return fieldWithConfig;
-    });
-    newFrames.push({
-      ...frame,
-      fields: newFields
-    });
+  try {
+    for (const frame of dataFrames) {
+      const newFields = frame.fields.map((field) => {
+        if (field.name === "Value #D") {
+          // parse ready / total and add icon
+          const totalField = frame.fields.find((f) => f.name === "Value #F");
+          const newReadyFieldValues = field.values.map((value, idx) => {
+            return formatReadyTotal(value, totalField?.values[idx]);
+          });
+          field.values = newReadyFieldValues;
+        }
+        const fieldWithConfig = {
+          ...field,
+          config: getFieldConfigForField(field.name)
+        }
+        return fieldWithConfig;
+      });
+      newFrames.push({
+        ...frame,
+        fields: newFields
+      });
+    }
+  } catch (e) {
+    throw new Error(`Error transforming data: ${e}`);
   }
-
   return newFrames;
 }
 
@@ -282,8 +259,12 @@ function getFieldConfigForField(name: string) {
   switch(name) {
     case "Cluster Alerts":
       return getValidInvalidCustomFieldConfig(150, "times-circle", "red", (value) => (value as number) === 0, alertLinks);
-    case "Ready / Total":
-      return getValidInvalidCustomFieldConfig(150, "exclamation-circle", "orange", (value) => parseInt(value as string, 10) === 0);
+    case "Value #D":
+      return getValidInvalidCustomFieldConfig(150, "exclamation-circle", "orange", (value) => {
+        const values = (value as string).split("/").map((v) => parseInt(v, 10));
+        const diff = values[1] - values[0];
+        return diff === 0;
+      });
     case "workload_type":
       return getCustomFieldConfigBadge("blue");
     case "workload":
