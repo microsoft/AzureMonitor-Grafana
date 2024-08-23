@@ -33,7 +33,7 @@ jobs:
       - name: Update version.json
         run: |
           TAG_NAME=${TAG_NAME#v} # Remove the 'v' prefix if present
-          jq --arg version "$TAG_NAME" '.version = $version' /src/version.json > tmp.json && mv tmp.json /src/version.json
+          jq --arg version "$TAG_NAME" '.version = $version' src/version.json > tmp.json && mv tmp.json src/version.json
     
       - uses: grafana/plugin-actions/build-plugin@release
         # Uncomment to enable plugin signing
