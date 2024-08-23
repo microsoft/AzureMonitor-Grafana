@@ -16,6 +16,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: 'jck/add-version'
+      # Extract the tag name
+      - name: Extract tag name
+        id: extract_tag
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          TAG_NAME=${TAG_NAME#v} # Remove the 'v' prefix if present
+          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
+
+      - name: Print tag name
+        run: echo "The current version is $TAG_NAME"
+      
+      # Update version.json with the tag name
+      - name: Update version.json
+        run: |
+          TAG_NAME=${TAG_NAME#v} # Remove the 'v' prefix if present
+          jq --arg version "$TAG_NAME" '.version = $version' /src/version.json > tmp.json && mv tmp.json /src/version.json
+    
       - uses: grafana/plugin-actions/build-plugin@release
         # Uncomment to enable plugin signing
         # (For more info on how to generate the access policy token see https://grafana.com/developers/plugin-tools/publish-a-plugin/sign-a-plugin#generate-an-access-policy-token)
