@@ -5,6 +5,8 @@ import { Observable, map } from "rxjs";
 import { AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE, WORKLOAD_VAR } from "../../../constants";
 import { formatReadyTotal, getCustomFieldConfigBadge, getValidInvalidCustomFieldConfig } from "./dataUtil";
 import { getAzureResourceGraphQuery, getPrometheusQuery } from "./queryUtil";
+import { trackException } from "appInsights";
+import { SeverityLevel } from "@microsoft/applicationinsights-web";
 
 export function GetClusterByWorkloadQueries(namespace: string) {
     const promDs: DataSourceRef = {
@@ -235,6 +237,14 @@ function GetIconsOnCells(dataFrames: DataFrame[]): DataFrame[] {
       });
     }
   } catch (e) {
+    trackException({
+      exception: e instanceof Error ? e : new Error(JSON.stringify(e)),
+      severityLevel: SeverityLevel.Error,
+      properties: {
+        reporter: "Scene.Main.WorkloadsScene",
+        action: "TransformTableData"
+      }
+    })
     throw new Error(`Error transforming data: ${e}`);
   }
   return newFrames;
