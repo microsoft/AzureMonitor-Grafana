@@ -1,5 +1,8 @@
 import { EmbeddedScene, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneQueryRunner, SceneRefreshPicker, SceneTimePicker, SceneVariableSet, VariableValueSelectors, VizPanel } from "@grafana/scenes";
+import { SeverityLevel } from "@microsoft/applicationinsights-web";
+import { trackException } from "appInsights";
 import { ClusterMapping } from "types";
+import { stringify } from "utils/stringify";
 import { AGG_VAR, AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID } from "../../../constants";
 import { GetClusterStatsQueries, GetClustersQuery, TransformData } from "../Queries/ClusterMappingQueries";
 import { azure_monitor_queries } from "../Queries/queries";
@@ -51,14 +54,27 @@ export function getclustersScene(): SceneAppPage {
         if (state.data?.state === "Done") {
           const workspaceData = state.data?.series.filter((s) => s.refId === "workspaces");
           const clusterData = state.data?.series.filter((s) => s.refId === "clusters");
-          clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values, clusterData[0]?.fields[2]?.values);
-          const clusterStatsQueries = GetClusterStatsQueries(clusterMappings);
-          clusterTrendData.setState({ datasource: {
-            type: 'datasource',
-            uid: '-- Mixed --',
-          }, 
-          queries: clusterStatsQueries });
-          clusterTrendData.runQueries();
+  
+          try {
+            clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values, clusterData[0]?.fields[2]?.values);
+            const clusterStatsQueries = GetClusterStatsQueries(clusterMappings);
+            clusterTrendData.setState({ datasource: {
+              type: 'datasource',
+              uid: '-- Mixed --',
+            }, 
+            queries: clusterStatsQueries });
+            clusterTrendData.runQueries();
+          } catch (e) {
+            trackException({
+              exception: e instanceof Error ? e : new Error(stringify(e)),
+              severityLevel: SeverityLevel.Error,
+              properties: {
+                reporter: "Scene.Main.ClustersScene",
+                action: "createAndRunQueries"
+              }
+            });
+            throw new Error(stringify(e));
+          }
         }
       });
 

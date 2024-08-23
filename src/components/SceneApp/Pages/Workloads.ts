@@ -1,5 +1,8 @@
 import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from '@grafana/scenes';
+import { SeverityLevel } from '@microsoft/applicationinsights-web';
+import { trackException } from 'appInsights';
 import { ClusterMapping } from 'types';
+import { stringify } from 'utils/stringify';
 import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, PROM_DS_VARIABLE } from '../../../constants';
 import { GetClusterByWorkloadQueries, TransfomClusterByWorkloadData } from '../Queries/ClusterByWorkloadQueries';
 import { GetClustersQuery } from '../Queries/ClusterMappingQueries';
@@ -78,9 +81,21 @@ export function getClusterByWorkloadScene() {
     const promDSVar = sceneGraph.lookupVariable(PROM_DS_VARIABLE, scene) as DataSourceVariable;
     const clusterVarSub = clusterVar?.subscribeToState((state) => {
         const selectedCluster = state.value.toString();
-        const newPromDs = clusterMappings[selectedCluster]?.promDs;
-        if (!!newPromDs && newPromDs.uid) {
-          promDSVar.changeValueTo(newPromDs.uid);
+        try {
+          const newPromDs = clusterMappings[selectedCluster]?.promDs;
+          if (!!newPromDs && newPromDs.uid) {
+            promDSVar.changeValueTo(newPromDs.uid);
+          }
+        } catch (e) {
+          trackException({
+            exception: e instanceof Error ? e : new Error(stringify(e)),
+            severityLevel: SeverityLevel.Error,
+            properties: {
+              reporter: "Scene.Main.WorkloadsScene",
+              action: "changePromVariableOnClusterChange"
+            }
+          });
+          throw new Error(stringify(e));
         }
       });
     
@@ -89,10 +104,22 @@ export function getClusterByWorkloadScene() {
       if (state.data?.state === "Done") {
         const workspaceData = state.data?.series.filter((s) => s.refId === "workspaces");
         const clusterData = state.data?.series.filter((s) => s.refId === "clusters");
-        clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values);
-        const promDs = getPromDatasource(clusterMappings, promDatasources);
-        if (!!promDs && promDs.uid) {
-          promDSVar.changeValueTo(promDs.uid);
+        try {
+          clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values);
+          const promDs = getPromDatasource(clusterMappings, promDatasources);
+          if (!!promDs && promDs.uid) {
+            promDSVar.changeValueTo(promDs.uid);
+          }
+        } catch (e) {
+          trackException({
+            exception: e instanceof Error ? e : new Error(stringify(e)),
+            severityLevel: SeverityLevel.Error,
+            properties: {
+              reporter: "Scene.Main.WorkloadsScene",
+              action: "changePromVariableonClusterDataChange"
+            }
+          });
+          throw new Error(stringify(e));
         }
       }
     });

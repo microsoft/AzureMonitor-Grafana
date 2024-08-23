@@ -18,7 +18,7 @@ export function getMissingDatasourceScene(missingDs: string) {
                 new SceneFlexItem({
                     width: '50%',
                     height: 300,
-                    body: PanelBuilders.text().setTitle('Panel title').setOption('content', `No ${missingDs} datasources found, plese go to connections and add at least one`).build(),
+                    body: PanelBuilders.text().setTitle('Missing Datasources').setOption('content', `No ${missingDs} datasources found, plese go to connections and add at least one`).build(),
                 })
             ],
         }),
