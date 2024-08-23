@@ -1,12 +1,13 @@
-import { ClusterMapping } from "types";
-import { getAzureResourceGraphQuery, getLogAnalyticsQuery, getMetricsQuery } from "./queryUtil";
-import { CustomTransformOperator, SceneDataTransformer, SceneQueryRunner } from "@grafana/scenes";
-import { Observable, map } from "rxjs";
 import { DataFrame, Field, FieldType } from "@grafana/data";
-import { getReducerValueFor } from "./dataUtil";
-import { ReducerFunctions } from "./types";
-import { BarGaugeDisplayMode, BarGaugeValueMode, TableCellDisplayMode } from "@grafana/schema";
+import { CustomTransformOperator, SceneDataTransformer, SceneQueryRunner } from "@grafana/scenes";
+import { BarGaugeDisplayMode, BarGaugeValueMode, TableCellDisplayMode, ThresholdsMode } from "@grafana/schema";
+import { Observable, map } from "rxjs";
+import { ClusterMapping } from "types";
 import { SUBSCRIPTION_VARIABLE } from "../../../constants";
+import { getThresholdsConfig } from "../Visualizations/utils";
+import { getReducerValueFor } from "./dataUtil";
+import { getAzureResourceGraphQuery, getLogAnalyticsQuery, getMetricsQuery } from "./queryUtil";
+import { ReducerFunctions } from "./types";
 
 const METRIC_COMMON_AGG = "Maximum";
 const METRIC_COMMON_TIMEGRAIN = "auto";
@@ -178,6 +179,11 @@ function GetNestedTable(data: DataFrame[]): DataFrame[] {
             newFrames.push(frame);
         }
     }
+    if (newFrames.length !== 2) {
+        // frames do not yet include nested frames
+        // return empty
+        return [];
+    }
     console.log("new frames: ", newFrames);
     return newFrames;
 }
@@ -209,6 +215,7 @@ function transformMetricCell(frames: DataFrame[], newFieldName: string, compareF
                 },
                 align: "left"
             },
+            thresholds: getThresholdsConfig(ThresholdsMode.Absolute, { 0: "orange", 60: "green", 91: "red" }),
             min: 0,
             max: 100,
             noValue: "--"

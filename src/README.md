@@ -1,11 +1,8 @@
-<!--=========================TODO=============================
-======================================================================================
-add screenshots here once they have been uploaded to github and a URL can be used for reference
-======================================================================================
-====================================================================================-->
 # Azure Cloud Native Monitoring
 
 ## Overview
+
+![Homepage](https://github.com/user-attachments/assets/22f28e8e-d29b-4d51-b927-9dc7ec0f9a47)
 
 This Grafana App Plugin provides a seamless and enhanced monitoring experience for Azure Kubernetes Service (AKS) users. It integrates Azure, AKS, and Prometheus to offer a comprehensive view of your AKS environment.
 
@@ -25,7 +22,14 @@ This plugin works with Azure Monitor Datasource and Prometheus datasource config
 - [Prometheus Datasource](https://grafana.com/docs/grafana/latest/getting-started/get-started-grafana-prometheus/) with [Azure Monitor managed service](https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/prometheus-metrics-overview)
 
 ## Getting started
-If this plugin has not yet been enabled on your Grafana instance, Click on Install then Enable. This will automatically add an entry point on your Grafana navigation bar
+If this plugin has not yet been enabled on your Grafana instance, Click on Install then Enable. This will automatically add an entry point on your Grafana navigation bar under Apps
 
+![Grafana Navigation Bar](https://github.com/user-attachments/assets/4fbd8df3-3150-4386-83b3-93fb63a2dc5f)
 
 Simply click on it and start your troubleshooting journey!
+
+## Contributing
+
+Please go to our [repo](https://github.com/microsoft/AzureMonitor-Grafana) to learn more about how to contribute
+
+If you would like to report an issue or provide feedback, please open a [github issue](https://github.com/microsoft/AzureMonitor-Grafana/issues)

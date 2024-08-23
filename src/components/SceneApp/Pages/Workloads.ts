@@ -52,6 +52,7 @@ export function getClusterByWorkloadScene() {
         children: [
           new SceneFlexItem({
             $data: transformedData,
+            height: 500,
             body: new VizPanel({
               pluginId: 'azure-monitoring-app-custom-table',
               options: {
