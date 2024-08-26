@@ -32,7 +32,6 @@ jobs:
       # Update version.json with the tag name
       - name: Update version.json
         run: |
-          TAG_NAME=${TAG_NAME#v} # Remove the 'v' prefix if present
           jq --arg version "$TAG_NAME" '.version = $version' $GITHUB_WORKSPACE/src/version.json > tmp.json && mv tmp.json $GITHUB_WORKSPACE/src/version.json
     
       - uses: grafana/plugin-actions/build-plugin@release
