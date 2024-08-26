@@ -23,7 +23,6 @@ jobs:
         id: extract_tag
         run: |
           TAG_NAME=${GITHUB_REF#refs/tags/}
-          TAG_NAME=${TAG_NAME#v} # Remove the 'v' prefix if present
           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
 
       - name: Print tag name
