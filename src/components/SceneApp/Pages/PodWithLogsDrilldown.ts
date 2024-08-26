@@ -4,7 +4,7 @@ import { SeverityLevel } from "@microsoft/applicationinsights-web";
 import { trackException } from "appInsights";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
-import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, POD_VAR, PROM_DS_VARIABLE } from "../../../constants";
+import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, POD_VAR, PROM_DS_VARIABLE, WORKLOAD_VAR } from "../../../constants";
 import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
 import { GetCPUQuotaQueries, GetCPUThrottlingQueries, GetCPUUsageQuery, GetCurrentStorageIOQueries, GetIOPSQueries, GetIOPSRWQueries, GetLASceneQueryFor, GetMemoryQuotaQueries, GetMemoryUsageQueries, GetRateQueriesFor, GetThroughputQueries, GetThrouputQueries, TransformCPUQuotaData, TransformCPUUsageData, TransformCurrentStorageData, TransformMemoryQuotaData } from "../Queries/PodWithLogsQueries";
 import { azure_monitor_queries } from "../Queries/queries";
@@ -16,7 +16,7 @@ import { getSharedSceneVariables } from "./sceneUtils";
 
 function getPodWithLogsVariables() {
     const variables = getSharedSceneVariables(true);
-    const namespaceVariableRaw = `label_values(kube_namespace_status_phase,namespace)`;
+    const namespaceVariableRaw = `label_values(namespace_workload_pod:kube_pod_owner:relabel{workload=~\"\${${WORKLOAD_VAR}}\"},namespace)`;
     const podVariableRaw = `label_values(kube_pod_info{job=\"kube-state-metrics\", cluster=\"\$${CLUSTER_VARIABLE}\", namespace=\"\$${NS_VARIABLE}\"}, pod)`;
     variables.push(getPrometheusVariable(NS_VARIABLE, "Namespace", namespaceVariableRaw));
     variables.push(getPrometheusVariable(POD_VAR, "Pod", podVariableRaw));

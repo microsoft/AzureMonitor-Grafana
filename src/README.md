@@ -2,7 +2,7 @@
 
 ## Overview
 
-![Homepage](https://github.com/user-attachments/assets/22f28e8e-d29b-4d51-b927-9dc7ec0f9a47)
+![Homepage](https://github.com/user-attachments/assets/90148f4c-c3ad-4cb5-9fe3-076de7827ffd)
 
 This Grafana App Plugin provides a seamless and enhanced monitoring experience for Azure Kubernetes Service (AKS) users. It integrates Azure, AKS, and Prometheus to offer a comprehensive view of your AKS environment.
 
@@ -24,7 +24,7 @@ This plugin works with Azure Monitor Datasource and Prometheus datasource config
 ## Getting started
 If this plugin has not yet been enabled on your Grafana instance, Click on Install then Enable. This will automatically add an entry point on your Grafana navigation bar under Apps
 
-![Grafana Navigation Bar](https://github.com/user-attachments/assets/4fbd8df3-3150-4386-83b3-93fb63a2dc5f)
+![Grafana Navigation Bar](https://github.com/user-attachments/assets/eb52dc9a-5323-412f-a388-5909a4c06240)
 
 Simply click on it and start your troubleshooting journey!
 
