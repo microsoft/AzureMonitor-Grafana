@@ -16,8 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: 'jck/add-version'
       # Extract the tag name
       - name: Extract tag name
         id: extract_tag
