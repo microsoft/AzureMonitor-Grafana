@@ -29,9 +29,10 @@ jobs:
         run: echo "The current version is $TAG_NAME"
       
       # Update version.json with the tag name
-      - name: Update version.json
+      - name: Update version.json and package.json
         run: |
           jq --arg version "$TAG_NAME" '.version = $version' $GITHUB_WORKSPACE/src/version.json > tmp.json && mv tmp.json $GITHUB_WORKSPACE/src/version.json
+          jq --arg version "$TAG_NAME" '.version = $version' $GITHUB_WORKSPACE/package.json > tmp.json && mv tmp.json $GITHUB_WORKSPACE/package.json
     
       - uses: grafana/plugin-actions/build-plugin@release
         # Uncomment to enable plugin signing
