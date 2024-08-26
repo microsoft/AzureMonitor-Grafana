@@ -3,7 +3,7 @@ import { SeverityLevel } from '@microsoft/applicationinsights-web';
 import { trackException } from 'appInsights';
 import { ClusterMapping } from 'types';
 import { stringify } from 'utils/stringify';
-import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, PROM_DS_VARIABLE } from '../../../constants';
+import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE } from '../../../constants';
 import { GetClusterByWorkloadQueries, TransfomClusterByWorkloadData } from '../Queries/ClusterByWorkloadQueries';
 import { GetClustersQuery } from '../Queries/ClusterMappingQueries';
 import { azure_monitor_queries } from '../Queries/queries';
@@ -11,6 +11,15 @@ import { createMappingFromSeries, getInstanceDatasourcesForType, getPromDatasour
 import { getAlertSummaryDrilldownPage } from './AlertSummaryDrilldown';
 import { getComputeResourcesDrilldownPage } from './ComputeResourcesDrilldown';
 import { getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables } from './sceneUtils';
+import { getPrometheusVariable } from '../Variables/variables';
+
+function getWorkloadsVariables() {
+  const namespaceVariableRaw = `label_values(kube_namespace_status_phase,namespace)`;
+  const variables = getSharedSceneVariables(false);
+  variables.push(getPrometheusVariable(NS_VARIABLE, "Namespace", namespaceVariableRaw, true));
+
+  return variables;
+}
 
 export function getClusterByWorkloadScene() {
   const sceneTitle = 'Workloads';
@@ -32,10 +41,8 @@ export function getClusterByWorkloadScene() {
   }
 
   // build data scene
-  const params = new URLSearchParams(window.location.search);
-  const namespace = params.get('namespace') ?? '';
-  const variables = getSharedSceneVariables(false);
-  const clusterByWorkloadQueries = GetClusterByWorkloadQueries(namespace)
+  const variables = getWorkloadsVariables();
+  const clusterByWorkloadQueries = GetClusterByWorkloadQueries()
   const clusterByWorkloadData = getSceneQueryRunner(clusterByWorkloadQueries);
   const transformedData = TransfomClusterByWorkloadData(clusterByWorkloadData);
 
