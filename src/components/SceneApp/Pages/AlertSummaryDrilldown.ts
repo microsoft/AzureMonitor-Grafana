@@ -1,6 +1,6 @@
 import { EmbeddedScene, SceneAppPage, SceneAppPageLike, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneRouteMatch, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors } from "@grafana/scenes";
 import { GetPlatformAlertSumary, GetPromAlertsSummary, GetSummaryDetailsSceneQuery, GetTotalAlertsSummary } from "../Queries/AlertSumQueries";
-import { getStatPlatformAlerts, getStatPromAlerts, getStatTotalAlerts, getTableVisualizationAlertSummaryDetails } from "../Visualizations/AlertSummaryViz";
+import { getStatViz, getTableVisualizationAlertSummaryDetails } from "../Visualizations/AlertSummaryViz";
 import { getSharedSceneVariables } from "./sceneUtils";
 import { AZURE_MONITORING_PLUGIN_ID } from "../../../constants";
 
@@ -11,15 +11,15 @@ function getAlertSummaryDrilldownScene(namespace: string) {
 
     // total alerts summary
     const totalAlertsSummary = GetTotalAlertsSummary(namespace);
-    const totalAlertsStatViz = getStatTotalAlerts();
+    const totalAlertsStatViz = getStatViz("Total Alerts", "No fired alerts found", "semi-dark-red", "A");
 
     // prom alerts summary
     const promAlertsSummary = GetPromAlertsSummary(namespace);
-    const promAlertsStatViz = getStatPromAlerts();
+    const promAlertsStatViz = getStatViz("Prometheus", "No fired Prom alerts found", "semi-dark-green", "A");
 
     // platform alerts summary
     const platformAlertsSummary = GetPlatformAlertSumary(namespace);
-    const platformAlertsStatViz = getStatPlatformAlerts();
+    const platformAlertsStatViz = getStatViz("Platform", "No fired Platform alerts found", "semi-dark-orange", "A");
 
     return new EmbeddedScene({
         $variables: new SceneVariableSet({
@@ -32,7 +32,7 @@ function getAlertSummaryDrilldownScene(namespace: string) {
             children: [
                 new SceneFlexLayout({
                     direction: 'row',
-                    height: "15%",
+                    height: "25%",
                     children: [
                         new SceneFlexItem({
                             $data: totalAlertsSummary,
@@ -55,6 +55,7 @@ function getAlertSummaryDrilldownScene(namespace: string) {
                     ]
                 }),
                 new SceneFlexItem({
+                    height: 500,
                     $data: alertSummaryDetailsData,
                     body: tableViz.build(),
                 }),
