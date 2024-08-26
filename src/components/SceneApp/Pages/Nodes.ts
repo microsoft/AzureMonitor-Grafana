@@ -48,6 +48,7 @@ export function getOverviewByNodeScene(): SceneAppPage {
               children: [
                     new SceneFlexItem({
                         $data: transformedNodeOverviewData,
+                        height: 500,
                         body: new VizPanel({
                             title: undefined,
                             pluginId: 'azure-monitoring-app-custom-table',
