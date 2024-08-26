@@ -226,7 +226,7 @@ function getPodWithLogsDrilldownScene() {
                         $data: podContainerLogsData,
                         width: '100%',
                         height: 500,
-                        body: PanelBuilders.logs().setOption("showTime", true).setTitle("Container Logs for pods").build(),
+                        body: PanelBuilders.logs().setOption("showTime", true).setTitle("Container Logs for pods").setDescription("This panel only works with analytics tables, and will fail if your ContainerLogV2 table is set to basic in your workspace").build(),
                     }),
                     new SceneFlexItem({
                         width: '100%',
