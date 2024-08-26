@@ -28,6 +28,13 @@ If this plugin has not yet been enabled on your Grafana instance, Click on Insta
 
 Simply click on it and start your troubleshooting journey!
 
+If you are self hosting your Grafana instance and would like to see the plugin as a root item in your navidation menu, you need to add the following config in your `grafana.ini` file.
+
+```
+[navigation.app_sections]
+azure-cloudnativemonitoring-app = "root"
+```
+
 ## Contributing
 
 Please go to our [repo](https://github.com/microsoft/AzureMonitor-Grafana) to learn more about how to contribute
