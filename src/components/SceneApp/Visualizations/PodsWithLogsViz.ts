@@ -135,19 +135,19 @@ export function getTableVizCurrentStorage() {
     applyOverrideForTableViz(tableViz, {
         fieldName: "IOPS(Reads)",
         unit: "short",
-        decimals: -1
+        decimals: 2
     });
 
     applyOverrideForTableViz(tableViz, {
         fieldName: "IOPS(Writes)",
         unit: "short",
-        decimals: -1
+        decimals: 2
     });
 
     applyOverrideForTableViz(tableViz, {
         fieldName: "IOPS(Reads + Writes)",
         unit: "short",
-        decimals: -1
+        decimals: 2
     });
 
     applyOverrideForTableViz(tableViz, {
