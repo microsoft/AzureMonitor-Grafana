@@ -1,5 +1,5 @@
 import { EmbeddedScene, SceneFlexLayout, SceneFlexItem, PanelBuilders, SceneRouteMatch, SceneAppPage } from "@grafana/scenes";
-import { AZMON_DS_VARIABLE, CLUSTER_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE } from "../../../constants";
+import { AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE } from "../../../constants";
 import { azure_monitor_queries } from "../Queries/queries";
 import { getDataSourcesVariableForType, getSubscriptionVariable, getResourceGraphVariable } from "../Variables/variables";
 
@@ -16,10 +16,11 @@ export function getMissingDatasourceScene(missingDs: string) {
             direction: 'column',
             children: [
                 new SceneFlexItem({
-                    width: '50%',
+                    width: '100%',
                     height: 300,
-                    body: PanelBuilders.text().setTitle('Missing Datasources').setOption('content', `No ${missingDs} datasources found, plese go to connections and add at least one`).build(),
-                })
+                    body: PanelBuilders.text().setTitle("").setOption('content', 
+                        `> ### ⚠️ No ${missingDs} datasources found <br>\n> ##### This plugin requires Azure Monitor and Prometheus datasources to work.  \n> ##### Please go to [connections](/connections/datasources) configure the appropriate datasources. For more information, see our [documentation](/plugins/${AZURE_MONITORING_PLUGIN_ID})`).setDisplayMode("transparent").build(),
+                }),
             ],
         }),
     });

@@ -15,8 +15,11 @@ export function getOverviewByNodeScene(): SceneAppPage {
     const sceneUrl = `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/nodes`;
     // always check first that there is at least one azure monitor datasource
     const azMonDatasources = getInstanceDatasourcesForType("grafana-azure-monitor-datasource");
+    const promDatasources = getInstanceDatasourcesForType("prometheus");
+    const bothDatasourcesMissing = azMonDatasources.length === 0 && promDatasources.length === 0;
     if (azMonDatasources.length === 0) {
-      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene("Azure Monitor"));
+      const textToShow = bothDatasourcesMissing ? "Azure Monitor or Prometheus" : "Azure Monitor";
+      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene(textToShow));
     }
 
     // get cluster data and initialize mappings
@@ -24,7 +27,6 @@ export function getOverviewByNodeScene(): SceneAppPage {
     let clusterMappings: Record<string, ClusterMapping> = {};
 
     // check if there is at least one prom datasource
-    const promDatasources = getInstanceDatasourcesForType("prometheus");
     if (promDatasources.length === 0) {
       return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene("Prometheus"));
     }
