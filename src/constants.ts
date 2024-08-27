@@ -9,15 +9,15 @@ export enum ROUTES {
   Four = 'four',
 }
 
-export const SUBSCRIPTION_VARIABLE = "VAR_SUBSCRIPTION";
-export const CLUSTER_VARIABLE = "CLUSTER_VAR";
-export const NS_VARIABLE = "NS_VAR";
-export const WORKLOAD_VAR = "WORKLOAD_VAR";
-export const AZMON_DS_VARIABLE = "AZMON_DS";
-export const PROM_DS_VARIABLE = "PROM_DS";
-export const AGG_VAR = "AGG_VAR";
-export const POD_VAR = "POD_VAR";
-export const NODE_VAR = "NODE_VAR";
+export const SUBSCRIPTION_VARIABLE = "subscription";
+export const CLUSTER_VARIABLE = "cluster";
+export const NS_VARIABLE = "namespace";
+export const WORKLOAD_VAR = "workload";
+export const AZMON_DS_VARIABLE = "azmon_ds";
+export const PROM_DS_VARIABLE = "prom_ds";
+export const AGG_VAR = "aggregation";
+export const POD_VAR = "pod";
+export const NODE_VAR = "node";
 
 export const AZURE_MONITORING_PLUGIN_ID = "azure-cloudnativemonitoring-app"
 
