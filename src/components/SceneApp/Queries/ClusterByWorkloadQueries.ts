@@ -252,7 +252,7 @@ function getFieldConfigForField(name: string) {
   const workloadLinks: DataLink[] = [
     {
       title: "Drill down to Compute Resources",
-      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources?var-${NS_VARIABLE}=\${__data.fields.namespace}&var-${WORKLOAD_VAR}=\${__data.fields.workload}&\${${PROM_DS_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${${SUBSCRIPTION_VARIABLE}:queryparam}`,
+      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources?var-${NS_VARIABLE}=\${__data.fields.namespace}&var-${WORKLOAD_VAR}=\${__data.fields.workload}&\${${PROM_DS_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${__url_time_range}`,
       targetBlank: false
     }
   ];
@@ -260,7 +260,7 @@ function getFieldConfigForField(name: string) {
   const alertLinks: DataLink[] = [
     {
       title: "Drill down to Alert Summary",
-      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workloads/alertsummary/\${__data.fields.namespace}?\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}`,
+      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workloads/alertsummary/\${__data.fields.namespace}?\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${__url_time_range}`,
       targetBlank: false
     }
   ];
