@@ -218,7 +218,7 @@ function transformMetricCell(frames: DataFrame[], newFieldName: string, compareF
         config: {
             custom: {
                 cellOptions: {
-                    mode: BarGaugeDisplayMode.Gradient,
+                    mode: BarGaugeDisplayMode.Basic,
                     type: TableCellDisplayMode.Gauge,
                     valueDisplayMode: BarGaugeValueMode.Color
                 },
