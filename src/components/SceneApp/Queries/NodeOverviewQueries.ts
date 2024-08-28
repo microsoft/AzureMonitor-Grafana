@@ -227,7 +227,8 @@ function transformMetricCell(frames: DataFrame[], newFieldName: string, compareF
             thresholds: getThresholdsConfig(ThresholdsMode.Absolute, { 0: "orange", 60: "green", 91: "red" }),
             min: 0,
             max: 100,
-            noValue: "--"
+            noValue: "--",
+            unit: "percent"
         },
         type: FieldType.number
     }
