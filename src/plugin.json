@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
   "type": "app",
   "name": "Azure Cloud Native Monitoring",
-  "id": "azure-cloudnativemonitoring-app",
+  "id": "azure-monitor-app",
   "autoEnabled": true,
   "preload": true,
   "backend": true,

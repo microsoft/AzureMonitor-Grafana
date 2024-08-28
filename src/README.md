@@ -32,7 +32,7 @@ If you are self hosting your Grafana instance and would like to see the plugin a
 
 ```
 [navigation.app_sections]
-azure-cloudnativemonitoring-app = "root"
+azure-monitor-app = "root"
 ```
 
 ## Contributing

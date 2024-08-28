@@ -1,5 +1,5 @@
 {
-  "name": "azure-cloudnativemonitoring-app",
+  "name": "azure-monitor-app",
   "version": "1.0.0",
   "description": "Monitor your Azure Cloud Native services",
   "scripts": {
