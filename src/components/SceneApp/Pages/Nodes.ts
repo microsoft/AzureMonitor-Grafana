@@ -66,7 +66,20 @@ export function getOverviewByNodeScene(): SceneAppPage {
                                         defaults: { 
                                             noValue: "--",
                                         },
-                                        overrides: []
+                                        overrides: [
+                                            {
+                                                matcher: {
+                                                    id: "byRegexp",
+                                                    options: "/.*/"
+                                                },
+                                                properties: [
+                                                    {
+                                                        id: "links",
+                                                        value: [/** to be replaced by links that take to portal experience */]
+                                                    }
+                                                ]
+                                            }
+                                        ]
                                     },
                                     displayMode: "transparent"
                                 }),  

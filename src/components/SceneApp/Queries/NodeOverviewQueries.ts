@@ -166,16 +166,8 @@ function GetNestedTable(data: DataFrame[]): DataFrame[] {
                 nestedFrames.push([newSubFrame]);
             }
 
-            const fieldsWithOverride: Field[] = frame.fields.map((field) => {
-                return {
-                    ...field,
-                    config: {
-                        links: [],
-                    }
-                }
-            });
             frame.fields = [
-                ...fieldsWithOverride,
+                ...frame.fields,
                 {
                     name: "nested",
                     type: FieldType.nestedFrames,
