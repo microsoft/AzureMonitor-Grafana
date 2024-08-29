@@ -1,4 +1,4 @@
-import { EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from "@grafana/scenes";
+import { EmbeddedScene, PanelBuilders, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from "@grafana/scenes";
 import { SeverityLevel } from "@microsoft/applicationinsights-web";
 import { trackException } from "appInsights";
 import { ClusterMapping } from "types";
@@ -46,7 +46,7 @@ export function getOverviewByNodeScene(): SceneAppPage {
             controls: [new VariableValueSelectors({}), new SceneTimePicker({}), new SceneRefreshPicker({ })],
             $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
             body: new SceneFlexLayout({
-              direction: 'column',
+              direction: 'row',
               children: [
                     new SceneFlexItem({
                         $data: transformedNodeOverviewData,
@@ -60,8 +60,15 @@ export function getOverviewByNodeScene(): SceneAppPage {
                                     noValue: "--",
                                 },
                                 overrides: []
-                            }
+                            },
+                            displayMode: "transparent"
                         }),
+                        
+                    }),
+                    new SceneFlexItem({
+                        height: 200,
+                        width: "20%",
+                        body: PanelBuilders.text().setTitle("").setOption("content", "|                                       |                                     |\n|---------------------------------------|-------------------------------------|\n| <span style=\"color:orange\">low</span> | low usage (<60%)                    |\n| <span style=\"color:green\">med</span>  | well used (between 60% and 90%)     |\n| <span style=\"color:red\">high</span>   | high usage (>90%)                   |").setDisplayMode("transparent").build(),
                     })
                 ],
               }),
