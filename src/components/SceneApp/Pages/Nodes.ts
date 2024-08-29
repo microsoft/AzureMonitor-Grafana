@@ -48,27 +48,35 @@ export function getOverviewByNodeScene(): SceneAppPage {
             body: new SceneFlexLayout({
               direction: 'row',
               children: [
-                    new SceneFlexItem({
-                        $data: transformedNodeOverviewData,
-                        height: 500,
-                        body: new VizPanel({
-                            title: undefined,
-                            pluginId: 'azure-monitoring-app-custom-table',
-                            options: {},
-                            fieldConfig: {
-                                defaults: { 
-                                    noValue: "--",
-                                },
-                                overrides: []
-                            },
-                            displayMode: "transparent"
-                        }),
-                        
+                    new SceneFlexLayout({
+                        direction: 'column',
+                        children: [
+                            new SceneFlexItem({
+                                height: 5,
+                                body: PanelBuilders.text().setTitle("").setDisplayMode("transparent").build(),
+                            }),
+                            new SceneFlexItem({
+                                $data: transformedNodeOverviewData,
+                                height: 500,
+                                body: new VizPanel({
+                                    title: undefined,
+                                    pluginId: 'azure-monitoring-app-custom-table',
+                                    options: {},
+                                    fieldConfig: {
+                                        defaults: { 
+                                            noValue: "--",
+                                        },
+                                        overrides: []
+                                    },
+                                    displayMode: "transparent"
+                                }),  
+                            })
+                        ]
                     }),
                     new SceneFlexItem({
                         height: 200,
                         width: "20%",
-                        body: PanelBuilders.text().setTitle("").setOption("content", "|                                       |                                     |\n|---------------------------------------|-------------------------------------|\n| <span style=\"color:orange\">low</span> | low usage (<60%)                    |\n| <span style=\"color:green\">med</span>  | well used (between 60% and 90%)     |\n| <span style=\"color:red\">high</span>   | high usage (>90%)                   |").setDisplayMode("transparent").build(),
+                        body: PanelBuilders.text().setTitle("").setOption("content", "|                                       |                                     |\n|---------------------------------------|-------------------------------------|\n| <span style=\"color:#ff9830\">low</span> | low usage (<60%)                    |\n| <span style=\"color:#73bf69\">med</span>  | well used (between 60% and 90%)     |\n| <span style=\"color:#f2495c\">high</span>   | high usage (>90%)                   |").setDisplayMode("transparent").build(),
                     })
                 ],
               }),
