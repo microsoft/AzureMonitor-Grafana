@@ -32,7 +32,7 @@ function getAlertSummaryDrilldownScene(namespace: string) {
             children: [
                 new SceneFlexLayout({
                     direction: 'row',
-                    height: "25%",
+                    minHeight: "25%",
                     children: [
                         new SceneFlexItem({
                             $data: totalAlertsSummary,
@@ -55,7 +55,7 @@ function getAlertSummaryDrilldownScene(namespace: string) {
                     ]
                 }),
                 new SceneFlexItem({
-                    height: 500,
+                    minHeight: 500,
                     $data: alertSummaryDetailsData,
                     body: tableViz.build(),
                 }),
