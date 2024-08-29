@@ -6,13 +6,29 @@ import { stringify } from "utils/stringify";
 import { AGG_VAR, AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID } from "../../../constants";
 import { GetClusterStatsQueries, GetClustersQuery, TransformData } from "../Queries/ClusterMappingQueries";
 import { azure_monitor_queries } from "../Queries/queries";
-import { createMappingFromSeries } from "../Queries/queryUtil";
+import { createMappingFromSeries, getInstanceDatasourcesForType } from "../Queries/queryUtil";
 import { getCustomVariable, getDataSourcesVariableForType, getSubscriptionVariable } from "../Variables/variables";
+import { getGenericSceneAppPage, getMissingDatasourceScene } from "./sceneUtils";
 
 
 
 
 export function getclustersScene(): SceneAppPage {
+    const sceneTitle = "Clusters";
+    const sceneUrl = `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/clusters;`
+    // always check first that there is at least one azure monitor datasource
+    const azMonDatasources = getInstanceDatasourcesForType("grafana-azure-monitor-datasource");
+    const promDatasources = getInstanceDatasourcesForType("prometheus");
+    const bothDatasourcesMissing = azMonDatasources.length === 0 && promDatasources.length === 0;
+    if (azMonDatasources.length === 0) {
+      const textToShow = bothDatasourcesMissing ? "Azure Monitor or Prometheus" : "Azure Monitor";
+      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene(textToShow));
+    }
+
+    // check if there is at least one prom datasource
+    if (promDatasources.length === 0) {
+      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene("Prometheus"));
+    }
     let clusterMappings: Record<string, ClusterMapping> = {};
     const clusterData = GetClustersQuery(azure_monitor_queries["clustersQuery"]);
     const clusterTrendData = new SceneQueryRunner({queries: []});
@@ -84,8 +100,8 @@ export function getclustersScene(): SceneAppPage {
     });
 
     const clustersTab = new SceneAppPage({
-        title: "Clusters",
-        url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/clusters`,
+        title: sceneTitle,
+        url: sceneUrl,
         getScene: () => scene,
     });
     return clustersTab;

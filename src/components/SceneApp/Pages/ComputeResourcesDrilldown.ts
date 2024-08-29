@@ -15,7 +15,7 @@ import { getSharedSceneVariables } from "./sceneUtils";
 
 function getComputeResourcesVariables() {
     const variables: Array<DataSourceVariable | QueryVariable | TextBoxVariable> = getSharedSceneVariables(true);
-    const namespaceVariableRaw = `label_values(kube_namespace_status_phase,namespace)`;
+    const namespaceVariableRaw = `label_values(namespace_workload_pod:kube_pod_owner:relabel{workload=~\"\${${WORKLOAD_VAR}}\"},namespace)`;
     const typeVariableQueryRaw = `label_values(namespace_workload_pod:kube_pod_owner:relabel{cluster=\"\${${CLUSTER_VARIABLE}}\", namespace=\"\${${NS_VARIABLE}}\"},workload_type)`;
     variables.push(getPrometheusVariable(NS_VARIABLE, "Namespace", namespaceVariableRaw));
     variables.push(getPrometheusVariable("type", "Type", typeVariableQueryRaw));
@@ -98,36 +98,36 @@ function getComputeResourcesDrilldownScene() {
                     new SceneFlexItem({
                         $data: cpuUsageData,
                         width: '100%',
-                        minHeight: '40%',
+                        minHeight: '50%',
                         body: timeseriesViz.setTitle("CPU Usage").build()
                     }),
                     new SceneFlexItem({
                         $data: transformedCPUQuotaData,
                         width: '100%',
-                        minHeight: '40%',
+                        minHeight: '50%',
                         body: cpuQuotaViz.build()
                     }),
                     new SceneFlexItem({
                         $data: memoryUsageData,
                         width: '100%',
-                        minHeight: '40%',
+                        minHeight: '50%',
                         body: timeseriesViz.setTitle("Memory Usage").setUnit("bytes").build()
                     }),
                     new SceneFlexItem({
                         $data: memoryQuotaTransformedData,
                         width: '100%',
-                        minHeight: '40%',
+                        minHeight: '50%',
                         body: memoryQuotaViz.build()
                     }),
                     new SceneFlexItem({
                         $data: networkUsageTransformedData,
                         width: '100%',
-                        minHeight: '40%',
+                        minHeight: '50%',
                         body: networkUsageViz.build()
                     }),
                     new SceneFlexLayout({
                         direction: 'row',
-                        minHeight: '40%',
+                        minHeight: '50%',
                         children: [
                             new SceneFlexItem({
                                 $data: receiveBandwidthData,
@@ -143,7 +143,7 @@ function getComputeResourcesDrilldownScene() {
                     }),
                     new SceneFlexLayout({
                         direction: 'row',
-                        minHeight: '40%',
+                        minHeight: '50%',
                         children: [
                             new SceneFlexItem({
                                 $data: avgContainerBandwithReceivedData,
@@ -159,7 +159,7 @@ function getComputeResourcesDrilldownScene() {
                     }),
                     new SceneFlexLayout({
                         direction: 'row',
-                        minHeight: '40%',
+                        minHeight: '50%',
                         children: [
                             new SceneFlexItem({
                                 $data: rateofReceivedPacketsData,
@@ -175,7 +175,7 @@ function getComputeResourcesDrilldownScene() {
                     }),
                     new SceneFlexLayout({
                         direction: 'row',
-                        minHeight: '40%',
+                        minHeight: '50%',
                         children: [
                             new SceneFlexItem({
                                 $data: rateofReceivedPacketsDroppedData,

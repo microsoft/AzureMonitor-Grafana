@@ -1,7 +1,7 @@
 import { ValueMapping } from "@grafana/data";
 import { PanelBuilders } from "@grafana/scenes";
 import { BarGaugeDisplayMode, BarGaugeValueMode, BigValueColorMode, BigValueTextMode, MappingType, TableCellBackgroundDisplayMode, TableCellDisplayMode, TableCellOptions } from "@grafana/schema";
-
+import { SUBSCRIPTION_VARIABLE } from "../../../constants";
 
 
 export function getTableVisualizationAlertSummaryDetails() {
@@ -58,36 +58,27 @@ export function getTableVisualizationAlertSummaryDetails() {
     tableViz.setOverrides((b) => {
         b.matchFieldsWithName("Severity").overrideMappings(valueMappingsSev).overrideCustomFieldConfig('cellOptions', tableCellOptionsBackground );
         b.matchFieldsWithName("Alert Condition").overrideMappings(valueMappingsAC).overrideCustomFieldConfig('cellOptions', tableCellOptionsGauge );
+        b.matchFieldsByQuery("A").overrideLinks([
+            {
+                title: "View alert in Azure Portal",
+                targetBlank: true,
+                url: `https://ms.portal.azure.com/#blade/Microsoft_Azure_Monitoring/AlertDetailsTemplateBlade/alertId/%2Fsubscriptions%2F\${${SUBSCRIPTION_VARIABLE}:value}%2Fresourcegroups%2F\${__data.fields["Resource Group"]}%2Fproviders%2FMicrosoft.AlertsManagement%2Falerts%2F\${__data.fields["Alert ID"]}`
+            }
+        ]);
     });
-    tableViz.setNoValue(`No fired alerts found`)
+    tableViz.setNoValue(`No fired alerts found`);
 
     return tableViz;
 }
 
-export function getStatTotalAlerts() {
-    const statViz = PanelBuilders.stat().setTitle('Total Alerts');
-    statViz.setNoValue(`No fired alerts found`);
-    statViz.setColor({ mode: "fixed", fixedColor: "semi-dark-red" });
+export function getStatViz(title: string, noValue: string, color: string, refId: string) {
+    const statViz = PanelBuilders.stat().setTitle(title);
+    statViz.setNoValue(noValue);
+    statViz.setColor({ mode: "fixed", fixedColor: color });
     statViz.setOption('colorMode', BigValueColorMode.Background);
     statViz.setOption('textMode', BigValueTextMode.Value);
-    
-    return statViz;
-}
-
-export function getStatPromAlerts() {
-    const statViz = PanelBuilders.stat().setTitle('Prometheus');
-    statViz.setNoValue(`No fired Prom alerts found`);
-    statViz.setOption('textMode', BigValueTextMode.Value);
-    statViz.setOption('colorMode', BigValueColorMode.Background);
-    statViz.setColor({ mode: "fixed", fixedColor: "semi-dark-green" });
-    return statViz;
-} 
-
-export function getStatPlatformAlerts() {
-    const statViz = PanelBuilders.stat().setTitle('Platform');
-    statViz.setNoValue(`No fired Platform alerts found`);
-    statViz.setOption('textMode', BigValueTextMode.Value);
-    statViz.setOption('colorMode', BigValueColorMode.Background);
-    statViz.setColor({ mode: "fixed", fixedColor: "semi-dark-orange" });
+    statViz.setOverrides((b) => {
+        b.matchFieldsByQuery(refId).overrideLinks([]);
+    });
     return statViz;
 }

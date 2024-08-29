@@ -8,20 +8,18 @@ import { getAzureResourceGraphQuery, getPrometheusQuery } from "./queryUtil";
 import { trackException } from "appInsights";
 import { SeverityLevel } from "@microsoft/applicationinsights-web";
 
-export function GetClusterByWorkloadQueries(namespace: string) {
+export function GetClusterByWorkloadQueries() {
     const promDs: DataSourceRef = {
       type: "prometheus",
       uid: `\${${PROM_DS_VARIABLE}}`
     }; 
     const azureQueryRaw = `alertsmanagementresources\r\n| where type == \"microsoft.alertsmanagement/alerts\"\r\n| extend ruleType = properties.essentials.monitorService, cluster = properties.context.labels.cluster\r\n| where ruleType == \"Prometheus\" and tolower(cluster) == tolower("\${${CLUSTER_VARIABLE}}") \r\n| project   AlertName = properties.context.labels.alertname,Cluster = properties.context.labels.cluster ,container = tostring(properties.context.labels.container),namespace = properties.context.labels.namespace ,pod = properties.context.labels.pod\r\n| summarize Alerts = count() by container\r\n`;
-    const workloadTypeFilter = namespace.length > 0 ? `workload_type=\"deployment\", namespace = "${namespace}"` : "workload_type=\"deployment\"";
-    const namespaceFilter = namespace.length > 0 ? `namespace = "${namespace}"` : "";
     const promQueriesRaw = [
-      `kube_pod_container_info * on(pod) group_left(namespace, workload, workload_type)  namespace_workload_pod:kube_pod_owner:relabel{${workloadTypeFilter}}`,
-      `kube_pod_container_info * on(pod) group_left(namespace, workload, workload_type)  namespace_workload_pod:kube_pod_owner:relabel{${workloadTypeFilter}} * on(workload) group_left sum by (workload) (label_replace(max(kube_deployment_status_replicas_available {${namespaceFilter}}) by (deployment,namespace,cluster), \"workload\",\"$1\",\"deployment\",\"(.+)\"))`,
-      `kube_pod_container_info * on(pod) group_left(namespace, workload, workload_type)  namespace_workload_pod:kube_pod_owner:relabel{${workloadTypeFilter}} * on(workload) group_left sum by (workload) (label_replace(max(kube_deployment_status_replicas_ready{${namespaceFilter}}) by (deployment,namespace,cluster), \"workload\",\"$1\",\"deployment\",\"(.+)\"))`,
-      `kube_pod_container_info * on(pod) group_left(namespace, workload, workload_type)  namespace_workload_pod:kube_pod_owner:relabel{${workloadTypeFilter}} * on(workload) group_left sum by (workload) (label_replace(max(kube_deployment_status_replicas_updated {${namespaceFilter}}) by (deployment,namespace,cluster), \"workload\",\"$1\",\"deployment\",\"(.+)\"))`,
-      `kube_pod_container_info * on(pod) group_left(namespace, workload, workload_type)  namespace_workload_pod:kube_pod_owner:relabel{${workloadTypeFilter}} * on(workload) group_left sum by (workload) (label_replace(max(kube_deployment_spec_replicas {${namespaceFilter}}) by (deployment,namespace,cluster), \"workload\",\"$1\",\"deployment\",\"(.+)\"))`
+      `kube_pod_container_info * on(pod) group_left(namespace, workload, workload_type)  namespace_workload_pod:kube_pod_owner:relabel{workload_type=\"deployment\", namespace =~ \"\${${NS_VARIABLE}}\"}`,
+      `kube_pod_container_info * on(pod) group_left(namespace, workload, workload_type)  namespace_workload_pod:kube_pod_owner:relabel{workload_type=\"deployment\", namespace =~ \"\${${NS_VARIABLE}}\"} * on(workload) group_left sum by (workload) (label_replace(max(kube_deployment_status_replicas_available {namespace =~ \"\${${NS_VARIABLE}}\"}) by (deployment,namespace,cluster), \"workload\",\"$1\",\"deployment\",\"(.+)\"))`,
+      `kube_pod_container_info * on(pod) group_left(namespace, workload, workload_type)  namespace_workload_pod:kube_pod_owner:relabel{workload_type=\"deployment\", namespace =~ \"\${${NS_VARIABLE}}\"} * on(workload) group_left sum by (workload) (label_replace(max(kube_deployment_status_replicas_ready{namespace =~ \"\${${NS_VARIABLE}}\"}) by (deployment,namespace,cluster), \"workload\",\"$1\",\"deployment\",\"(.+)\"))`,
+      `kube_pod_container_info * on(pod) group_left(namespace, workload, workload_type)  namespace_workload_pod:kube_pod_owner:relabel{workload_type=\"deployment\", namespace =~ \"\${${NS_VARIABLE}}\"} * on(workload) group_left sum by (workload) (label_replace(max(kube_deployment_status_replicas_updated {namespace =~ \"\${${NS_VARIABLE}}\"}) by (deployment,namespace,cluster), \"workload\",\"$1\",\"deployment\",\"(.+)\"))`,
+      `kube_pod_container_info * on(pod) group_left(namespace, workload, workload_type)  namespace_workload_pod:kube_pod_owner:relabel{workload_type=\"deployment\", namespace =~ \"\${${NS_VARIABLE}}\"} * on(workload) group_left sum by (workload) (label_replace(max(kube_deployment_spec_replicas {namespace =~ \"\${${NS_VARIABLE}}\"}) by (deployment,namespace,cluster), \"workload\",\"$1\",\"deployment\",\"(.+)\"))`
     ];
     let idx = 'B'.charCodeAt(0);
     const promQueries = [];
@@ -254,7 +252,7 @@ function getFieldConfigForField(name: string) {
   const workloadLinks: DataLink[] = [
     {
       title: "Drill down to Compute Resources",
-      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources?var-${NS_VARIABLE}=\${__data.fields.namespace}&var-${WORKLOAD_VAR}=\${__data.fields.workload}&\${${PROM_DS_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${${SUBSCRIPTION_VARIABLE}:queryparam}`,
+      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources?var-${NS_VARIABLE}=\${__data.fields.namespace}&var-${WORKLOAD_VAR}=\${__data.fields.workload}&\${${PROM_DS_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${__url_time_range}`,
       targetBlank: false
     }
   ];
@@ -262,7 +260,7 @@ function getFieldConfigForField(name: string) {
   const alertLinks: DataLink[] = [
     {
       title: "Drill down to Alert Summary",
-      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workloads/alertsummary/\${__data.fields.namespace}?\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}`,
+      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workloads/alertsummary/\${__data.fields.namespace}?\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${__url_time_range}`,
       targetBlank: false
     }
   ];

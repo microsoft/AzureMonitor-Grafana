@@ -165,6 +165,7 @@ function GetNestedTable(data: DataFrame[]): DataFrame[] {
                 };
                 nestedFrames.push([newSubFrame]);
             }
+
             frame.fields = [
                 ...frame.fields,
                 {
@@ -209,7 +210,7 @@ function transformMetricCell(frames: DataFrame[], newFieldName: string, compareF
         config: {
             custom: {
                 cellOptions: {
-                    mode: BarGaugeDisplayMode.Gradient,
+                    mode: BarGaugeDisplayMode.Basic,
                     type: TableCellDisplayMode.Gauge,
                     valueDisplayMode: BarGaugeValueMode.Color
                 },
@@ -218,7 +219,8 @@ function transformMetricCell(frames: DataFrame[], newFieldName: string, compareF
             thresholds: getThresholdsConfig(ThresholdsMode.Absolute, { 0: "orange", 60: "green", 91: "red" }),
             min: 0,
             max: 100,
-            noValue: "--"
+            noValue: "--",
+            unit: "percent"
         },
         type: FieldType.number
     }

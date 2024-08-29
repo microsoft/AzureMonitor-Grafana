@@ -158,7 +158,7 @@ function TransformStatsData(data: DataFrame[], clusterData: SceneQueryRunner): D
         const memUtilFrame: DataFrame | undefined = data.find((x) => x.refId?.includes( `${cluster}_MemUtil`)) ;
         // const memUtilMaxFrame: DataFrame | undefined = data.find((x) => x.refId?.includes( `${cluster}_MAX_MemUtil`)) ;
         const nodesReadyFrame: DataFrame | undefined = data.find((x) => x.refId?.includes( `${cluster}_NODES_READY`)) ;
-        if (!!cPUUtilFrame) {
+        if (!!cPUUtilFrame && cPUUtilFrame.fields.length > 0) {
             const statField = cPUUtilFrame.fields.find((f) => f.type === FieldType.number);
             const stat = getReducerValueFor(castFieldNameToAgg(statField?.name ?? ""), statField?.values ?? []);
             const newFrame: DataFrameWithValue = {
@@ -170,7 +170,7 @@ function TransformStatsData(data: DataFrame[], clusterData: SceneQueryRunner): D
             cpuUtilTrend.values.push(emptyFrame);
         }
 
-        if (!!memUtilFrame) {
+        if (!!memUtilFrame && memUtilFrame.fields.length > 0) {
             const statField = memUtilFrame.fields.find((f) => f.type === FieldType.number);
             const stat = getReducerValueFor(castFieldNameToAgg(statField?.name ?? ""), statField?.values ?? []);
             const newFrame: DataFrameWithValue = {

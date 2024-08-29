@@ -5,7 +5,7 @@ import { CLUSTER_VARIABLE, SUBSCRIPTION_VARIABLE } from "../../../constants";
 
 
 export function GetSummaryDetailsSceneQuery(namespace: string) {
-    const rawQuery = `alertsmanagementresources\r\n| join kind=leftouter (ResourceContainers | where type=='microsoft.resources/subscriptions' and todatetime(properties.essentials.lastModifiedDateTime) >= $__timeFrom and todatetime(properties.essentials.lastModifiedDateTime) <= $__timeTo | project SubName=name, subscriptionId) on subscriptionId\r\n| where type == \"microsoft.alertsmanagement/alerts\"\r\n| where tolower(subscriptionId) == tolower(\${${SUBSCRIPTION_VARIABLE}}) and  tostring(properties.context.labels.namespace) in~ (\"${namespace}\") and tostring(properties.context.labels.cluster) in~ ('\${${CLUSTER_VARIABLE}}') \r\n| parse id with * \"alerts/\" alertId\r\n| project container = tostring(properties.context.labels.container),name, tostring(properties.essentials.severity),  tostring(properties.essentials.monitorCondition), \r\n tostring(properties.essentials.alertState), todatetime(properties.essentials.lastModifiedDateTime), tostring(properties.essentials.monitorService), alertId\r\n`;
+    const rawQuery = `alertsmanagementresources\r\n| join kind=leftouter (ResourceContainers | where type=='microsoft.resources/subscriptions' and todatetime(properties.essentials.lastModifiedDateTime) >= $__timeFrom and todatetime(properties.essentials.lastModifiedDateTime) <= $__timeTo | project SubName=name, subscriptionId) on subscriptionId\r\n| where type == \"microsoft.alertsmanagement/alerts\"\r\n| where tolower(subscriptionId) == tolower(\${${SUBSCRIPTION_VARIABLE}}) and  tostring(properties.context.labels.namespace) in~ (\"${namespace}\") and tostring(properties.context.labels.cluster) in~ ('\${${CLUSTER_VARIABLE}}') \r\n| parse id with * \"alerts/\" alertId\r\n| project container = tostring(properties.context.labels.container),name, tostring(properties.essentials.severity),  tostring(properties.essentials.monitorCondition), \r\n tostring(properties.essentials.alertState), todatetime(properties.essentials.lastModifiedDateTime), tostring(properties.essentials.monitorService), alertId, resourceGroup\r\n`;
     const query = {
         queries: [getAzureResourceGraphQuery(rawQuery, `\$${SUBSCRIPTION_VARIABLE}`, "A")],
     };
@@ -51,7 +51,8 @@ export function GetSummaryDetailsSceneQuery(namespace: string) {
                     properties_essentials_lastModifiedDateTime: "Fired Time",
                     properties_essentials_monitorCondition: "Alert Condition",
                     properties_essentials_monitorService: "Monitor Service",
-                    properties_essentials_severity: "Severity"
+                    properties_essentials_severity: "Severity",
+                    resourceGroup: "Resource Group"
                   }
                 }
             }

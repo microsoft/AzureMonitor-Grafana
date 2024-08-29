@@ -123,7 +123,7 @@ function getFieldConfigForField(name: string) {
   const alertLinks: DataLink[] = [
     {
       title: "Drill down to Alert Summary",
-      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces/alertsummary/\${__data.fields.namespace}?\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}`,
+      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces/alertsummary/\${__data.fields.namespace}?\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${__url_time_range}`,
       targetBlank: false
     }
   ];
@@ -131,7 +131,7 @@ function getFieldConfigForField(name: string) {
   const namespaceLinks: DataLink[] = [
     {
       title: "Go to Workload",
-      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workloads?namespace=\${__data.fields.namespace}&\${${CLUSTER_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}`,
+      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workloads?namespace=\${__data.fields.namespace}&\${${CLUSTER_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}&\${__url_time_range}`,
       targetBlank: false
     }
   ]

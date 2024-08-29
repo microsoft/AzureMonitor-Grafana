@@ -1,7 +1,7 @@
-import { QueryVariable, DataSourceVariable, CustomVariable, TextBoxVariable } from "@grafana/scenes";
-import { getAzureResourceGraphQuery } from "../Queries/queryUtil";
+import { CustomVariable, DataSourceVariable, QueryVariable, TextBoxVariable } from "@grafana/scenes";
 import { VariableHide } from "@grafana/schema";
 import { AZMON_DS_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE } from "../../../constants";
+import { getAzureResourceGraphQuery } from "../Queries/queryUtil";
 
 export function getSubscriptionVariable(hide?: boolean) {
     return new QueryVariable({
@@ -51,16 +51,17 @@ export function getDataSourcesVariableForType(dsType: string, name: string, labe
       });
 }
 
-export function getPrometheusVariable(name: string, label: string, query: string) {
+export function getPrometheusVariable(name: string, label: string, query: string, includeAll?: boolean) {
     const promDatasource = {type: "prometheus", uid: `\${${PROM_DS_VARIABLE}}`};
     return new QueryVariable({
         name: name,
         label: label,
         datasource: promDatasource,
+        includeAll: includeAll,
         query: {
             query: query,
             refId: "A",
-
+            refresh: 2
         }
     });
 }

@@ -1,4 +1,4 @@
-import { EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from "@grafana/scenes";
+import { EmbeddedScene, PanelBuilders, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from "@grafana/scenes";
 import { SeverityLevel } from "@microsoft/applicationinsights-web";
 import { trackException } from "appInsights";
 import { ClusterMapping } from "types";
@@ -15,8 +15,11 @@ export function getOverviewByNodeScene(): SceneAppPage {
     const sceneUrl = `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/nodes`;
     // always check first that there is at least one azure monitor datasource
     const azMonDatasources = getInstanceDatasourcesForType("grafana-azure-monitor-datasource");
+    const promDatasources = getInstanceDatasourcesForType("prometheus");
+    const bothDatasourcesMissing = azMonDatasources.length === 0 && promDatasources.length === 0;
     if (azMonDatasources.length === 0) {
-      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene("Azure Monitor"));
+      const textToShow = bothDatasourcesMissing ? "Azure Monitor or Prometheus" : "Azure Monitor";
+      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene(textToShow));
     }
 
     // get cluster data and initialize mappings
@@ -24,7 +27,6 @@ export function getOverviewByNodeScene(): SceneAppPage {
     let clusterMappings: Record<string, ClusterMapping> = {};
 
     // check if there is at least one prom datasource
-    const promDatasources = getInstanceDatasourcesForType("prometheus");
     if (promDatasources.length === 0) {
       return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene("Prometheus"));
     }
@@ -44,21 +46,50 @@ export function getOverviewByNodeScene(): SceneAppPage {
             controls: [new VariableValueSelectors({}), new SceneTimePicker({}), new SceneRefreshPicker({ })],
             $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
             body: new SceneFlexLayout({
-              direction: 'column',
+              direction: 'row',
               children: [
+                    new SceneFlexLayout({
+                        direction: 'column',
+                        children: [
+                            new SceneFlexItem({
+                                height: 5,
+                                body: PanelBuilders.text().setTitle("").setDisplayMode("transparent").build(),
+                            }),
+                            new SceneFlexItem({
+                                $data: transformedNodeOverviewData,
+                                height: 500,
+                                body: new VizPanel({
+                                    title: undefined,
+                                    pluginId: 'azure-monitoring-app-custom-table',
+                                    options: {},
+                                    fieldConfig: {
+                                        defaults: { 
+                                            noValue: "--",
+                                        },
+                                        overrides: [
+                                            {
+                                                matcher: {
+                                                    id: "byRegexp",
+                                                    options: "/.*/"
+                                                },
+                                                properties: [
+                                                    {
+                                                        id: "links",
+                                                        value: [/** to be replaced by links that take to portal experience */]
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    displayMode: "transparent"
+                                }),  
+                            })
+                        ]
+                    }),
                     new SceneFlexItem({
-                        $data: transformedNodeOverviewData,
-                        body: new VizPanel({
-                            title: undefined,
-                            pluginId: 'azure-monitoring-app-custom-table',
-                            options: {},
-                            fieldConfig: {
-                                defaults: { 
-                                    noValue: "--",
-                                },
-                                overrides: []
-                            }
-                        }),
+                        height: 200,
+                        width: "20%",
+                        body: PanelBuilders.text().setTitle("").setOption("content", "|                                       |                                     |\n|---------------------------------------|-------------------------------------|\n| <span style=\"color:#ff9830\">low</span> | low usage (<60%)                    |\n| <span style=\"color:#73bf69\">med</span>  | well used (between 60% and 90%)     |\n| <span style=\"color:#f2495c\">high</span>   | high usage (>90%)                   |").setDisplayMode("transparent").build(),
                     })
                 ],
               }),
