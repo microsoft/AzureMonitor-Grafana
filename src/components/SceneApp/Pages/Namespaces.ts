@@ -8,11 +8,9 @@ import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
 import { GetClusterOverviewSceneQueries, TranformClusterOverviewData } from "../Queries/ClusterOverviewQueries";
 import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType, getPromDatasource, getSceneQueryRunner } from "../Queries/queryUtil";
-import { VariableSelection } from "../SceneObjects/VariableSelection";
 import { getAlertSummaryDrilldownPage } from "./AlertSummaryDrilldown";
 import { getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables } from "./sceneUtils";
 
-export let sharedVariableSelection: VariableSelection;
 
 export function getNamespacesScene(): SceneAppPage {
     const sceneTitle = "Namespaces";
