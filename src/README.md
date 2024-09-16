@@ -21,6 +21,12 @@ This plugin works with Azure Monitor Datasource and Prometheus datasource config
 - [Azure Monitor Datasource](https://grafana.com/docs/grafana/latest/datasources/azure-monitor/#azure-monitor-data-source)
 - [Prometheus Datasource](https://grafana.com/docs/grafana/latest/getting-started/get-started-grafana-prometheus/) with [Azure Monitor managed service](https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/prometheus-metrics-overview)
 
+### Permissions requirements
+Regardless of the Azure Authentication method you are using, the following are the minimum required permissions that you Grafana instance needs for the resource you are trying to query data from:
+
+- **Azure Monitor**: Monitoring Reader
+- **Azure Managed Prometheus**: Monitoring Data Reader
+
 ## Getting started
 If this plugin has not yet been enabled on your Grafana instance, Click on Install then Enable. This will automatically add an entry point on your Grafana navigation bar under Apps
 
