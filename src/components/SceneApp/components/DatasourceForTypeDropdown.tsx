@@ -1,14 +1,14 @@
+import { css } from '@emotion/css';
 import { DataSourceInstanceSettings } from '@grafana/data';
 import { DataSourceRef } from '@grafana/schema';
 import { Select } from '@grafana/ui';
-import { mergeStyleSets } from '@uifabric/merge-styles';
 import React, { useMemo } from 'react';
 const getStyles = () => {
-    return mergeStyleSets({
-        selector: {
+    return  {
+        selector: css({
             marginRight: "10px",
-        }
-    });
+        }),
+    };
 };
 
 interface DatasourceForTypeDropdownProps {

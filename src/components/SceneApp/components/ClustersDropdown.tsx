@@ -1,5 +1,5 @@
+import { css } from '@emotion/css';
 import { Select } from '@grafana/ui';
-import { mergeStyleSets } from '@uifabric/merge-styles';
 import React from 'react';
 
 interface ClusterDropdownProps {
@@ -14,11 +14,11 @@ interface ClusterDropdownProps {
 }
 
 const getStyles = () => {
-    return mergeStyleSets({
-        selector: {
+    return {
+        selector: css({
             marginRight: "10px",
-        }
-    });
+        }),
+    };
 };
 
 export function ClustersDropdown({clusterOptions, currentValue, onChange}: ClusterDropdownProps) {
