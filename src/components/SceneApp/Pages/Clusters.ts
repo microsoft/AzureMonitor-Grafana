@@ -50,7 +50,7 @@ export function getclustersScene(): SceneAppPage {
           new SceneFlexItem({
               $data: transformedClusterData,
               body: new VizPanel({
-                  pluginId: 'azure-monitoring-app-custom-table',
+                  pluginId: 'azure-monitor-app-custom-table',
                   options: {},
                   fieldConfig: {
                     defaults: { noValue: "--"},
