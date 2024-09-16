@@ -1,14 +1,15 @@
 import { PanelPlugin } from "@grafana/data";
 import { SceneApp, SceneAppPage, sceneUtils } from "@grafana/scenes";
+import { Stack, Text } from "@grafana/ui";
 import { AzureIcon } from "components/img/AzureIcon";
 import React from "react";
 import { AZURE_MONITORING_PLUGIN_ID } from "../../constants";
 import { getclustersScene } from "./Pages/Clusters";
+import { getNamespacesScene } from "./Pages/Namespaces";
 import { getOverviewByNodeScene } from "./Pages/Nodes";
 import { getClusterByWorkloadScene } from "./Pages/Workloads";
 import { CustomTable, CustomTableVizFieldOptions, CustomTableVizOptions } from "./PanelVisualizations/CustomTable";
 import { ConfigurationState } from "./SceneObjects/types";
-import { getNamespacesScene } from "./Pages/Namespaces";
 
 const customTable = new PanelPlugin<CustomTableVizOptions, CustomTableVizFieldOptions>(CustomTable).useFieldConfig({
   useCustomConfig(builder) {
@@ -21,6 +22,7 @@ const customTable = new PanelPlugin<CustomTableVizOptions, CustomTableVizFieldOp
   },
 });
 sceneUtils.registerRuntimePanelPlugin({ pluginId: 'azure-monitoring-app-custom-table', plugin: customTable });
+
 export function getSceneApp(_configState: Partial<ConfigurationState>, _setConfigState: (configState: Partial<ConfigurationState>) => void): SceneApp {
     const namespacesTab = getNamespacesScene();
     const clustersTab = getclustersScene();
@@ -31,9 +33,11 @@ export function getSceneApp(_configState: Partial<ConfigurationState>, _setConfi
         url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation`,
         tabs: [clustersTab, namespacesTab, workloadsTab, nodesTab],
         renderTitle: (title: string) => {
-          return React.createElement('div', { style: { display: 'flex', alignItems: 'center' } },
-            React.createElement(AzureIcon),
-            React.createElement('span', { style: { fontSize: "xx-large", paddingLeft: "15px" } }, title)
+          return React.createElement(Stack, { direction: "row", gap: 1, alignItems: "center", justifyContent: "center" }, 
+              React.createElement(AzureIcon),
+              // need this so that custom props can be passed for Text as children is a required prop in Text
+              // eslint-disable-next-line react/no-children-prop
+              React.createElement(Text, { element: "h1", children: title })
           );
         },
     });

@@ -1,7 +1,7 @@
 import { css } from "@emotion/css";
 import { DataFrame, DataFrameWithValue, Field, FieldType } from "@grafana/data";
 import { CustomTransformOperator, SceneDataTransformer, SceneQueryRunner } from "@grafana/scenes";
-import { Icon, Link, TableCellDisplayMode, TableCustomCellOptions, TableFieldOptions } from "@grafana/ui";
+import { Icon, Link, Stack, TableCellDisplayMode, TableCustomCellOptions, TableFieldOptions, Text } from "@grafana/ui";
 import { AksIcon } from "components/img/AKSIcon";
 import React from "react";
 import { Observable, map } from "rxjs";
@@ -211,18 +211,16 @@ function getNodesReadyFieldConfig() {
         cellComponent: (props) => {
             const values = (props.value as string)?.split("/").map((v: string) => parseInt(v, 10));
             if (!!values) {
-                const iconName = values[0] === values[1] ? "check-circle" : "exclamation-circle"
-                const color = values[0] === values[1] ? "green" : "red"
-                return React.createElement(
-                    'div',
-                    {},
-                    React.createElement(Icon, { name: iconName, style: { color: color } }),
-                    ` ${(props.value as string)}`
+                const iconName = values[0] === values[1] ? "check-circle" : "exclamation-circle";
+                const color = values[0] === values[1] ? "green" : "red";
+                return React.createElement(Stack, { direction: "row", gap: 1, alignItems: "center", justifyContent: "center" }, 
+                    React.createElement(Icon, { name: `${iconName}`, style: { color: `${ color}` } }),
+                    React.createElement(Text, undefined, ` ${(props.value as string)}`)
                 );
             } else {
                 return React.createElement(
-                    'div',
-                    {},
+                    Text,
+                    undefined,
                     !props.value ? "--" : ` ${(props.value as string)}`
                 );
             }
@@ -263,16 +261,11 @@ function getClustersCustomFieldConfig() {
                 { href: interpolatedLink, className: styles().link }, 
                 ` ${newCellValue}`
             );
-            return React.createElement(
-                'div',
-                { style: {display: 'flex', alignItems: 'center'}},
-                aksIcon,
-                React.createElement(
-                    'div', 
-                    { style: { marginLeft: "10px"}},
-                    clusterValue
-                ),
-            );
+
+            return React.createElement(Stack, { direction: "row", gap: 1, alignItems: "center", justifyContent: "center" }, 
+                  aksIcon,
+                  React.createElement(Text, undefined, clusterValue)
+              );
         }
     };
 
