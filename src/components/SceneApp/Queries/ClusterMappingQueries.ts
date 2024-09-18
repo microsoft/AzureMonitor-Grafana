@@ -1,7 +1,7 @@
 import { css } from "@emotion/css";
 import { DataFrame, DataFrameWithValue, Field, FieldType } from "@grafana/data";
 import { CustomTransformOperator, SceneDataTransformer, SceneQueryRunner } from "@grafana/scenes";
-import { Icon, Link, Stack, TableCellDisplayMode, TableCustomCellOptions, TableFieldOptions, Text } from "@grafana/ui";
+import { Link, Stack, TableCellDisplayMode, TableCustomCellOptions, TableFieldOptions, Text } from "@grafana/ui";
 import { AksIcon } from "components/img/AKSIcon";
 import React from "react";
 import { Observable, map } from "rxjs";
@@ -218,7 +218,7 @@ function getNodesReadyFieldConfig() {
                 const color = values[0] === values[1] ? "green" : "red";
                 return CellWithIcon({ iconName, color, cellValue: valueString});
             } else {
-                return PlainText({ value: valueString });
+                return PlainText({ value: "--" });
             }
         }
     };
