@@ -11,6 +11,8 @@ import { getColorFieldConfig } from "../Visualizations/utils";
 import { castFieldNameToAgg, formatReadyTotal, getReducerValueFor, interpolateVariables } from "./dataUtil";
 import { azure_monitor_queries } from "./queries";
 import { getAMWToGrana, getAzureResourceGraphQuery, getLogAnalyticsQuery, getPrometheusQuery } from "./queryUtil";
+import CellWithIcon from "../CustomComponents/cellWithIcon";
+import PlainText from "../CustomComponents/plainText";
 
 export function GetClustersQuery(query: string): SceneQueryRunner {
     const azMonQuery = {
@@ -209,20 +211,14 @@ function getNodesReadyFieldConfig() {
     const nodesReadyOptions: TableCustomCellOptions = {
         type: TableCellDisplayMode.Custom,
         cellComponent: (props) => {
-            const values = (props.value as string)?.split("/").map((v: string) => parseInt(v, 10));
+            const valueString = props.value as string;
+            const values = valueString?.split("/").map((v: string) => parseInt(v, 10));
             if (!!values) {
                 const iconName = values[0] === values[1] ? "check-circle" : "exclamation-circle";
                 const color = values[0] === values[1] ? "green" : "red";
-                return React.createElement(Stack, { direction: "row", gap: 1, alignItems: "center", justifyContent: "center" }, 
-                    React.createElement(Icon, { name: `${iconName}`, style: { color: `${ color}` } }),
-                    React.createElement(Text, undefined, ` ${(props.value as string)}`)
-                );
+                return CellWithIcon({ iconName, color, cellValue: valueString});
             } else {
-                return React.createElement(
-                    Text,
-                    undefined,
-                    !props.value ? "--" : ` ${(props.value as string)}`
-                );
+                return PlainText({ value: valueString });
             }
         }
     };
