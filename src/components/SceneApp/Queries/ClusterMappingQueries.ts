@@ -1,9 +1,7 @@
-import { css } from "@emotion/css";
 import { DataFrame, DataFrameWithValue, Field, FieldType } from "@grafana/data";
 import { CustomTransformOperator, SceneDataTransformer, SceneQueryRunner } from "@grafana/scenes";
-import { Link, Stack, TableCellDisplayMode, TableCustomCellOptions, TableFieldOptions, Text } from "@grafana/ui";
+import { TableCellDisplayMode, TableCustomCellOptions, TableFieldOptions } from "@grafana/ui";
 import { AksIcon } from "components/img/AKSIcon";
-import React from "react";
 import { Observable, map } from "rxjs";
 import { ClusterMapping } from "types";
 import { AGG_VAR, AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, SUBSCRIPTION_VARIABLE } from "../../../constants";
@@ -216,7 +214,7 @@ function getNodesReadyFieldConfig() {
             if (!!values) {
                 const iconName = values[0] === values[1] ? "check-circle" : "exclamation-circle";
                 const color = values[0] === values[1] ? "green" : "red";
-                return CellWithIcon({ iconName, color, cellValue: valueString});
+                return CellWithIcon({ iconName, color, cellValue: valueString, type: "grafana-builtin" });
             } else {
                 return PlainText({ value: "--" });
             }
@@ -235,33 +233,14 @@ function getClustersCustomFieldConfig() {
     const clusterOptions: TableCustomCellOptions = {
         type: TableCellDisplayMode.Custom,
         cellComponent: (props) => {
-            const styles = () => {
-                return {
-                    link: css({
-                        color: "#6e9fff !important",
-                        textDecoration: "none",
-                        ':hover': {
-                            textDecoration: "underline"
-                        }
-                    })
-                }
-            };
-
             const cellValue = (props.value as string);
             const isUnmonitored = cellValue.endsWith("_unmonitored") ?? false;
             const newCellValue = isUnmonitored ? `${cellValue.substring(0, cellValue.length - 12)} (Unmonitored)` : cellValue;
-            const aksIcon = React.createElement(AksIcon, { greyOut: isUnmonitored });
+            const aksIcon = AksIcon({ greyOut: isUnmonitored });
             const interpolatedLink = interpolateVariables(`/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces?var-${CLUSTER_VARIABLE}=${newCellValue}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}`);
-            const clusterValue = isUnmonitored ? `${newCellValue}` : React.createElement(
-                Link, 
-                { href: interpolatedLink, className: styles().link }, 
-                ` ${newCellValue}`
-            );
+            const link = isUnmonitored ? undefined : interpolatedLink;
 
-            return React.createElement(Stack, { direction: "row", gap: 1, alignItems: "center", justifyContent: "center" }, 
-                  aksIcon,
-                  React.createElement(Text, undefined, clusterValue)
-              );
+            return CellWithIcon({ cellValue: newCellValue, type: "custom", customIcon: aksIcon, link });
         }
     };
 

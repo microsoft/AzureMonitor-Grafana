@@ -8,7 +8,7 @@ interface PlainTextProps {
 const PlainText = (props: PlainTextProps) => {
     return (
         <Text>{props.value}</Text>
-    );
+    )
 }
 
 export default PlainText;
