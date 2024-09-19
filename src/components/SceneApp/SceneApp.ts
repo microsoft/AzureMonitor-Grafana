@@ -19,8 +19,7 @@ const customTable = new PanelPlugin<CustomTableVizOptions, CustomTableVizFieldOp
     });
   },
 });
-sceneUtils.registerRuntimePanelPlugin({ pluginId: 'azure-monitoring-app-custom-table', plugin: customTable });
-
+sceneUtils.registerRuntimePanelPlugin({ pluginId: 'azure-monitor-app-custom-table', plugin: customTable });
 export function getSceneApp(_configState: Partial<ConfigurationState>, _setConfigState: (configState: Partial<ConfigurationState>) => void): SceneApp {
     const namespacesTab = getNamespacesScene();
     const clustersTab = getclustersScene();

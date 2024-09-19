@@ -18,7 +18,7 @@
     "sign": "npx --yes @grafana/sign-plugin@latest"
   },
   "author": "Azure",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@grafana/eslint-config": "^6.0.0",

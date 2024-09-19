@@ -60,7 +60,7 @@ export function getOverviewByNodeScene(): SceneAppPage {
                                 height: 500,
                                 body: new VizPanel({
                                     title: undefined,
-                                    pluginId: 'azure-monitoring-app-custom-table',
+                                    pluginId: 'azure-monitor-app-custom-table',
                                     options: {},
                                     fieldConfig: {
                                         defaults: { 

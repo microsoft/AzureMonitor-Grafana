@@ -8,10 +8,10 @@ import { GetClusterByWorkloadQueries, TransfomClusterByWorkloadData } from '../Q
 import { GetClustersQuery } from '../Queries/ClusterMappingQueries';
 import { azure_monitor_queries } from '../Queries/queries';
 import { createMappingFromSeries, getInstanceDatasourcesForType, getPromDatasource, getSceneQueryRunner } from '../Queries/queryUtil';
+import { getPrometheusVariable } from '../Variables/variables';
 import { getAlertSummaryDrilldownPage } from './AlertSummaryDrilldown';
 import { getComputeResourcesDrilldownPage } from './ComputeResourcesDrilldown';
 import { getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables } from './sceneUtils';
-import { getPrometheusVariable } from '../Variables/variables';
 
 function getWorkloadsVariables() {
   const namespaceVariableRaw = `label_values(kube_namespace_status_phase,namespace)`;
@@ -63,7 +63,7 @@ export function getClusterByWorkloadScene() {
             $data: transformedData,
             height: 500,
             body: new VizPanel({
-              pluginId: 'azure-monitoring-app-custom-table',
+              pluginId: 'azure-monitor-app-custom-table',
               options: {
                   initialSortBy: [
                     {
