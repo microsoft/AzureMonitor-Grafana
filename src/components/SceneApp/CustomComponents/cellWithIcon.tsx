@@ -5,6 +5,7 @@ import * as React from "react";
 
 interface BaseProps {
     cellValue: string;
+    type: "none" | "grafana-builtin" | "custom";
     link?: string;
 }
 
@@ -19,7 +20,11 @@ interface CustomIconProps extends BaseProps {
     customIcon: React.JSX.Element;
 }
 
-type CellWithIconProps = IconProps | CustomIconProps;
+interface NoIconProps extends BaseProps {
+    type: "none";
+}
+
+type CellWithIconProps = IconProps | CustomIconProps | NoIconProps;
 
 const useStyles = (theme: GrafanaTheme2) => {
     return {

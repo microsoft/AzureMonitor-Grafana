@@ -1,6 +1,6 @@
 import { DataFrame, DataFrameWithValue, Field, FieldType } from "@grafana/data";
 import { CustomTransformOperator, SceneDataTransformer, SceneQueryRunner } from "@grafana/scenes";
-import { TableCellDisplayMode, TableCustomCellOptions, TableFieldOptions, Text } from "@grafana/ui";
+import { TableCellDisplayMode, TableCustomCellOptions, TableFieldOptions } from "@grafana/ui";
 import { AksIcon } from "components/img/AKSIcon";
 import { Observable, map } from "rxjs";
 import { ClusterMapping } from "types";
@@ -215,7 +215,7 @@ function getNodesReadyFieldConfig() {
                 const color = values[0] === values[1] ? "green" : "red";
                 return CellWithIcon({ iconName, color, cellValue: valueString, type: "grafana-builtin" });
             } else {
-                return Text({ children: "--" })
+                return CellWithIcon({ cellValue: "--", type: "none" });
             }
         }
     };
