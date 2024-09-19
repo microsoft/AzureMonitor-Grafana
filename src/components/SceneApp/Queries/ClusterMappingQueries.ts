@@ -1,16 +1,15 @@
 import { DataFrame, DataFrameWithValue, Field, FieldType } from "@grafana/data";
 import { CustomTransformOperator, SceneDataTransformer, SceneQueryRunner } from "@grafana/scenes";
-import { TableCellDisplayMode, TableCustomCellOptions, TableFieldOptions } from "@grafana/ui";
+import { TableCellDisplayMode, TableCustomCellOptions, TableFieldOptions, Text } from "@grafana/ui";
 import { AksIcon } from "components/img/AKSIcon";
 import { Observable, map } from "rxjs";
 import { ClusterMapping } from "types";
 import { AGG_VAR, AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, SUBSCRIPTION_VARIABLE } from "../../../constants";
+import CellWithIcon from "../CustomComponents/cellWithIcon";
 import { getColorFieldConfig } from "../Visualizations/utils";
 import { castFieldNameToAgg, formatReadyTotal, getReducerValueFor, interpolateVariables } from "./dataUtil";
 import { azure_monitor_queries } from "./queries";
 import { getAMWToGrana, getAzureResourceGraphQuery, getLogAnalyticsQuery, getPrometheusQuery } from "./queryUtil";
-import CellWithIcon from "../CustomComponents/cellWithIcon";
-import PlainText from "../CustomComponents/plainText";
 
 export function GetClustersQuery(query: string): SceneQueryRunner {
     const azMonQuery = {
@@ -216,7 +215,7 @@ function getNodesReadyFieldConfig() {
                 const color = values[0] === values[1] ? "green" : "red";
                 return CellWithIcon({ iconName, color, cellValue: valueString, type: "grafana-builtin" });
             } else {
-                return PlainText({ value: "--" });
+                return Text({ children: "--" })
             }
         }
     };
