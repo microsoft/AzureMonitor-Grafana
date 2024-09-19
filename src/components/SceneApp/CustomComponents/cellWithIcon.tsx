@@ -25,10 +25,7 @@ const useStyles = (theme: GrafanaTheme2) => {
     return {
         link: css({
             color: theme.colors.text.link,
-            textDecoration: "none",
-            ':hover': {
-                textDecoration: "underline"
-            }
+            textDecoration: "underline",
         })
     }
 };

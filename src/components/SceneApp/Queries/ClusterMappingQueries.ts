@@ -211,7 +211,7 @@ function getNodesReadyFieldConfig() {
         cellComponent: (props) => {
             const valueString = props.value as string;
             const values = valueString?.split("/").map((v: string) => parseInt(v, 10));
-            if (!!values) {
+            if (!!values && values.length === 2) {
                 const iconName = values[0] === values[1] ? "check-circle" : "exclamation-circle";
                 const color = values[0] === values[1] ? "green" : "red";
                 return CellWithIcon({ iconName, color, cellValue: valueString, type: "grafana-builtin" });
