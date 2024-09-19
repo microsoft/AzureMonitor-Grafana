@@ -50,6 +50,7 @@ export function getNamespacesScene(): SceneAppPage {
           children: [
             new SceneFlexItem({
                 $data: transformedClusterOverviewData,
+                height: 500,
                 body: new VizPanel({
                   pluginId: 'azure-monitoring-app-custom-table',
                   options: {},

@@ -1,9 +1,10 @@
 import { DataLink, FieldConfig, IconName } from "@grafana/data";
 import { getTemplateSrv } from "@grafana/runtime";
 import { TableCellDisplayMode } from "@grafana/schema";
-import { Badge, BadgeColor, Icon, Stack, TableCustomCellOptions, TableFieldOptions, Text } from "@grafana/ui";
+import { Badge, BadgeColor, TableCustomCellOptions, TableFieldOptions } from "@grafana/ui";
 import React from "react";
 import { ReducerFunctions } from "./types";
+import CellWithIcon from "../CustomComponents/cellWithIcon";
 
 export function getReducerValueFor(reducerFunction: ReducerFunctions, numbers: number[]): number | null {
     if (numbers.length === 0) {
@@ -44,10 +45,7 @@ export function getValidInvalidCustomFieldConfig(width: number, invalidIcon: Ico
         const value = props.value as string;
         const iconName = checkValue(value) ? "check-circle" : invalidIcon;
         const color = checkValue(value) ? "green" : invalidColor;
-        return React.createElement(Stack, { direction: "row", gap: 1, alignItems: "center", justifyContent: "center" }, 
-            React.createElement(Icon, { name: `${iconName}`, style: { color: `${ color}` } }),
-            React.createElement(Text, undefined, value)
-        );
+        return CellWithIcon({ iconName, color, cellValue: value, type: "grafana-builtin"});
       }
     };
   
