@@ -4,11 +4,11 @@ import { AzureIcon } from "components/img/AzureIcon";
 import React from "react";
 import { AZURE_MONITORING_PLUGIN_ID } from "../../constants";
 import { getclustersScene } from "./Pages/Clusters";
+import { getNamespacesScene } from "./Pages/Namespaces";
 import { getOverviewByNodeScene } from "./Pages/Nodes";
 import { getClusterByWorkloadScene } from "./Pages/Workloads";
 import { CustomTable, CustomTableVizFieldOptions, CustomTableVizOptions } from "./PanelVisualizations/CustomTable";
 import { ConfigurationState } from "./SceneObjects/types";
-import { getNamespacesScene } from "./Pages/Namespaces";
 
 const customTable = new PanelPlugin<CustomTableVizOptions, CustomTableVizFieldOptions>(CustomTable).useFieldConfig({
   useCustomConfig(builder) {
@@ -20,7 +20,7 @@ const customTable = new PanelPlugin<CustomTableVizOptions, CustomTableVizFieldOp
     });
   },
 });
-sceneUtils.registerRuntimePanelPlugin({ pluginId: 'azure-monitoring-app-custom-table', plugin: customTable });
+sceneUtils.registerRuntimePanelPlugin({ pluginId: 'azure-monitor-app-custom-table', plugin: customTable });
 export function getSceneApp(_configState: Partial<ConfigurationState>, _setConfigState: (configState: Partial<ConfigurationState>) => void): SceneApp {
     const namespacesTab = getNamespacesScene();
     const clustersTab = getclustersScene();

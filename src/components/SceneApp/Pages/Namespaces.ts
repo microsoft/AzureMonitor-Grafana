@@ -53,7 +53,7 @@ export function getNamespacesScene(): SceneAppPage {
             new SceneFlexItem({
                 $data: transformedClusterOverviewData,
                 body: new VizPanel({
-                  pluginId: 'azure-monitoring-app-custom-table',
+                  pluginId: 'azure-monitor-app-custom-table',
                   options: {},
                   fieldConfig: {
                     defaults: { noValue: "--"},

@@ -4,7 +4,7 @@ RUN umask 0002 && . /usr/local/share/nvm/nvm.sh && nvm install 20 2>&1
 
 USER vscode
 
-ARG GRAFANA_VERSION=11.0.0
+ARG GRAFANA_VERSION=11.2.0
 
 RUN echo "Installing Tools" && \
   # Air
