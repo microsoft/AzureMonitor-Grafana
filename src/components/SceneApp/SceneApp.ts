@@ -1,8 +1,7 @@
 import { PanelPlugin } from "@grafana/data";
 import { SceneApp, SceneAppPage, sceneUtils } from "@grafana/scenes";
-import { AzureIcon } from "components/img/AzureIcon";
-import React from "react";
 import { AZURE_MONITORING_PLUGIN_ID } from "../../constants";
+import SceneTitle from "./CustomComponents/sceneTitle";
 import { getclustersScene } from "./Pages/Clusters";
 import { getNamespacesScene } from "./Pages/Namespaces";
 import { getOverviewByNodeScene } from "./Pages/Nodes";
@@ -31,10 +30,7 @@ export function getSceneApp(_configState: Partial<ConfigurationState>, _setConfi
         url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation`,
         tabs: [clustersTab, namespacesTab, workloadsTab, nodesTab],
         renderTitle: (title: string) => {
-          return React.createElement('div', { style: { display: 'flex', alignItems: 'center' } },
-            React.createElement(AzureIcon),
-            React.createElement('span', { style: { fontSize: "xx-large", paddingLeft: "15px" } }, title)
-          );
+          return SceneTitle({ title });
         },
     });
     return new SceneApp({

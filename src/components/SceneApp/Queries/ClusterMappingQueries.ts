@@ -1,12 +1,11 @@
-import { css } from "@emotion/css";
 import { DataFrame, DataFrameWithValue, Field, FieldType } from "@grafana/data";
 import { CustomTransformOperator, SceneDataTransformer, SceneQueryRunner } from "@grafana/scenes";
-import { Icon, Link, TableCellDisplayMode, TableCustomCellOptions, TableFieldOptions } from "@grafana/ui";
+import { TableCellDisplayMode, TableCustomCellOptions, TableFieldOptions } from "@grafana/ui";
 import { AksIcon } from "components/img/AKSIcon";
-import React from "react";
 import { Observable, map } from "rxjs";
 import { ClusterMapping } from "types";
 import { AGG_VAR, AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, SUBSCRIPTION_VARIABLE } from "../../../constants";
+import CellWithIcon from "../CustomComponents/cellWithIcon";
 import { getColorFieldConfig } from "../Visualizations/utils";
 import { castFieldNameToAgg, formatReadyTotal, getReducerValueFor, interpolateVariables } from "./dataUtil";
 import { azure_monitor_queries } from "./queries";
@@ -209,22 +208,14 @@ function getNodesReadyFieldConfig() {
     const nodesReadyOptions: TableCustomCellOptions = {
         type: TableCellDisplayMode.Custom,
         cellComponent: (props) => {
-            const values = (props.value as string)?.split("/").map((v: string) => parseInt(v, 10));
-            if (!!values) {
-                const iconName = values[0] === values[1] ? "check-circle" : "exclamation-circle"
-                const color = values[0] === values[1] ? "green" : "red"
-                return React.createElement(
-                    'div',
-                    {},
-                    React.createElement(Icon, { name: iconName, style: { color: color } }),
-                    ` ${(props.value as string)}`
-                );
+            const valueString = props.value as string;
+            const values = valueString?.split("/").map((v: string) => parseInt(v, 10));
+            if (!!values && values.length === 2) {
+                const iconName = values[0] === values[1] ? "check-circle" : "exclamation-circle";
+                const color = values[0] === values[1] ? "green" : "red";
+                return CellWithIcon({ iconName, color, cellValue: valueString, type: "grafana-builtin" });
             } else {
-                return React.createElement(
-                    'div',
-                    {},
-                    !props.value ? "--" : ` ${(props.value as string)}`
-                );
+                return CellWithIcon({ cellValue: "--", type: "none" });
             }
         }
     };
@@ -241,38 +232,14 @@ function getClustersCustomFieldConfig() {
     const clusterOptions: TableCustomCellOptions = {
         type: TableCellDisplayMode.Custom,
         cellComponent: (props) => {
-            const styles = () => {
-                return {
-                    link: css({
-                        color: "#6e9fff !important",
-                        textDecoration: "none",
-                        ':hover': {
-                            textDecoration: "underline"
-                        }
-                    })
-                }
-            };
-
             const cellValue = (props.value as string);
             const isUnmonitored = cellValue.endsWith("_unmonitored") ?? false;
             const newCellValue = isUnmonitored ? `${cellValue.substring(0, cellValue.length - 12)} (Unmonitored)` : cellValue;
-            const aksIcon = React.createElement(AksIcon, { greyOut: isUnmonitored });
+            const aksIcon = AksIcon({ greyOut: isUnmonitored });
             const interpolatedLink = interpolateVariables(`/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces?var-${CLUSTER_VARIABLE}=${newCellValue}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}`);
-            const clusterValue = isUnmonitored ? `${newCellValue}` : React.createElement(
-                Link, 
-                { href: interpolatedLink, className: styles().link }, 
-                ` ${newCellValue}`
-            );
-            return React.createElement(
-                'div',
-                { style: {display: 'flex', alignItems: 'center'}},
-                aksIcon,
-                React.createElement(
-                    'div', 
-                    { style: { marginLeft: "10px"}},
-                    clusterValue
-                ),
-            );
+            const link = isUnmonitored ? undefined : interpolatedLink;
+
+            return CellWithIcon({ cellValue: newCellValue, type: "custom", customIcon: aksIcon, link });
         }
     };
 

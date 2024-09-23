@@ -1,9 +1,10 @@
-import { IconName, DataLink, FieldConfig } from "@grafana/data";
-import { TableCellDisplayMode } from "@grafana/schema";
-import { TableCustomCellOptions, Icon, TableFieldOptions, Badge, BadgeColor } from "@grafana/ui";
-import React from "react";
+import { DataLink, FieldConfig, IconName } from "@grafana/data";
 import { getTemplateSrv } from "@grafana/runtime";
+import { TableCellDisplayMode } from "@grafana/schema";
+import { Badge, BadgeColor, TableCustomCellOptions, TableFieldOptions } from "@grafana/ui";
+import React from "react";
 import { ReducerFunctions } from "./types";
+import CellWithIcon from "../CustomComponents/cellWithIcon";
 
 export function getReducerValueFor(reducerFunction: ReducerFunctions, numbers: number[]): number | null {
     if (numbers.length === 0) {
@@ -41,15 +42,10 @@ export function getValidInvalidCustomFieldConfig(width: number, invalidIcon: Ico
     const options: TableCustomCellOptions = {
       type: TableCellDisplayMode.Custom,
       cellComponent: (props) => {
-          const value = props.value;
-          const iconName = checkValue(value) ? "check-circle" : invalidIcon;
-          const color = checkValue(value) ? "green" : invalidColor;
-          return React.createElement(
-            'div',
-            { style: {display: 'flex', alignItems: 'center'}},
-            React.createElement(Icon, { name: `${iconName}`, style: { color: `${ color}` } }),
-            React.createElement('div', { style: { marginLeft: "10px"}}, ` ${value}`)
-          );
+        const value = props.value as string;
+        const iconName = checkValue(value) ? "check-circle" : invalidIcon;
+        const color = checkValue(value) ? "green" : invalidColor;
+        return CellWithIcon({ iconName, color, cellValue: value, type: "grafana-builtin"});
       }
     };
   

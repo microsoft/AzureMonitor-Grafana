@@ -16,6 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+            ref: ${{ github.ref }} # Checkout the repository at the tag that triggered the workflow
       # Extract the tag name
       - name: Extract tag name
         id: extract_tag
