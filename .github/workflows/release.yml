@@ -29,7 +29,7 @@ jobs:
         run: echo "The current version is $TAG_NAME"
       
       # Update version.json with the tag name
-      - name: Update version.json and package.json
+      - name: Update version.json
         run: |
           jq --arg version "$TAG_NAME" '.version = $version' $GITHUB_WORKSPACE/src/version.json > tmp.json && mv tmp.json $GITHUB_WORKSPACE/src/version.json
           TAG_NAME=${TAG_NAME#v} # Remove the 'v' prefix if present
