@@ -1,6 +1,6 @@
 {
   "name": "azure-monitor-app",
-  "version": "1.0.2-pre",
+  "version": "1.0.2",
   "description": "Monitor your Azure Cloud Native services",
   "scripts": {
     "build": "webpack -c ./.config/webpack/webpack.config.ts --env production",
