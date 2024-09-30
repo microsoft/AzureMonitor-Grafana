@@ -83,7 +83,8 @@ export function getclustersScene(report: (name: string, properties: Record<strin
             reportException("grafana_plugin_runqueries_failed", {
               reporter: "Scene.Main.ClustersScene",
               exception: e instanceof Error ? e : new Error(stringify(e)),
-              type: ReportType.Exception
+              type: ReportType.Exception,
+              trigger: "page"
             }, report);
             throw new Error(stringify(e));
           }

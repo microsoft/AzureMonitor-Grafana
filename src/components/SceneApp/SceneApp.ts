@@ -21,10 +21,10 @@ const customTable = new PanelPlugin<CustomTableVizOptions, CustomTableVizFieldOp
 });
 sceneUtils.registerRuntimePanelPlugin({ pluginId: 'azure-monitor-app-custom-table', plugin: customTable });
 export function getSceneApp(_configState: Partial<ConfigurationState>, _setConfigState: (configState: Partial<ConfigurationState>) => void, report: (name: string, properties: Record<string, unknown>) => void): SceneApp {
-    const namespacesTab = getNamespacesScene();
+    const namespacesTab = getNamespacesScene(report);
     const clustersTab = getclustersScene(report);
-    const workloadsTab = getClusterByWorkloadScene();
-    const nodesTab = getOverviewByNodeScene();
+    const workloadsTab = getClusterByWorkloadScene(report);
+    const nodesTab = getOverviewByNodeScene(report);
     const myAppPage = new SceneAppPage({
         title: 'Azure Cloud Native Monitoring',
         url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation`,

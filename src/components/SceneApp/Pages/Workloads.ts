@@ -1,4 +1,6 @@
 import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from '@grafana/scenes';
+import { reportException } from 'telemetry/telemetry';
+import { ReportType } from 'telemetry/types';
 import { ClusterMapping } from 'types';
 import { stringify } from 'utils/stringify';
 import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE } from '../../../constants';
@@ -19,7 +21,7 @@ function getWorkloadsVariables() {
   return variables;
 }
 
-export function getClusterByWorkloadScene() {
+export function getClusterByWorkloadScene(report: (name: string, properties: Record<string, unknown>) => void) {
   const sceneTitle = 'Workloads';
   const sceneUrl = `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workloads`;
   // always check first that there is at least one azure monitor datasource
@@ -94,6 +96,12 @@ export function getClusterByWorkloadScene() {
             promDSVar.changeValueTo(newPromDs.uid);
           }
         } catch (e) {
+          reportException("grafana_plugin_promdsvarchange_failed", {
+            reporter: "Scene.Main.WorkloadsScene",
+            exception: e instanceof Error ? e : new Error(stringify(e)),
+            type: ReportType.Exception,
+            trigger: "cluster_change"
+          }, report);
           throw new Error(stringify(e));
         }
       });
@@ -110,6 +118,12 @@ export function getClusterByWorkloadScene() {
             promDSVar.changeValueTo(promDs.uid);
           }
         } catch (e) {
+          reportException("grafana_plugin_promdsvarchange_failed", {
+            reporter: "Scene.Main.WorkloadsScene",
+            exception: e instanceof Error ? e : new Error(stringify(e)),
+            type: ReportType.Exception,
+            trigger: "cluster_mappings_change"
+          }, report);
           throw new Error(stringify(e));
         }
       }

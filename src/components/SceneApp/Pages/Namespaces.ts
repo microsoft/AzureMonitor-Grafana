@@ -1,4 +1,6 @@
 import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from "@grafana/scenes";
+import { reportException } from "telemetry/telemetry";
+import { ReportType } from "telemetry/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
 import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, PROM_DS_VARIABLE } from "../../../constants";
@@ -10,7 +12,7 @@ import { getAlertSummaryDrilldownPage } from "./AlertSummaryDrilldown";
 import { getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables } from "./sceneUtils";
 
 
-export function getNamespacesScene(): SceneAppPage {
+export function getNamespacesScene(report: (name: string, properties: Record<string, unknown>) => void): SceneAppPage {
     const sceneTitle = "Namespaces";
     const sceneUrl = `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces`;
     // always check first that there is at least one azure monitor datasource
@@ -77,6 +79,12 @@ export function getNamespacesScene(): SceneAppPage {
             promDSVar.changeValueTo(newPromDs.uid);
           }
         } catch (e) {
+          reportException("grafana_plugin_promdsvarchange_failed", {
+            reporter: "Scene.Main.NamespacesScene",
+            exception: e instanceof Error ? e : new Error(stringify(e)),
+            type: ReportType.Exception,
+            trigger: "cluster_change"
+          }, report);
           throw new Error(stringify(e));
         }
       });
@@ -93,6 +101,12 @@ export function getNamespacesScene(): SceneAppPage {
               promDSVar.changeValueTo(promDs.uid);
             }
           } catch (e) {
+            reportException("grafana_plugin_promdsvarchange_failed", {
+              reporter: "Scene.Main.NamespacesScene",
+              exception: e instanceof Error ? e : new Error(stringify(e)),
+              type: ReportType.Exception,
+              trigger: "cluster_mappings_change"
+            }, report);
             throw new Error(stringify(e));
           }
         }
