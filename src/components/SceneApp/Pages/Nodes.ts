@@ -1,5 +1,5 @@
 import { EmbeddedScene, PanelBuilders, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from "@grafana/scenes";
-import { reportException } from "telemetry/telemetry";
+import { TelemetryClient } from "telemetry/telemetry";
 import { ReportType } from "telemetry/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
@@ -10,7 +10,7 @@ import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType, getSceneQueryRunner } from "../Queries/queryUtil";
 import { getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables } from "./sceneUtils";
 
-export function getOverviewByNodeScene(report: (name: string, properties: Record<string, unknown>) => void): SceneAppPage {
+export function getOverviewByNodeScene(telemetryClient: TelemetryClient): SceneAppPage {
     const sceneTitle = "Nodes";
     const sceneUrl = `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/nodes`;
     // always check first that there is at least one azure monitor datasource
@@ -107,12 +107,12 @@ export function getOverviewByNodeScene(report: (name: string, properties: Record
                 nodeOverviewData.setState({ queries: newQueries });
                 nodeOverviewData.runQueries();
             } catch (e) {
-                reportException("grafana_plugin_runqueries_failed", {
+                telemetryClient.reportException("grafana_plugin_runqueries_failed", {
                     reporter: "Scene.Main.NodesScene",
-                    exception: e instanceof Error ? e : new Error(stringify(e)),
+                    exception: "e instanceof Error ? e : new Error(stringify(e))",
                     type: ReportType.Exception,
                     trigger: "cluster_change"
-                  }, report);
+                  });
                 throw new Error(stringify(e));
             }
         });
@@ -128,12 +128,12 @@ export function getOverviewByNodeScene(report: (name: string, properties: Record
                     nodeOverviewData.setState({ queries: newQueries });
                     nodeOverviewData.runQueries();
                 } catch (e) {
-                    reportException("grafana_plugin_runqueries_failed", {
+                    telemetryClient.reportException("grafana_plugin_runqueries_failed", {
                         reporter: "Scene.Main.NodesScene",
                         exception: e instanceof Error ? e : new Error(stringify(e)),
                         type: ReportType.Exception,
                         trigger: "cluster_mappings_change"
-                      }, report);
+                      });
                     throw new Error(stringify(e));
                 }
             }

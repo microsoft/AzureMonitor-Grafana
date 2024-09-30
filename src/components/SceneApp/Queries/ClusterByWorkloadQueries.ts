@@ -2,7 +2,7 @@ import { DataFrame, DataLink } from "@grafana/data";
 import { CustomTransformOperator, SceneDataTransformer, SceneQueryRunner } from "@grafana/scenes";
 import { DataSourceRef } from "@grafana/schema";
 import { Observable, map } from "rxjs";
-import { reportException } from "telemetry/telemetry";
+import { TelemetryClient } from "telemetry/telemetry";
 import { ReportType } from "telemetry/types";
 import { AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE, WORKLOAD_VAR } from "../../../constants";
 import { formatReadyTotal, getCustomFieldConfigBadge, getValidInvalidCustomFieldConfig } from "./dataUtil";
@@ -32,7 +32,7 @@ export function GetClusterByWorkloadQueries() {
     return [azureSceneQuery, ...promQueries];
 }
 
-export function TransfomClusterByWorkloadData(data: SceneQueryRunner, report: (name: string, properties: Record<string, unknown>) => void) {
+export function TransfomClusterByWorkloadData(data: SceneQueryRunner, telemetryClient: TelemetryClient) {
     const transformedData = new SceneDataTransformer({
         $data: data,
         transformations: [
@@ -133,7 +133,7 @@ export function TransfomClusterByWorkloadData(data: SceneQueryRunner, report: (n
                 }
               }
           },
-          customTranformCellOptions(report),
+          customTranformCellOptions(telemetryClient),
           {
               id: "organize",
               options: {
@@ -201,16 +201,16 @@ export function TransfomClusterByWorkloadData(data: SceneQueryRunner, report: (n
     return transformedData;
 }
 
-const customTranformCellOptions: (report: (name: string, properties: Record<string, unknown>) => void) => CustomTransformOperator =
-(report: (name: string, properties: Record<string, unknown>) => void) =>
+const customTranformCellOptions: (telemetryClient: TelemetryClient) => CustomTransformOperator =
+(telemetryClient: TelemetryClient) =>
 () =>
 (source: Observable<DataFrame[]>) => {
     return source.pipe(
-        map(dataFrames => GetIconsOnCells(dataFrames, report))
+        map(dataFrames => GetIconsOnCells(dataFrames, telemetryClient))
     );
 }
 
-function GetIconsOnCells(dataFrames: DataFrame[], report: (name: string, properties: Record<string, unknown>) => void): DataFrame[] {
+function GetIconsOnCells(dataFrames: DataFrame[], telemetryClient: TelemetryClient): DataFrame[] {
   const newFrames: DataFrame[] = [];
   try {
     for (const frame of dataFrames) {
@@ -235,12 +235,12 @@ function GetIconsOnCells(dataFrames: DataFrame[], report: (name: string, propert
       });
     }
   } catch (e) {
-    reportException("grafana_plugin_geticonsoncells_failed", {
+    telemetryClient.reportException("grafana_plugin_geticonsoncells_failed", {
       reporter: "Scene.Main.WorkloadsScene",
-      exception: e instanceof Error ? e : new Error(JSON.stringify(e)),
+      exception: "e instanceof Error ? e : new Error(JSON.stringify(e))",
       type: ReportType.Exception,
       trigger: "page"
-    }, report);
+    });
     throw new Error(`Error transforming data: ${e}`);
   }
   return newFrames;

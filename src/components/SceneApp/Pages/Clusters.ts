@@ -1,4 +1,6 @@
 import { EmbeddedScene, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneQueryRunner, SceneRefreshPicker, SceneTimePicker, SceneVariableSet, VariableValueSelectors, VizPanel } from "@grafana/scenes";
+import { TelemetryClient } from "telemetry/telemetry";
+import { ReportType } from "telemetry/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
 import { AGG_VAR, AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID } from "../../../constants";
@@ -7,12 +9,10 @@ import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType } from "../Queries/queryUtil";
 import { getCustomVariable, getDataSourcesVariableForType, getSubscriptionVariable } from "../Variables/variables";
 import { getGenericSceneAppPage, getMissingDatasourceScene } from "./sceneUtils";
-import { reportException } from "telemetry/telemetry";
-import { ReportType } from "telemetry/types";
 
 
 
-export function getclustersScene(report: (name: string, properties: Record<string, unknown>) => void): SceneAppPage {
+export function getclustersScene(telemetryClient: TelemetryClient): SceneAppPage {
     const sceneTitle = "Clusters";
     const sceneUrl = `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/clusters;`
     // always check first that there is at least one azure monitor datasource
@@ -80,12 +80,12 @@ export function getclustersScene(report: (name: string, properties: Record<strin
             queries: clusterStatsQueries });
             clusterTrendData.runQueries();
           } catch (e) {
-            reportException("grafana_plugin_runqueries_failed", {
+            telemetryClient.reportException("grafana_plugin_runqueries_failed", {
               reporter: "Scene.Main.ClustersScene",
               exception: e instanceof Error ? e : new Error(stringify(e)),
               type: ReportType.Exception,
               trigger: "page"
-            }, report);
+            });
             throw new Error(stringify(e));
           }
         }

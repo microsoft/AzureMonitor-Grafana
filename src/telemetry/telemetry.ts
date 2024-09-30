@@ -1,5 +1,13 @@
+export class TelemetryClient {
+    private readonly report: (name: string, properties: Record<string, unknown>) => void;
 
-export function reportException(exceptionName: string, properties: Record<string, unknown>, report: (name: string, properties: Record<string, unknown>) => void) {
-    console.log("reporting exception");
-    report(exceptionName, properties);
+    constructor(report: (name: string, properties: Record<string, unknown>) => void) {
+        this.report = report;
+    }
+
+    public reportException(exceptionName: string, properties: Record<string, unknown>) {
+        console.log("reporting exception");
+        this.report(exceptionName, properties);
+    }
+    
 }

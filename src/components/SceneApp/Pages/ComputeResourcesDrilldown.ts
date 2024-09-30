@@ -1,5 +1,5 @@
 import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneAppPageLike, SceneFlexItem, SceneFlexLayout, sceneGraph, SceneRefreshPicker, SceneRouteMatch, SceneTimePicker, SceneVariableSet, TextBoxVariable, VariableValueSelectors } from "@grafana/scenes";
-import { reportException } from "telemetry/telemetry";
+import { TelemetryClient } from "telemetry/telemetry";
 import { ReportType } from "telemetry/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
@@ -23,7 +23,7 @@ function getComputeResourcesVariables() {
     return variables;
 }
 
-function getComputeResourcesDrilldownScene(report: (name: string, properties: Record<string, unknown>) => void) {
+function getComputeResourcesDrilldownScene(telemetryClient: TelemetryClient) {
     // get cluster data and initialize mappings
     const clusterData = GetClustersQuery(azure_monitor_queries['clustersQuery']);
     let clusterMappings: Record<string, ClusterMapping> = {};
@@ -209,13 +209,13 @@ function getComputeResourcesDrilldownScene(report: (name: string, properties: Re
                   promDSVar.changeValueTo(newPromDs.uid);
                 }
             } catch (e) {
-                reportException("grafana_plugin_promdsvarchange_failed", {
+                telemetryClient.reportException("grafana_plugin_promdsvarchange_failed", {
                     reporter: "Scene.Drilldown.ComputeResources",
                     refererer: "Scene.Main.WorkloadsScene",
-                    exception: e instanceof Error ? e : new Error(stringify(e)),
+                    exception: "e instanceof Error ? e : new Error(stringify(e))",
                     type: ReportType.Exception,
                     trigger: "cluster_change"
-                  }, report);
+                  });
                 throw new Error(stringify(e));
             }
           });
@@ -227,14 +227,14 @@ function getComputeResourcesDrilldownScene(report: (name: string, properties: Re
           const clusterData = state.data?.series.filter((s) => s.refId === "clusters");
           try {
               clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values);
-          } catch (e) {
-            reportException("grafana_plugin_createclustermappings_failed", {
-                reporter: "Scene.Drilldown.ComputeResources",
-                refererer: "Scene.Main.WorkloadsScene",
-                exception: e instanceof Error ? e : new Error(stringify(e)),
-                type: ReportType.Exception,
-                trigger: "cluster_data_change"
-              }, report);
+            } catch (e) {
+              telemetryClient.reportException("grafana_plugin_createclustermappings_failed", {
+                  reporter: "Scene.Drilldown.ComputeResources",
+                  refererer: "Scene.Main.WorkloadsScene",
+                  exception: "e instanceof Error ? e : new Error(stringify(e))",
+                  type: ReportType.Exception,
+                  trigger: "cluster_data_change"
+                });
             throw new Error(stringify(e));
           }
         }
@@ -247,7 +247,7 @@ function getComputeResourcesDrilldownScene(report: (name: string, properties: Re
     return scene;
 }
 
-export function getComputeResourcesDrilldownPage(_: SceneRouteMatch<{}>, parent: SceneAppPageLike, report: (name: string, properties: Record<string, unknown>) => void) {
+export function getComputeResourcesDrilldownPage(_: SceneRouteMatch<{}>, parent: SceneAppPageLike, telemetryClient: TelemetryClient) {
   
     return new SceneAppPage({
       // Set up a particular namespace drill-down URL
@@ -255,11 +255,11 @@ export function getComputeResourcesDrilldownPage(_: SceneRouteMatch<{}>, parent:
       // Important: Set this up for breadcrumbs to be built
       getParentPage: () => parent,
       title: `Compute Resources`,
-      getScene: () => getComputeResourcesDrilldownScene(report),
+      getScene: () => getComputeResourcesDrilldownScene(telemetryClient),
       drilldowns: [
         {
             routePath: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources/pods/logs/drilldown`,
-            getPage: (routeMatch, parent) => getPodWithLogsDrillDownPage(routeMatch, parent, report)
+            getPage: (routeMatch, parent) => getPodWithLogsDrillDownPage(routeMatch, parent, telemetryClient)
         }
       ]
     });
