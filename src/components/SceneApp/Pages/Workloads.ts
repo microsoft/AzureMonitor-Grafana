@@ -46,7 +46,7 @@ export function getClusterByWorkloadScene(report: (name: string, properties: Rec
   const variables = getWorkloadsVariables();
   const clusterByWorkloadQueries = GetClusterByWorkloadQueries()
   const clusterByWorkloadData = getSceneQueryRunner(clusterByWorkloadQueries);
-  const transformedData = TransfomClusterByWorkloadData(clusterByWorkloadData);
+  const transformedData = TransfomClusterByWorkloadData(clusterByWorkloadData, report);
 
   const getScene = () => {
     return new EmbeddedScene({
@@ -148,7 +148,7 @@ export function getClusterByWorkloadScene(report: (name: string, properties: Rec
     {
       routePath:
         `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources`,
-      getPage: getComputeResourcesDrilldownPage,
+      getPage: (routeMatch, parent) => getComputeResourcesDrilldownPage(routeMatch, parent, report),
     },
   ]});
   return sceneAppPage;
