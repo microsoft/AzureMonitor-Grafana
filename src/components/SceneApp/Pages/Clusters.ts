@@ -8,6 +8,7 @@ import { createMappingFromSeries, getInstanceDatasourcesForType } from "../Queri
 import { getCustomVariable, getDataSourcesVariableForType, getSubscriptionVariable } from "../Variables/variables";
 import { getGenericSceneAppPage, getMissingDatasourceScene } from "./sceneUtils";
 import { reportException } from "telemetry/telemetry";
+import { ReportType } from "telemetry/types";
 
 
 
@@ -78,12 +79,12 @@ export function getclustersScene(report: (name: string, properties: Record<strin
             }, 
             queries: clusterStatsQueries });
             clusterTrendData.runQueries();
+          } catch (e) {
             reportException("grafana_plugin_runqueries_failed", {
               reporter: "Scene.Main.ClustersScene",
-              exception: "test",
-              type: "test"
+              exception: e instanceof Error ? e : new Error(stringify(e)),
+              type: ReportType.Exception
             }, report);
-          } catch (e) {
             throw new Error(stringify(e));
           }
         }
