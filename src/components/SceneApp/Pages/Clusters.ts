@@ -7,13 +7,11 @@ import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType } from "../Queries/queryUtil";
 import { getCustomVariable, getDataSourcesVariableForType, getSubscriptionVariable } from "../Variables/variables";
 import { getGenericSceneAppPage, getMissingDatasourceScene } from "./sceneUtils";
-import { usePluginInteractionReporter } from "@grafana/runtime";
+import { reportException } from "telemetry/telemetry";
 
 
 
-
-export function getclustersScene(): SceneAppPage {
-    const report = usePluginInteractionReporter();
+export function getclustersScene(report: (name: string, properties: Record<string, unknown>) => void): SceneAppPage {
     const sceneTitle = "Clusters";
     const sceneUrl = `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/clusters;`
     // always check first that there is at least one azure monitor datasource
@@ -80,6 +78,11 @@ export function getclustersScene(): SceneAppPage {
             }, 
             queries: clusterStatsQueries });
             clusterTrendData.runQueries();
+            reportException("grafana_plugin_runqueries_failed", {
+              reporter: "Scene.Main.ClustersScene",
+              exception: "test",
+              type: "test"
+            }, report);
           } catch (e) {
             throw new Error(stringify(e));
           }
