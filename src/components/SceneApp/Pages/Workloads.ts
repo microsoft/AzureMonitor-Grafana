@@ -1,6 +1,5 @@
 import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from '@grafana/scenes';
 import { SeverityLevel } from '@microsoft/applicationinsights-web';
-import { trackException } from 'appInsights';
 import { ClusterMapping } from 'types';
 import { stringify } from 'utils/stringify';
 import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE } from '../../../constants';
@@ -96,14 +95,6 @@ export function getClusterByWorkloadScene() {
             promDSVar.changeValueTo(newPromDs.uid);
           }
         } catch (e) {
-          trackException({
-            exception: e instanceof Error ? e : new Error(stringify(e)),
-            severityLevel: SeverityLevel.Error,
-            properties: {
-              reporter: "Scene.Main.WorkloadsScene",
-              action: "changePromVariableOnClusterChange"
-            }
-          });
           throw new Error(stringify(e));
         }
       });
@@ -120,14 +111,6 @@ export function getClusterByWorkloadScene() {
             promDSVar.changeValueTo(promDs.uid);
           }
         } catch (e) {
-          trackException({
-            exception: e instanceof Error ? e : new Error(stringify(e)),
-            severityLevel: SeverityLevel.Error,
-            properties: {
-              reporter: "Scene.Main.WorkloadsScene",
-              action: "changePromVariableonClusterDataChange"
-            }
-          });
           throw new Error(stringify(e));
         }
       }

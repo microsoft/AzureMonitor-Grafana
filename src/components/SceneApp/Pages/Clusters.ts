@@ -1,6 +1,4 @@
 import { EmbeddedScene, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneQueryRunner, SceneRefreshPicker, SceneTimePicker, SceneVariableSet, VariableValueSelectors, VizPanel } from "@grafana/scenes";
-import { SeverityLevel } from "@microsoft/applicationinsights-web";
-import { trackException } from "appInsights";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
 import { AGG_VAR, AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID } from "../../../constants";
@@ -9,11 +7,13 @@ import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType } from "../Queries/queryUtil";
 import { getCustomVariable, getDataSourcesVariableForType, getSubscriptionVariable } from "../Variables/variables";
 import { getGenericSceneAppPage, getMissingDatasourceScene } from "./sceneUtils";
+import { usePluginInteractionReporter } from "@grafana/runtime";
 
 
 
 
 export function getclustersScene(): SceneAppPage {
+    const report = usePluginInteractionReporter();
     const sceneTitle = "Clusters";
     const sceneUrl = `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/clusters;`
     // always check first that there is at least one azure monitor datasource
@@ -81,14 +81,6 @@ export function getclustersScene(): SceneAppPage {
             queries: clusterStatsQueries });
             clusterTrendData.runQueries();
           } catch (e) {
-            trackException({
-              exception: e instanceof Error ? e : new Error(stringify(e)),
-              severityLevel: SeverityLevel.Error,
-              properties: {
-                reporter: "Scene.Main.ClustersScene",
-                action: "createAndRunQueries"
-              }
-            });
             throw new Error(stringify(e));
           }
         }

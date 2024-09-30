@@ -1,6 +1,5 @@
 import { EmbeddedScene, PanelBuilders, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from "@grafana/scenes";
 import { SeverityLevel } from "@microsoft/applicationinsights-web";
-import { trackException } from "appInsights";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
 import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE } from "../../../constants";
@@ -107,14 +106,6 @@ export function getOverviewByNodeScene(): SceneAppPage {
                 nodeOverviewData.setState({ queries: newQueries });
                 nodeOverviewData.runQueries();
             } catch (e) {
-                trackException({
-                    exception: e instanceof Error ? e : new Error(stringify(e)),
-                    severityLevel: SeverityLevel.Error,
-                    properties: {
-                      reporter: "Scene.Main.NodesScene",
-                      action: "runQueriesOnClusterChange"
-                    }
-                });
                 throw new Error(stringify(e));
             }
         });
@@ -130,14 +121,6 @@ export function getOverviewByNodeScene(): SceneAppPage {
                     nodeOverviewData.setState({ queries: newQueries });
                     nodeOverviewData.runQueries();
                 } catch (e) {
-                    trackException({
-                        exception: e instanceof Error ? e : new Error(stringify(e)),
-                        severityLevel: SeverityLevel.Error,
-                        properties: {
-                          reporter: "Scene.Main.NodesScene",
-                          action: "runQueriesOnClusterMappingsChange"
-                        }
-                    });
                     throw new Error(stringify(e));
                 }
             }
