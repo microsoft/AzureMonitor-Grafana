@@ -1,7 +1,7 @@
 import { DataSourceVariable, EmbeddedScene, PanelBuilders, QueryVariable, SceneAppPage, SceneAppPageLike, SceneFlexItem, SceneFlexLayout, SceneQueryRunner, SceneRefreshPicker, SceneRouteMatch, SceneTimePicker, SceneVariableSet, VariableValueSelectors, sceneGraph } from "@grafana/scenes";
 import { GraphThresholdsStyleMode, ThresholdsMode } from "@grafana/schema";
-import { SeverityLevel } from "@microsoft/applicationinsights-web";
-import { trackException } from "appInsights";
+import { TelemetryClient } from "telemetry/telemetry";
+import { ReportType } from "telemetry/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
 import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, POD_VAR, PROM_DS_VARIABLE, WORKLOAD_VAR } from "../../../constants";
@@ -12,7 +12,7 @@ import { createMappingFromSeries, getSceneQueryRunner } from "../Queries/queryUt
 import { getPrometheusVariable } from "../Variables/variables";
 import { applyOverridesCPUUsage, getTableVizCPUQuota, getTableVizCurrentStorage, getTableVizMemoryQuota, getTimeSeriesViz } from "../Visualizations/PodsWithLogsViz";
 import { getThresholdsConfig } from "../Visualizations/utils";
-import { getSharedSceneVariables } from "./sceneUtils";
+import { getBehaviorsForVariables, getSharedSceneVariables } from "./sceneUtils";
 
 function getPodWithLogsVariables() {
     const variables = getSharedSceneVariables(true);
@@ -24,7 +24,7 @@ function getPodWithLogsVariables() {
     return variables;
 }
 
-function getPodWithLogsDrilldownScene() {
+function getPodWithLogsDrilldownScene(telemetryClient: TelemetryClient) {
     // get cluster data and initialize mappings
     const clusterData = GetClustersQuery(azure_monitor_queries['clustersQuery']);
     let clusterMappings: Record<string, ClusterMapping> = {};
@@ -137,11 +137,13 @@ function getPodWithLogsDrilldownScene() {
     const currentStorageTransformedData = TransformCurrentStorageData(currentStorageIOData);
     const currentStorageViz = getTableVizCurrentStorage();
 
+    const variables = getPodWithLogsVariables();
     const getScene = () => new EmbeddedScene({
         $data: clusterData,
         $variables: new SceneVariableSet({
-            variables: getPodWithLogsVariables(),
+            variables: variables,
         }),
+        $behaviors: getBehaviorsForVariables(variables, telemetryClient),
         controls: [new VariableValueSelectors({}), new SceneTimePicker({}), new SceneRefreshPicker({})],
         body: new SceneFlexLayout({
           children: [
@@ -348,6 +350,11 @@ function getPodWithLogsDrilldownScene() {
         }),
       });
 
+      telemetryClient.reportPageView("grafana_plugin_page_view", {
+        reporter: "Scene.Drilldown.PodWithLogs",
+        refererer: "Scene.Drilldown.ComputeResources",
+        type: ReportType.PageView,
+        });
       const scene = getScene();
       scene.addActivationHandler(() => {
         const promDSVar = sceneGraph.lookupVariable(PROM_DS_VARIABLE, scene) as DataSourceVariable;
@@ -361,15 +368,13 @@ function getPodWithLogsDrilldownScene() {
                         promDSVar.changeValueTo(newPromDs.uid);
                     }
                 } catch (e) {
-                    trackException({
+                    telemetryClient.reportException("grafana_plugin_promdsvarchange_failed", {
+                        reporter: "Scene.Drilldown.PodWithLogs",
+                        refererer: "Scene.Drilldown.ComputeResources",
                         exception: e instanceof Error ? e : new Error(stringify(e)),
-                        severityLevel: SeverityLevel.Error,
-                        properties: {
-                            reporter: "Scene.Drilldown.PodWithLogsDrilldown",
-                            referer: "Scene.Drilldown.ComputeResourcesDrilldown",
-                            action: "changePromVariableOnClusterChange"
-                        }
-                    });
+                        type: ReportType.Exception,
+                        trigger: "cluster_change"
+                      });
                     throw new Error(stringify(e));
                 }
             }
@@ -431,15 +436,13 @@ function getPodWithLogsDrilldownScene() {
                         podContainerLogsData.runQueries();
                     }
                 } catch (e) {
-                    trackException({
+                    telemetryClient.reportException("grafana_plugin_runqueries_failed", {
+                        reporter: "Scene.Drilldown.PodWithLogs",
+                        refererer: "Scene.Drilldown.ComputeResources",
                         exception: e instanceof Error ? e : new Error(stringify(e)),
-                        severityLevel: SeverityLevel.Error,
-                        properties: {
-                            reporter: "Scene.Drilldown.PodWithLogsDrilldown",
-                            referer: "Scene.Drilldown.ComputeResourcesDrilldown",
-                            action: "createAndRunQueries"
-                        }
-                    });
+                        type: ReportType.Exception,
+                        trigger: "cluster_mappings_change"
+                      });
                     throw new Error(stringify(e));
                 }
             }
@@ -454,11 +457,11 @@ function getPodWithLogsDrilldownScene() {
       return scene
 }
 
-export function getPodWithLogsDrillDownPage(_: SceneRouteMatch<{}>, parent: SceneAppPageLike) {
+export function getPodWithLogsDrillDownPage(_: SceneRouteMatch<{}>, parent: SceneAppPageLike, telemetryClient: TelemetryClient) {
     return new SceneAppPage({
         url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources/pods/logs/drilldown`,
         title: `Pod with Logs`,
-        getScene: () => getPodWithLogsDrilldownScene(),
+        getScene: () => getPodWithLogsDrilldownScene(telemetryClient),
         getParentPage: () => parent,
     });
 }

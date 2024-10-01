@@ -8,6 +8,7 @@ import { getOverviewByNodeScene } from "./Pages/Nodes";
 import { getClusterByWorkloadScene } from "./Pages/Workloads";
 import { CustomTable, CustomTableVizFieldOptions, CustomTableVizOptions } from "./PanelVisualizations/CustomTable";
 import { ConfigurationState } from "./SceneObjects/types";
+import { TelemetryClient } from "telemetry/telemetry";
 
 const customTable = new PanelPlugin<CustomTableVizOptions, CustomTableVizFieldOptions>(CustomTable).useFieldConfig({
   useCustomConfig(builder) {
@@ -20,11 +21,11 @@ const customTable = new PanelPlugin<CustomTableVizOptions, CustomTableVizFieldOp
   },
 });
 sceneUtils.registerRuntimePanelPlugin({ pluginId: 'azure-monitor-app-custom-table', plugin: customTable });
-export function getSceneApp(_configState: Partial<ConfigurationState>, _setConfigState: (configState: Partial<ConfigurationState>) => void): SceneApp {
-    const namespacesTab = getNamespacesScene();
-    const clustersTab = getclustersScene();
-    const workloadsTab = getClusterByWorkloadScene();
-    const nodesTab = getOverviewByNodeScene();
+export function getSceneApp(_configState: Partial<ConfigurationState>, _setConfigState: (configState: Partial<ConfigurationState>) => void, telemetryClient: TelemetryClient): SceneApp {
+    const namespacesTab = getNamespacesScene(telemetryClient);
+    const clustersTab = getclustersScene(telemetryClient);
+    const workloadsTab = getClusterByWorkloadScene(telemetryClient);
+    const nodesTab = getOverviewByNodeScene(telemetryClient);
     const myAppPage = new SceneAppPage({
         title: 'Azure Cloud Native Monitoring',
         url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation`,

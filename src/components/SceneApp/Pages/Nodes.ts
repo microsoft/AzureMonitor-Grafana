@@ -1,6 +1,6 @@
 import { EmbeddedScene, PanelBuilders, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from "@grafana/scenes";
-import { SeverityLevel } from "@microsoft/applicationinsights-web";
-import { trackException } from "appInsights";
+import { TelemetryClient } from "telemetry/telemetry";
+import { ReportType } from "telemetry/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
 import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE } from "../../../constants";
@@ -8,18 +8,19 @@ import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
 import { GetNodeOverviewQueries, TransformNodeOverviewData } from "../Queries/NodeOverviewQueries";
 import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType, getSceneQueryRunner } from "../Queries/queryUtil";
-import { getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables } from "./sceneUtils";
+import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables } from "./sceneUtils";
 
-export function getOverviewByNodeScene(): SceneAppPage {
+export function getOverviewByNodeScene(telemetryClient: TelemetryClient): SceneAppPage {
     const sceneTitle = "Nodes";
     const sceneUrl = `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/nodes`;
+    const reporter = "Scene.Main.NodesScene";
     // always check first that there is at least one azure monitor datasource
     const azMonDatasources = getInstanceDatasourcesForType("grafana-azure-monitor-datasource");
     const promDatasources = getInstanceDatasourcesForType("prometheus");
     const bothDatasourcesMissing = azMonDatasources.length === 0 && promDatasources.length === 0;
     if (azMonDatasources.length === 0) {
       const textToShow = bothDatasourcesMissing ? "Azure Monitor or Prometheus" : "Azure Monitor";
-      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene(textToShow));
+      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene(textToShow, reporter, telemetryClient));
     }
 
     // get cluster data and initialize mappings
@@ -28,7 +29,7 @@ export function getOverviewByNodeScene(): SceneAppPage {
 
     // check if there is at least one prom datasource
     if (promDatasources.length === 0) {
-      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene("Prometheus"));
+      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene("Prometheus", reporter, telemetryClient));
     }
 
     // build data scene
@@ -38,11 +39,16 @@ export function getOverviewByNodeScene(): SceneAppPage {
     const transformedNodeOverviewData = TransformNodeOverviewData(nodeOverviewData);
     
     const getScene = () => {
+        telemetryClient.reportPageView("grafana_plugin_page_view", {
+            reporter: reporter,
+            type: ReportType.PageView,
+        });
         return new EmbeddedScene({
             $data: clusterData,
             $variables: new SceneVariableSet({
               variables: variables,
             }),
+            $behaviors: getBehaviorsForVariables(variables, telemetryClient),
             controls: [new VariableValueSelectors({}), new SceneTimePicker({}), new SceneRefreshPicker({ })],
             $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
             body: new SceneFlexLayout({
@@ -107,14 +113,12 @@ export function getOverviewByNodeScene(): SceneAppPage {
                 nodeOverviewData.setState({ queries: newQueries });
                 nodeOverviewData.runQueries();
             } catch (e) {
-                trackException({
+                telemetryClient.reportException("grafana_plugin_runqueries_failed", {
+                    reporter: reporter,
                     exception: e instanceof Error ? e : new Error(stringify(e)),
-                    severityLevel: SeverityLevel.Error,
-                    properties: {
-                      reporter: "Scene.Main.NodesScene",
-                      action: "runQueriesOnClusterChange"
-                    }
-                });
+                    type: ReportType.Exception,
+                    trigger: "cluster_change"
+                  });
                 throw new Error(stringify(e));
             }
         });
@@ -130,14 +134,12 @@ export function getOverviewByNodeScene(): SceneAppPage {
                     nodeOverviewData.setState({ queries: newQueries });
                     nodeOverviewData.runQueries();
                 } catch (e) {
-                    trackException({
+                    telemetryClient.reportException("grafana_plugin_runqueries_failed", {
+                        reporter: reporter,
                         exception: e instanceof Error ? e : new Error(stringify(e)),
-                        severityLevel: SeverityLevel.Error,
-                        properties: {
-                          reporter: "Scene.Main.NodesScene",
-                          action: "runQueriesOnClusterMappingsChange"
-                        }
-                    });
+                        type: ReportType.Exception,
+                        trigger: "cluster_mappings_change"
+                      });
                     throw new Error(stringify(e));
                 }
             }

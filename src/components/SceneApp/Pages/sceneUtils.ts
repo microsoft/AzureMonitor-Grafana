@@ -1,7 +1,9 @@
-import { EmbeddedScene, SceneFlexLayout, SceneFlexItem, PanelBuilders, SceneRouteMatch, SceneAppPage } from "@grafana/scenes";
+import { EmbeddedScene, SceneFlexLayout, SceneFlexItem, PanelBuilders, SceneRouteMatch, SceneAppPage, behaviors, DataSourceVariable, QueryVariable, CustomVariable, TextBoxVariable } from "@grafana/scenes";
 import { AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE } from "../../../constants";
 import { azure_monitor_queries } from "../Queries/queries";
 import { getDataSourcesVariableForType, getSubscriptionVariable, getResourceGraphVariable } from "../Variables/variables";
+import { TelemetryClient } from "telemetry/telemetry";
+import { ReportType } from "telemetry/types";
 
 export function getGenericSceneAppPage(title: string, url: string, getScene: (routeMatch: SceneRouteMatch<{}>) => EmbeddedScene) {
     return new SceneAppPage({
@@ -10,7 +12,12 @@ export function getGenericSceneAppPage(title: string, url: string, getScene: (ro
         getScene: getScene,
     });
 }
-export function getMissingDatasourceScene(missingDs: string) {
+export function getMissingDatasourceScene(missingDs: string, reporter: string, telemetryClient: TelemetryClient) {
+    telemetryClient.reportPageView("grafana_plugin_missingdsscene_view", {
+        reporter: reporter,
+        missingDatasource: missingDs,
+        type: ReportType.PageView,
+    });
     return new EmbeddedScene({
         body: new SceneFlexLayout({
             direction: 'column',
@@ -34,4 +41,31 @@ export function getSharedSceneVariables(drilldownScene: boolean) {
     variables.push(getDataSourcesVariableForType("prometheus", PROM_DS_VARIABLE, "Prometheus Datasource", true))
   
     return variables;
+}
+
+export function getBehaviorsForVariables(variables: Array<DataSourceVariable | QueryVariable | CustomVariable | TextBoxVariable>, telemetryClient: TelemetryClient) {
+    const variableNames = variables.map((v) => v.state.name);   
+    return variableNames.map((name) => {
+        return new behaviors.ActWhenVariableChanged({
+            variableName: name,
+            onChange: (variable) => {
+                telemetryClient.reportEvent("grafana_plugin_variable_changed", {
+                    variableName: variable.state.name, 
+                    variableType: variable.state.type,
+                    variableValue: variable.state.$data,
+                    type: ReportType.Event,
+                });
+
+                if (variable.state.error) {
+                    telemetryClient.reportException("grafana_plugin_variable_error", {
+                        variableName: variable.state.name,
+                        variableType: variable.state.type,
+                        variableValue: variable.state.$data,
+                        type: ReportType.Exception,
+                        error: variable.state.error,
+                    });
+                }
+            }
+        })
+    });
 }

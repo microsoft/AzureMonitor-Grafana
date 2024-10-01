@@ -1,10 +1,11 @@
 import { EmbeddedScene, SceneAppPage, SceneAppPageLike, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneRouteMatch, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors } from "@grafana/scenes";
 import { GetPlatformAlertSumary, GetPromAlertsSummary, GetSummaryDetailsSceneQuery, GetTotalAlertsSummary } from "../Queries/AlertSumQueries";
 import { getStatViz, getTableVisualizationAlertSummaryDetails } from "../Visualizations/AlertSummaryViz";
-import { getSharedSceneVariables } from "./sceneUtils";
+import { getBehaviorsForVariables, getSharedSceneVariables } from "./sceneUtils";
 import { AZURE_MONITORING_PLUGIN_ID } from "../../../constants";
+import { TelemetryClient } from "telemetry/telemetry";
 
-function getAlertSummaryDrilldownScene(namespace: string) {
+function getAlertSummaryDrilldownScene(namespace: string, telemetryClient: TelemetryClient) {
     // alertDetails 
     const alertSummaryDetailsData = GetSummaryDetailsSceneQuery(namespace);
     const tableViz = getTableVisualizationAlertSummaryDetails();
@@ -21,10 +22,12 @@ function getAlertSummaryDrilldownScene(namespace: string) {
     const platformAlertsSummary = GetPlatformAlertSumary(namespace);
     const platformAlertsStatViz = getStatViz("Platform", "No fired Platform alerts found", "semi-dark-orange", "A");
 
+    const variables = getSharedSceneVariables(true);
     return new EmbeddedScene({
         $variables: new SceneVariableSet({
-            variables: getSharedSceneVariables(true),
+            variables: variables,
         }),
+        $behaviors: getBehaviorsForVariables(variables, telemetryClient),
         controls: [new VariableValueSelectors({}), new SceneTimePicker({}), new SceneRefreshPicker({})],
         $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
         body: new SceneFlexLayout({
@@ -64,7 +67,7 @@ function getAlertSummaryDrilldownScene(namespace: string) {
       });
 }
 
-export function getAlertSummaryDrilldownPage(routeMatch: SceneRouteMatch<{ namespace: string }>, parent: SceneAppPageLike, sourcePage: string) {
+export function getAlertSummaryDrilldownPage(routeMatch: SceneRouteMatch<{ namespace: string }>, parent: SceneAppPageLike, sourcePage: string, telemetryClient: TelemetryClient) {
     // Retrieve namespace and sub from the URL params
     const namespace = decodeURIComponent(routeMatch.params.namespace);
     return new SceneAppPage({
@@ -73,6 +76,6 @@ export function getAlertSummaryDrilldownPage(routeMatch: SceneRouteMatch<{ names
       // Important: Set this up for breadcrumbs to be built
       getParentPage: () => parent,
       title: `Alert Summary for namespace ${namespace}`,
-      getScene: () => getAlertSummaryDrilldownScene(namespace).clone(),
+      getScene: () => getAlertSummaryDrilldownScene(namespace, telemetryClient).clone(),
     });
 }

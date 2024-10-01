@@ -1,6 +1,6 @@
 import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneAppPageLike, SceneFlexItem, SceneFlexLayout, sceneGraph, SceneRefreshPicker, SceneRouteMatch, SceneTimePicker, SceneVariableSet, TextBoxVariable, VariableValueSelectors } from "@grafana/scenes";
-import { SeverityLevel } from "@microsoft/applicationinsights-web";
-import { trackException } from "appInsights";
+import { TelemetryClient } from "telemetry/telemetry";
+import { ReportType } from "telemetry/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
 import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, WORKLOAD_VAR } from "../../../constants";
@@ -11,7 +11,7 @@ import { createMappingFromSeries, getSceneQueryRunner } from "../Queries/queryUt
 import { getPrometheusVariable, getTextVariable } from "../Variables/variables";
 import { getTableVisualizationCPUQuota, getTableVisualizationMemoryQuota, getTableVisualizationNetworkUsage, getTimeSeriesVisualization } from "../Visualizations/ComputeResourcesViz";
 import { getPodWithLogsDrillDownPage } from "./PodWithLogsDrilldown";
-import { getSharedSceneVariables } from "./sceneUtils";
+import { getBehaviorsForVariables, getSharedSceneVariables } from "./sceneUtils";
 
 function getComputeResourcesVariables() {
     const variables: Array<DataSourceVariable | QueryVariable | TextBoxVariable> = getSharedSceneVariables(true);
@@ -22,7 +22,8 @@ function getComputeResourcesVariables() {
     variables.push(getTextVariable(WORKLOAD_VAR, ""));
     return variables;
 }
-function getComputeResourcesDrilldownScene() {
+
+function getComputeResourcesDrilldownScene(telemetryClient: TelemetryClient) {
     // get cluster data and initialize mappings
     const clusterData = GetClustersQuery(azure_monitor_queries['clustersQuery']);
     let clusterMappings: Record<string, ClusterMapping> = {};
@@ -85,12 +86,20 @@ function getComputeResourcesDrilldownScene() {
     const rateofTransmittedPacketsDroppedQuery = GetRateofTransmittedPacketsDroppedSceneQuery();
     const rateofTransmittedPacketsDroppedData = getSceneQueryRunner(rateofTransmittedPacketsDroppedQuery);
 
+    const variables = getComputeResourcesVariables();
+
     const getScene = () => {
+        telemetryClient.reportPageView("grafana_plugin_page_view", {
+            reporter: "Scene.Drilldown.ComputeResources",
+            refererer: "Scene.Main.WorkloadsScene",
+            type: ReportType.PageView,
+        });
         return new EmbeddedScene({
             $data: clusterData,
             $variables: new SceneVariableSet({
-                variables: getComputeResourcesVariables()
+                variables: variables
             }),
+            $behaviors: getBehaviorsForVariables(variables, telemetryClient),
             controls: [new VariableValueSelectors({}), new SceneTimePicker({}), new SceneRefreshPicker({})],
             body: new SceneFlexLayout({
                 direction: 'column',
@@ -208,15 +217,13 @@ function getComputeResourcesDrilldownScene() {
                   promDSVar.changeValueTo(newPromDs.uid);
                 }
             } catch (e) {
-                trackException({
+                telemetryClient.reportException("grafana_plugin_promdsvarchange_failed", {
+                    reporter: "Scene.Drilldown.ComputeResources",
+                    refererer: "Scene.Main.WorkloadsScene",
                     exception: e instanceof Error ? e : new Error(stringify(e)),
-                    severityLevel: SeverityLevel.Error,
-                    properties: {
-                        reporter: "Scene.Drilldown.ComputeResources",
-                        referer: "Scene.Main.WorkloadsScene",
-                        action: "changePromVariableOnClusterChange"
-                    }
-                });
+                    type: ReportType.Exception,
+                    trigger: "cluster_change"
+                  });
                 throw new Error(stringify(e));
             }
           });
@@ -228,16 +235,14 @@ function getComputeResourcesDrilldownScene() {
           const clusterData = state.data?.series.filter((s) => s.refId === "clusters");
           try {
               clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values);
-          } catch (e) {
-            trackException({
-                exception: e instanceof Error ? e : new Error(stringify(e)),
-                severityLevel: SeverityLevel.Error,
-                properties: {
-                    reporter: "Scene.Drilldown.ComputeResources",
-                    referer: "Scene.Main.WorkloadsScene",
-                    action: "createClusterMappings"
-                }
-            });
+            } catch (e) {
+              telemetryClient.reportException("grafana_plugin_createclustermappings_failed", {
+                  reporter: "Scene.Drilldown.ComputeResources",
+                  refererer: "Scene.Main.WorkloadsScene",
+                  exception: e instanceof Error ? e : new Error(stringify(e)),
+                  type: ReportType.Exception,
+                  trigger: "cluster_data_change"
+                });
             throw new Error(stringify(e));
           }
         }
@@ -250,7 +255,7 @@ function getComputeResourcesDrilldownScene() {
     return scene;
 }
 
-export function getComputeResourcesDrilldownPage(_: SceneRouteMatch<{}>, parent: SceneAppPageLike) {
+export function getComputeResourcesDrilldownPage(_: SceneRouteMatch<{}>, parent: SceneAppPageLike, telemetryClient: TelemetryClient) {
   
     return new SceneAppPage({
       // Set up a particular namespace drill-down URL
@@ -258,11 +263,11 @@ export function getComputeResourcesDrilldownPage(_: SceneRouteMatch<{}>, parent:
       // Important: Set this up for breadcrumbs to be built
       getParentPage: () => parent,
       title: `Compute Resources`,
-      getScene: () => getComputeResourcesDrilldownScene(),
+      getScene: () => getComputeResourcesDrilldownScene(telemetryClient),
       drilldowns: [
         {
             routePath: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources/pods/logs/drilldown`,
-            getPage: getPodWithLogsDrillDownPage
+            getPage: (routeMatch, parent) => getPodWithLogsDrillDownPage(routeMatch, parent, telemetryClient)
         }
       ]
     });

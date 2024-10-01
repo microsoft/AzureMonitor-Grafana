@@ -1,6 +1,6 @@
 import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from '@grafana/scenes';
-import { SeverityLevel } from '@microsoft/applicationinsights-web';
-import { trackException } from 'appInsights';
+import { TelemetryClient } from 'telemetry/telemetry';
+import { ReportType } from 'telemetry/types';
 import { ClusterMapping } from 'types';
 import { stringify } from 'utils/stringify';
 import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE } from '../../../constants';
@@ -11,7 +11,7 @@ import { createMappingFromSeries, getInstanceDatasourcesForType, getPromDatasour
 import { getPrometheusVariable } from '../Variables/variables';
 import { getAlertSummaryDrilldownPage } from './AlertSummaryDrilldown';
 import { getComputeResourcesDrilldownPage } from './ComputeResourcesDrilldown';
-import { getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables } from './sceneUtils';
+import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables } from './sceneUtils';
 
 function getWorkloadsVariables() {
   const namespaceVariableRaw = `label_values(kube_namespace_status_phase,namespace)`;
@@ -21,16 +21,17 @@ function getWorkloadsVariables() {
   return variables;
 }
 
-export function getClusterByWorkloadScene() {
+export function getClusterByWorkloadScene(telemetryClient: TelemetryClient) {
   const sceneTitle = 'Workloads';
   const sceneUrl = `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workloads`;
   // always check first that there is at least one azure monitor datasource
   const azMonDatasources = getInstanceDatasourcesForType('grafana-azure-monitor-datasource');
   const promDatasources = getInstanceDatasourcesForType('prometheus');
+  const reporter = 'Scene.Main.WorkloadsScene';
   const bothDatasourcesMissing = azMonDatasources.length === 0 && promDatasources.length === 0;
     if (azMonDatasources.length === 0) {
       const textToShow = bothDatasourcesMissing ? "Azure Monitor or Prometheus" : "Azure Monitor";
-      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene(textToShow));
+      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene(textToShow, reporter, telemetryClient));
     }
 
   // get cluster data and initialize mappings
@@ -39,21 +40,26 @@ export function getClusterByWorkloadScene() {
 
   // check if there is at least one prom datasource
   if (promDatasources.length === 0) {
-    return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene('Prometheus'));
+    return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene('Prometheus', reporter, telemetryClient));
   }
 
   // build data scene
   const variables = getWorkloadsVariables();
   const clusterByWorkloadQueries = GetClusterByWorkloadQueries()
   const clusterByWorkloadData = getSceneQueryRunner(clusterByWorkloadQueries);
-  const transformedData = TransfomClusterByWorkloadData(clusterByWorkloadData);
+  const transformedData = TransfomClusterByWorkloadData(clusterByWorkloadData, telemetryClient);
 
   const getScene = () => {
+    telemetryClient.reportPageView("grafana_plugin_page_view", {
+      reporter: reporter,
+      type: ReportType.PageView,
+    });
     return new EmbeddedScene({
       $data: clusterData,
       $variables: new SceneVariableSet({
         variables: variables,
       }),
+      $behaviors: getBehaviorsForVariables(variables, telemetryClient),
       controls: [new VariableValueSelectors({}), new SceneTimePicker({}), new SceneRefreshPicker({})],
       $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
       body: new SceneFlexLayout({
@@ -96,13 +102,11 @@ export function getClusterByWorkloadScene() {
             promDSVar.changeValueTo(newPromDs.uid);
           }
         } catch (e) {
-          trackException({
+          telemetryClient.reportException("grafana_plugin_promdsvarchange_failed", {
+            reporter: reporter,
             exception: e instanceof Error ? e : new Error(stringify(e)),
-            severityLevel: SeverityLevel.Error,
-            properties: {
-              reporter: "Scene.Main.WorkloadsScene",
-              action: "changePromVariableOnClusterChange"
-            }
+            type: ReportType.Exception,
+            trigger: "cluster_change"
           });
           throw new Error(stringify(e));
         }
@@ -120,13 +124,11 @@ export function getClusterByWorkloadScene() {
             promDSVar.changeValueTo(promDs.uid);
           }
         } catch (e) {
-          trackException({
+          telemetryClient.reportException("grafana_plugin_promdsvarchange_failed", {
+            reporter: reporter,
             exception: e instanceof Error ? e : new Error(stringify(e)),
-            severityLevel: SeverityLevel.Error,
-            properties: {
-              reporter: "Scene.Main.WorkloadsScene",
-              action: "changePromVariableonClusterDataChange"
-            }
+            type: ReportType.Exception,
+            trigger: "cluster_mappings_change"
           });
           throw new Error(stringify(e));
         }
@@ -147,12 +149,12 @@ export function getClusterByWorkloadScene() {
   sceneAppPage.setState({ drilldowns: [
     {
       routePath: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workloads/alertsummary/:namespace`,
-      getPage: (routeMatch, parent) => getAlertSummaryDrilldownPage(routeMatch, parent, "workloads"),
+      getPage: (routeMatch, parent) => getAlertSummaryDrilldownPage(routeMatch, parent, "workloads", telemetryClient),
     },
     {
       routePath:
         `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources`,
-      getPage: getComputeResourcesDrilldownPage,
+      getPage: (routeMatch, parent) => getComputeResourcesDrilldownPage(routeMatch, parent, telemetryClient),
     },
   ]});
   return sceneAppPage;
