@@ -348,6 +348,11 @@ function getPodWithLogsDrilldownScene(telemetryClient: TelemetryClient) {
         }),
       });
 
+      telemetryClient.reportPageView("grafana_plugin_page_view", {
+        reporter: "Scene.Drilldown.PodWithLogs",
+        refererer: "Scene.Drilldown.ComputeResources",
+        type: ReportType.PageView,
+        });
       const scene = getScene();
       scene.addActivationHandler(() => {
         const promDSVar = sceneGraph.lookupVariable(PROM_DS_VARIABLE, scene) as DataSourceVariable;

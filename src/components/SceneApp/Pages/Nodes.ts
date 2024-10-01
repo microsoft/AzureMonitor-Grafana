@@ -13,13 +13,14 @@ import { getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariab
 export function getOverviewByNodeScene(telemetryClient: TelemetryClient): SceneAppPage {
     const sceneTitle = "Nodes";
     const sceneUrl = `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/nodes`;
+    const reporter = "Scene.Main.NodesScene";
     // always check first that there is at least one azure monitor datasource
     const azMonDatasources = getInstanceDatasourcesForType("grafana-azure-monitor-datasource");
     const promDatasources = getInstanceDatasourcesForType("prometheus");
     const bothDatasourcesMissing = azMonDatasources.length === 0 && promDatasources.length === 0;
     if (azMonDatasources.length === 0) {
       const textToShow = bothDatasourcesMissing ? "Azure Monitor or Prometheus" : "Azure Monitor";
-      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene(textToShow));
+      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene(textToShow, reporter, telemetryClient));
     }
 
     // get cluster data and initialize mappings
@@ -28,7 +29,7 @@ export function getOverviewByNodeScene(telemetryClient: TelemetryClient): SceneA
 
     // check if there is at least one prom datasource
     if (promDatasources.length === 0) {
-      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene("Prometheus"));
+      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene("Prometheus", reporter, telemetryClient));
     }
 
     // build data scene
@@ -38,6 +39,10 @@ export function getOverviewByNodeScene(telemetryClient: TelemetryClient): SceneA
     const transformedNodeOverviewData = TransformNodeOverviewData(nodeOverviewData);
     
     const getScene = () => {
+        telemetryClient.reportPageView("grafana_plugin_page_view", {
+            reporter: reporter,
+            type: ReportType.PageView,
+        });
         return new EmbeddedScene({
             $data: clusterData,
             $variables: new SceneVariableSet({
@@ -108,7 +113,7 @@ export function getOverviewByNodeScene(telemetryClient: TelemetryClient): SceneA
                 nodeOverviewData.runQueries();
             } catch (e) {
                 telemetryClient.reportException("grafana_plugin_runqueries_failed", {
-                    reporter: "Scene.Main.NodesScene",
+                    reporter: reporter,
                     exception: "e instanceof Error ? e : new Error(stringify(e))",
                     type: ReportType.Exception,
                     trigger: "cluster_change"
@@ -129,7 +134,7 @@ export function getOverviewByNodeScene(telemetryClient: TelemetryClient): SceneA
                     nodeOverviewData.runQueries();
                 } catch (e) {
                     telemetryClient.reportException("grafana_plugin_runqueries_failed", {
-                        reporter: "Scene.Main.NodesScene",
+                        reporter: reporter,
                         exception: e instanceof Error ? e : new Error(stringify(e)),
                         type: ReportType.Exception,
                         trigger: "cluster_mappings_change"

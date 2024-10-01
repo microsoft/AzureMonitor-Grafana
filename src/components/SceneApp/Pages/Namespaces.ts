@@ -15,13 +15,14 @@ import { getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariab
 export function getNamespacesScene(telemetryClient: TelemetryClient): SceneAppPage {
     const sceneTitle = "Namespaces";
     const sceneUrl = `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces`;
+    const reporter = "Scene.Main.NamespacesScene";
     // always check first that there is at least one azure monitor datasource
     const azMonDatasources = getInstanceDatasourcesForType("grafana-azure-monitor-datasource");
     const promDatasources = getInstanceDatasourcesForType("prometheus");
     const bothDatasourcesMissing = azMonDatasources.length === 0 && promDatasources.length === 0;
     if (azMonDatasources.length === 0) {
       const textToShow = bothDatasourcesMissing ? "Azure Monitor or Prometheus" : "Azure Monitor";
-      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene(textToShow));
+      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene(textToShow, reporter, telemetryClient));
     }
 
     // get cluster data and initialize mappings
@@ -30,7 +31,7 @@ export function getNamespacesScene(telemetryClient: TelemetryClient): SceneAppPa
 
     // check if there is at least one prom datasource
     if (promDatasources.length === 0) {
-      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene("Prometheus"));
+      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene("Prometheus", reporter, telemetryClient));
     }
     const variables = getSharedSceneVariables(false);
     const clusterOverviewQueries = GetClusterOverviewSceneQueries();
@@ -38,6 +39,10 @@ export function getNamespacesScene(telemetryClient: TelemetryClient): SceneAppPa
     const transformedClusterOverviewData = TranformClusterOverviewData(clusterOverviewData);
 
     const getScene = () => {
+      telemetryClient.reportPageView("grafana_plugin_page_view", {
+        reporter: reporter,
+        type: ReportType.PageView,
+      });
       return new EmbeddedScene({
         $data: clusterData,
         $variables: new SceneVariableSet({
@@ -80,7 +85,7 @@ export function getNamespacesScene(telemetryClient: TelemetryClient): SceneAppPa
           }
         } catch (e) {
           telemetryClient.reportException("grafana_plugin_promdsvarchange_failed", {
-            reporter: "Scene.Main.NamespacesScene",
+            reporter: reporter,
             exception: "e instanceof Error ? e : new Error(stringify(e))",
             type: ReportType.Exception,
             trigger: "cluster_change"
@@ -102,7 +107,7 @@ export function getNamespacesScene(telemetryClient: TelemetryClient): SceneAppPa
             }
           } catch (e) {
             telemetryClient.reportException("grafana_plugin_promdsvarchange_failed", {
-              reporter: "Scene.Main.NamespacesScene",
+              reporter: reporter,
               exception: e instanceof Error ? e : new Error(stringify(e)),
               type: ReportType.Exception,
               trigger: "cluster_mappings_change"

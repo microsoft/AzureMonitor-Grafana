@@ -87,6 +87,11 @@ function getComputeResourcesDrilldownScene(telemetryClient: TelemetryClient) {
     const rateofTransmittedPacketsDroppedData = getSceneQueryRunner(rateofTransmittedPacketsDroppedQuery);
 
     const getScene = () => {
+        telemetryClient.reportPageView("grafana_plugin_page_view", {
+            reporter: "Scene.Drilldown.ComputeResources",
+            refererer: "Scene.Main.WorkloadsScene",
+            type: ReportType.PageView,
+        });
         return new EmbeddedScene({
             $data: clusterData,
             $variables: new SceneVariableSet({

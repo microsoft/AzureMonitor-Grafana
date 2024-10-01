@@ -9,5 +9,9 @@ export class TelemetryClient {
         console.log("reporting exception");
         this.report(exceptionName, properties);
     }
-    
+
+    public reportPageView(pageName: string, properties: Record<string, unknown>) {
+        console.log("reporting page view");
+        this.report(pageName, properties);
+    }   
 }

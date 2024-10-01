@@ -2,6 +2,8 @@ import { EmbeddedScene, SceneFlexLayout, SceneFlexItem, PanelBuilders, SceneRout
 import { AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE } from "../../../constants";
 import { azure_monitor_queries } from "../Queries/queries";
 import { getDataSourcesVariableForType, getSubscriptionVariable, getResourceGraphVariable } from "../Variables/variables";
+import { TelemetryClient } from "telemetry/telemetry";
+import { ReportType } from "telemetry/types";
 
 export function getGenericSceneAppPage(title: string, url: string, getScene: (routeMatch: SceneRouteMatch<{}>) => EmbeddedScene) {
     return new SceneAppPage({
@@ -10,7 +12,12 @@ export function getGenericSceneAppPage(title: string, url: string, getScene: (ro
         getScene: getScene,
     });
 }
-export function getMissingDatasourceScene(missingDs: string) {
+export function getMissingDatasourceScene(missingDs: string, reporter: string, telemetryClient: TelemetryClient) {
+    telemetryClient.reportPageView("grafana_plugin_missingdsscene_view", {
+        reporter: reporter,
+        missingDatasource: missingDs,
+        type: ReportType.PageView,
+    });
     return new EmbeddedScene({
         body: new SceneFlexLayout({
             direction: 'column',
