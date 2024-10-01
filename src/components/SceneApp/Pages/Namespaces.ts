@@ -9,7 +9,7 @@ import { GetClusterOverviewSceneQueries, TranformClusterOverviewData } from "../
 import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType, getPromDatasource, getSceneQueryRunner } from "../Queries/queryUtil";
 import { getAlertSummaryDrilldownPage } from "./AlertSummaryDrilldown";
-import { getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables } from "./sceneUtils";
+import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables } from "./sceneUtils";
 
 
 export function getNamespacesScene(telemetryClient: TelemetryClient): SceneAppPage {
@@ -34,6 +34,7 @@ export function getNamespacesScene(telemetryClient: TelemetryClient): SceneAppPa
       return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene("Prometheus", reporter, telemetryClient));
     }
     const variables = getSharedSceneVariables(false);
+
     const clusterOverviewQueries = GetClusterOverviewSceneQueries();
     const clusterOverviewData = getSceneQueryRunner(clusterOverviewQueries);
     const transformedClusterOverviewData = TranformClusterOverviewData(clusterOverviewData);
@@ -48,6 +49,7 @@ export function getNamespacesScene(telemetryClient: TelemetryClient): SceneAppPa
         $variables: new SceneVariableSet({
           variables: variables,
         }),
+        $behaviors: getBehaviorsForVariables(variables, telemetryClient),
         controls: [new VariableValueSelectors({}), new SceneTimePicker({}), new SceneRefreshPicker({})],
         $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
         body: new SceneFlexLayout({
@@ -128,7 +130,7 @@ export function getNamespacesScene(telemetryClient: TelemetryClient): SceneAppPa
       drilldowns: [
         {
           routePath: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces/alertsummary/:namespace`,
-          getPage: (routeMatch, parent) => getAlertSummaryDrilldownPage(routeMatch, parent, "namespaces")
+          getPage: (routeMatch, parent) => getAlertSummaryDrilldownPage(routeMatch, parent, "namespaces", telemetryClient)
         },
       ]
     });

@@ -8,7 +8,7 @@ import { GetClusterStatsQueries, GetClustersQuery, TransformData } from "../Quer
 import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType } from "../Queries/queryUtil";
 import { getCustomVariable, getDataSourcesVariableForType, getSubscriptionVariable } from "../Variables/variables";
-import { getGenericSceneAppPage, getMissingDatasourceScene } from "./sceneUtils";
+import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceScene } from "./sceneUtils";
 
 
 
@@ -33,6 +33,12 @@ export function getclustersScene(telemetryClient: TelemetryClient): SceneAppPage
     const clusterData = GetClustersQuery(azure_monitor_queries["clustersQuery"]);
     const clusterTrendData = new SceneQueryRunner({queries: []});
     const transformedClusterData = TransformData(clusterTrendData, clusterData);
+    const variables = [
+      getDataSourcesVariableForType("grafana-azure-monitor-datasource", AZMON_DS_VARIABLE, "Azure Monitor Datasource"),
+      getSubscriptionVariable(),
+      getCustomVariable(AGG_VAR, "Aggregation", "Avg : avg")
+    ];
+
     const getScene = () => {
       telemetryClient.reportPageView("grafana_plugin_page_view", {
         reporter: reporter,
@@ -41,12 +47,9 @@ export function getclustersScene(telemetryClient: TelemetryClient): SceneAppPage
       return new EmbeddedScene({
       $data : clusterData,
       $variables: new SceneVariableSet({
-        variables: [
-            getDataSourcesVariableForType("grafana-azure-monitor-datasource", AZMON_DS_VARIABLE, "Azure Monitor Datasource"),
-            getSubscriptionVariable(),
-            getCustomVariable(AGG_VAR, "Aggregation", "Avg : avg")
-        ]
+        variables: variables
       }),
+      $behaviors: getBehaviorsForVariables(variables, telemetryClient),
       controls: [ new VariableValueSelectors({}), new SceneTimePicker({}), new SceneRefreshPicker({}) ],
       body: new SceneFlexLayout({
         direction: "column",

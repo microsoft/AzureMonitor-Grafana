@@ -12,7 +12,7 @@ import { createMappingFromSeries, getSceneQueryRunner } from "../Queries/queryUt
 import { getPrometheusVariable } from "../Variables/variables";
 import { applyOverridesCPUUsage, getTableVizCPUQuota, getTableVizCurrentStorage, getTableVizMemoryQuota, getTimeSeriesViz } from "../Visualizations/PodsWithLogsViz";
 import { getThresholdsConfig } from "../Visualizations/utils";
-import { getSharedSceneVariables } from "./sceneUtils";
+import { getBehaviorsForVariables, getSharedSceneVariables } from "./sceneUtils";
 
 function getPodWithLogsVariables() {
     const variables = getSharedSceneVariables(true);
@@ -137,11 +137,13 @@ function getPodWithLogsDrilldownScene(telemetryClient: TelemetryClient) {
     const currentStorageTransformedData = TransformCurrentStorageData(currentStorageIOData);
     const currentStorageViz = getTableVizCurrentStorage();
 
+    const variables = getPodWithLogsVariables();
     const getScene = () => new EmbeddedScene({
         $data: clusterData,
         $variables: new SceneVariableSet({
-            variables: getPodWithLogsVariables(),
+            variables: variables,
         }),
+        $behaviors: getBehaviorsForVariables(variables, telemetryClient),
         controls: [new VariableValueSelectors({}), new SceneTimePicker({}), new SceneRefreshPicker({})],
         body: new SceneFlexLayout({
           children: [

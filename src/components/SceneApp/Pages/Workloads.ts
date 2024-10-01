@@ -11,7 +11,7 @@ import { createMappingFromSeries, getInstanceDatasourcesForType, getPromDatasour
 import { getPrometheusVariable } from '../Variables/variables';
 import { getAlertSummaryDrilldownPage } from './AlertSummaryDrilldown';
 import { getComputeResourcesDrilldownPage } from './ComputeResourcesDrilldown';
-import { getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables } from './sceneUtils';
+import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables } from './sceneUtils';
 
 function getWorkloadsVariables() {
   const namespaceVariableRaw = `label_values(kube_namespace_status_phase,namespace)`;
@@ -59,6 +59,7 @@ export function getClusterByWorkloadScene(telemetryClient: TelemetryClient) {
       $variables: new SceneVariableSet({
         variables: variables,
       }),
+      $behaviors: getBehaviorsForVariables(variables, telemetryClient),
       controls: [new VariableValueSelectors({}), new SceneTimePicker({}), new SceneRefreshPicker({})],
       $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
       body: new SceneFlexLayout({
@@ -148,7 +149,7 @@ export function getClusterByWorkloadScene(telemetryClient: TelemetryClient) {
   sceneAppPage.setState({ drilldowns: [
     {
       routePath: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workloads/alertsummary/:namespace`,
-      getPage: (routeMatch, parent) => getAlertSummaryDrilldownPage(routeMatch, parent, "workloads"),
+      getPage: (routeMatch, parent) => getAlertSummaryDrilldownPage(routeMatch, parent, "workloads", telemetryClient),
     },
     {
       routePath:

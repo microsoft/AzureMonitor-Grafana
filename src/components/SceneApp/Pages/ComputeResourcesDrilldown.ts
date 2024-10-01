@@ -11,7 +11,7 @@ import { createMappingFromSeries, getSceneQueryRunner } from "../Queries/queryUt
 import { getPrometheusVariable, getTextVariable } from "../Variables/variables";
 import { getTableVisualizationCPUQuota, getTableVisualizationMemoryQuota, getTableVisualizationNetworkUsage, getTimeSeriesVisualization } from "../Visualizations/ComputeResourcesViz";
 import { getPodWithLogsDrillDownPage } from "./PodWithLogsDrilldown";
-import { getSharedSceneVariables } from "./sceneUtils";
+import { getBehaviorsForVariables, getSharedSceneVariables } from "./sceneUtils";
 
 function getComputeResourcesVariables() {
     const variables: Array<DataSourceVariable | QueryVariable | TextBoxVariable> = getSharedSceneVariables(true);
@@ -86,6 +86,8 @@ function getComputeResourcesDrilldownScene(telemetryClient: TelemetryClient) {
     const rateofTransmittedPacketsDroppedQuery = GetRateofTransmittedPacketsDroppedSceneQuery();
     const rateofTransmittedPacketsDroppedData = getSceneQueryRunner(rateofTransmittedPacketsDroppedQuery);
 
+    const variables = getComputeResourcesVariables();
+
     const getScene = () => {
         telemetryClient.reportPageView("grafana_plugin_page_view", {
             reporter: "Scene.Drilldown.ComputeResources",
@@ -95,8 +97,9 @@ function getComputeResourcesDrilldownScene(telemetryClient: TelemetryClient) {
         return new EmbeddedScene({
             $data: clusterData,
             $variables: new SceneVariableSet({
-                variables: getComputeResourcesVariables()
+                variables: variables
             }),
+            $behaviors: getBehaviorsForVariables(variables, telemetryClient),
             controls: [new VariableValueSelectors({}), new SceneTimePicker({}), new SceneRefreshPicker({})],
             body: new SceneFlexLayout({
                 direction: 'column',

@@ -8,7 +8,7 @@ import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
 import { GetNodeOverviewQueries, TransformNodeOverviewData } from "../Queries/NodeOverviewQueries";
 import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType, getSceneQueryRunner } from "../Queries/queryUtil";
-import { getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables } from "./sceneUtils";
+import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables } from "./sceneUtils";
 
 export function getOverviewByNodeScene(telemetryClient: TelemetryClient): SceneAppPage {
     const sceneTitle = "Nodes";
@@ -48,6 +48,7 @@ export function getOverviewByNodeScene(telemetryClient: TelemetryClient): SceneA
             $variables: new SceneVariableSet({
               variables: variables,
             }),
+            $behaviors: getBehaviorsForVariables(variables, telemetryClient),
             controls: [new VariableValueSelectors({}), new SceneTimePicker({}), new SceneRefreshPicker({ })],
             $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
             body: new SceneFlexLayout({
