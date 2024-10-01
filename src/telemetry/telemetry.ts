@@ -6,17 +6,14 @@ export class TelemetryClient {
     }
 
     public reportException(exceptionName: string, properties: Record<string, unknown>) {
-        console.log("reporting exception");
         this.report(exceptionName, properties);
     }
 
     public reportPageView(pageName: string, properties: Record<string, unknown>) {
-        console.log("reporting page view");
         this.report(pageName, properties);
     }
     
     public reportEvent(eventName: string, properties: Record<string, unknown>) {
-        console.log("reporting event");
         this.report(eventName, properties);
     }
 }

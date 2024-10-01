@@ -49,7 +49,6 @@ export function getBehaviorsForVariables(variables: Array<DataSourceVariable | Q
         return new behaviors.ActWhenVariableChanged({
             variableName: name,
             onChange: (variable) => {
-                console.log("variable changed")
                 telemetryClient.reportEvent("grafana_plugin_variable_changed", {
                     variableName: variable.state.name, 
                     variableType: variable.state.type,

@@ -185,7 +185,6 @@ function GetNestedTable(data: DataFrame[]): DataFrame[] {
         // return empty
         return [];
     }
-    console.log("new frames: ", newFrames);
     return newFrames;
 }
 
