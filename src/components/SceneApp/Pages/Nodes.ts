@@ -115,7 +115,7 @@ export function getOverviewByNodeScene(telemetryClient: TelemetryClient): SceneA
             } catch (e) {
                 telemetryClient.reportException("grafana_plugin_runqueries_failed", {
                     reporter: reporter,
-                    exception: "e instanceof Error ? e : new Error(stringify(e))",
+                    exception: e instanceof Error ? e : new Error(stringify(e)),
                     type: ReportType.Exception,
                     trigger: "cluster_change"
                   });

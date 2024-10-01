@@ -237,7 +237,7 @@ function GetIconsOnCells(dataFrames: DataFrame[], telemetryClient: TelemetryClie
   } catch (e) {
     telemetryClient.reportException("grafana_plugin_geticonsoncells_failed", {
       reporter: "Scene.Main.WorkloadsScene",
-      exception: "e instanceof Error ? e : new Error(JSON.stringify(e))",
+      exception: e instanceof Error ? e : new Error(JSON.stringify(e)),
       type: ReportType.Exception,
       trigger: "page"
     });

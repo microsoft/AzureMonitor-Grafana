@@ -104,7 +104,7 @@ export function getClusterByWorkloadScene(telemetryClient: TelemetryClient) {
         } catch (e) {
           telemetryClient.reportException("grafana_plugin_promdsvarchange_failed", {
             reporter: reporter,
-            exception: "e instanceof Error ? e : new Error(stringify(e))",
+            exception: e instanceof Error ? e : new Error(stringify(e)),
             type: ReportType.Exception,
             trigger: "cluster_change"
           });

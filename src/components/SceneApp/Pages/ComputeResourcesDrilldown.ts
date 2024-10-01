@@ -220,7 +220,7 @@ function getComputeResourcesDrilldownScene(telemetryClient: TelemetryClient) {
                 telemetryClient.reportException("grafana_plugin_promdsvarchange_failed", {
                     reporter: "Scene.Drilldown.ComputeResources",
                     refererer: "Scene.Main.WorkloadsScene",
-                    exception: "e instanceof Error ? e : new Error(stringify(e))",
+                    exception: e instanceof Error ? e : new Error(stringify(e)),
                     type: ReportType.Exception,
                     trigger: "cluster_change"
                   });
@@ -239,7 +239,7 @@ function getComputeResourcesDrilldownScene(telemetryClient: TelemetryClient) {
               telemetryClient.reportException("grafana_plugin_createclustermappings_failed", {
                   reporter: "Scene.Drilldown.ComputeResources",
                   refererer: "Scene.Main.WorkloadsScene",
-                  exception: "e instanceof Error ? e : new Error(stringify(e))",
+                  exception: e instanceof Error ? e : new Error(stringify(e)),
                   type: ReportType.Exception,
                   trigger: "cluster_data_change"
                 });
