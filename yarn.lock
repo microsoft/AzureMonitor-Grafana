@@ -817,10 +817,10 @@
     rxjs "7.8.1"
     tslib "2.6.2"
 
-"@grafana/scenes@^5.10.2":
-  version "5.14.7"
-  resolved "https://registry.yarnpkg.com/@grafana/scenes/-/scenes-5.14.7.tgz#1e39cdab33a230b7c5bb5e32a6d73d02483abbc6"
-  integrity sha512-7m+Gk5+2XUXnfNK0FNK8xMt5iCrWgMG234jJHNvmbRxs5+VOEZfaFkdKUPSs7UcZNl7GFrNJtHF+FXe6SiS06A==
+"@grafana/scenes@^5.20.1":
+  version "5.20.1"
+  resolved "https://registry.yarnpkg.com/@grafana/scenes/-/scenes-5.20.1.tgz#897f8cacd29c7cf6d0fa82e10405284142aafb42"
+  integrity sha512-QVcKDV/wBaj/IL81NMeZV0kERYY9i9bxYH5Mh+qNcgkvUn7+ONjdcaOMP5bW4IYf572FZiOLaf8VA/IwuVGgNg==
   dependencies:
     "@floating-ui/react" "0.26.16"
     "@grafana/e2e-selectors" "^11.0.0"

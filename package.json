@@ -64,7 +64,7 @@
     "@fluentui/react": "^8.115.5",
     "@grafana/data": "11.0.2",
     "@grafana/runtime": "11.0.2",
-    "@grafana/scenes": "^5.10.2",
+    "@grafana/scenes": "^5.20.1",
     "@grafana/schema": "11.0.2",
     "@grafana/ui": "11.0.2",
     "@microsoft/applicationinsights-web": "^3.3.1",
