@@ -3,7 +3,7 @@ import { TelemetryClient } from 'telemetry/telemetry';
 import { ReportType } from 'telemetry/types';
 import { ClusterMapping } from 'types';
 import { stringify } from 'utils/stringify';
-import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE } from '../../../constants';
+import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE } from '../../../constants';
 import { GetClusterByWorkloadQueries, TransfomClusterByWorkloadData } from '../Queries/ClusterByWorkloadQueries';
 import { GetClustersQuery } from '../Queries/ClusterMappingQueries';
 import { azure_monitor_queries } from '../Queries/queries';
@@ -11,10 +11,10 @@ import { createMappingFromSeries, getInstanceDatasourcesForType, getPromDatasour
 import { getPrometheusVariable } from '../Variables/variables';
 import { getAlertSummaryDrilldownPage } from './AlertSummaryDrilldown';
 import { getComputeResourcesDrilldownPage } from './ComputeResourcesDrilldown';
-import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables } from './sceneUtils';
+import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables, variableShouldBeCleared } from './sceneUtils';
 
 function getWorkloadsVariables() {
-  const namespaceVariableRaw = `label_values(kube_namespace_status_phase,namespace)`;
+  const namespaceVariableRaw = `label_values(kube_namespace_status_phase{cluster =~ \"\${${CLUSTER_VARIABLE}}\"},namespace)`;
   const variables = getSharedSceneVariables(false);
   variables.push(getPrometheusVariable(NS_VARIABLE, "Namespace", namespaceVariableRaw, true));
 
@@ -95,7 +95,11 @@ export function getClusterByWorkloadScene(telemetryClient: TelemetryClient) {
     const clusterVar = sceneGraph.lookupVariable(CLUSTER_VARIABLE, scene) as QueryVariable;
     const promDSVar = sceneGraph.lookupVariable(PROM_DS_VARIABLE, scene) as DataSourceVariable;
     const clusterVarSub = clusterVar?.subscribeToState((state) => {
-        const selectedCluster = state.value.toString();
+      // check if options were returned once the variable is done loading.
+      if (variableShouldBeCleared(state.options, state.value, state.loading)) {
+        clusterVar.changeValueTo("");
+      }
+      const selectedCluster = state.value.toString();
         try {
           const newPromDs = clusterMappings[selectedCluster]?.promDs;
           if (!!newPromDs && newPromDs.uid) {
@@ -111,33 +115,51 @@ export function getClusterByWorkloadScene(telemetryClient: TelemetryClient) {
           throw new Error(stringify(e));
         }
       });
-    
-    // make sure that mappings are updated if cluster data changes
-    const clusterDataSub = clusterData.subscribeToState((state) => {
-      if (state.data?.state === "Done") {
-        const workspaceData = state.data?.series.filter((s) => s.refId === "workspaces");
-        const clusterData = state.data?.series.filter((s) => s.refId === "clusters");
-        try {
-          clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values);
-          const promDs = getPromDatasource(clusterMappings, promDatasources);
-          if (!!promDs && promDs.uid) {
-            promDSVar.changeValueTo(promDs.uid);
-          }
-        } catch (e) {
-          telemetryClient.reportException("grafana_plugin_promdsvarchange_failed", {
-            reporter: reporter,
-            exception: e instanceof Error ? e : new Error(stringify(e)),
-            type: ReportType.Exception,
-            trigger: "cluster_mappings_change"
-          });
-          throw new Error(stringify(e));
+      
+      // if datasource changes, make sure subscription variable gets cleared
+      const subVariable = sceneGraph.lookupVariable(SUBSCRIPTION_VARIABLE, scene) as QueryVariable;
+      const subVariableSub = subVariable?.subscribeToState((state) => {
+        if (variableShouldBeCleared(state.options, state.value, state.loading)) {
+          subVariable.changeValueTo("");
         }
+      });
+      
+      // make sure that if cluster changes, namespace gets cleared:
+      const namespaceVar = sceneGraph.lookupVariable(NS_VARIABLE, scene) as QueryVariable;  
+      const namespaceVarSub = namespaceVar?.subscribeToState((state) => {
+        // check if options were returned once the variable is done loading.
+        if (!state.loading && state.options.length === 0 && state.value.toString() !== "") {
+          namespaceVar.changeValueTo("");
+        }
+      }); 
+      // make sure that mappings are updated if cluster data changes
+      const clusterDataSub = clusterData.subscribeToState((state) => {
+        if (state.data?.state === "Done") {
+          const workspaceData = state.data?.series.filter((s) => s.refId === "workspaces");
+          const clusterData = state.data?.series.filter((s) => s.refId === "clusters");
+          try {
+            clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values);
+            const promDs = getPromDatasource(clusterMappings, promDatasources);
+            if (!!promDs && promDs.uid) {
+              promDSVar.changeValueTo(promDs.uid);
+            }
+          } catch (e) {
+            telemetryClient.reportException("grafana_plugin_promdsvarchange_failed", {
+              reporter: reporter,
+              exception: e instanceof Error ? e : new Error(stringify(e)),
+              type: ReportType.Exception,
+              trigger: "cluster_mappings_change"
+            });
+            throw new Error(stringify(e));
+          }
+        }
+      });
+      return () => {
+        clusterVarSub?.unsubscribe();
+        clusterDataSub?.unsubscribe();
+        namespaceVarSub?.unsubscribe()
+        subVariableSub?.unsubscribe();
       }
-    });
-    return () => {
-      clusterVarSub?.unsubscribe();
-      clusterDataSub.unsubscribe();
-    }
   });
 
   const sceneAppPage =  new SceneAppPage({

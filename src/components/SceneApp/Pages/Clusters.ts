@@ -1,14 +1,14 @@
-import { EmbeddedScene, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneQueryRunner, SceneRefreshPicker, SceneTimePicker, SceneVariableSet, VariableValueSelectors, VizPanel } from "@grafana/scenes";
+import { EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, sceneGraph, SceneQueryRunner, SceneRefreshPicker, SceneTimePicker, SceneVariableSet, VariableValueSelectors, VizPanel } from "@grafana/scenes";
 import { TelemetryClient } from "telemetry/telemetry";
 import { ReportType } from "telemetry/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
-import { AGG_VAR, AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID } from "../../../constants";
+import { AGG_VAR, AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, SUBSCRIPTION_VARIABLE } from "../../../constants";
 import { GetClusterStatsQueries, GetClustersQuery, TransformData } from "../Queries/ClusterMappingQueries";
 import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType } from "../Queries/queryUtil";
 import { getCustomVariable, getDataSourcesVariableForType, getSubscriptionVariable } from "../Variables/variables";
-import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceScene } from "./sceneUtils";
+import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceScene, variableShouldBeCleared } from "./sceneUtils";
 
 
 
@@ -98,9 +98,18 @@ export function getclustersScene(telemetryClient: TelemetryClient): SceneAppPage
           }
         }
       });
+      
+      // if datasource changes, make sure subscription variable gets cleared
+      const subVariable = sceneGraph.lookupVariable(SUBSCRIPTION_VARIABLE, scene) as QueryVariable;
+      const subVariableSub = subVariable?.subscribeToState((state) => {
+        if (variableShouldBeCleared(state.options, state.value, state.loading)) {
+          subVariable.changeValueTo("");
+        }
+      });
 
       return () => {
-        clusterDataSub.unsubscribe();
+        clusterDataSub?.unsubscribe();
+        subVariableSub?.unsubscribe();
       }
     });
 

@@ -3,13 +3,13 @@ import { TelemetryClient } from "telemetry/telemetry";
 import { ReportType } from "telemetry/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
-import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, PROM_DS_VARIABLE } from "../../../constants";
+import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE } from "../../../constants";
 import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
 import { GetClusterOverviewSceneQueries, TranformClusterOverviewData } from "../Queries/ClusterOverviewQueries";
 import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType, getPromDatasource, getSceneQueryRunner } from "../Queries/queryUtil";
 import { getAlertSummaryDrilldownPage } from "./AlertSummaryDrilldown";
-import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables } from "./sceneUtils";
+import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables, variableShouldBeCleared } from "./sceneUtils";
 
 
 export function getNamespacesScene(telemetryClient: TelemetryClient): SceneAppPage {
@@ -79,6 +79,10 @@ export function getNamespacesScene(telemetryClient: TelemetryClient): SceneAppPa
       const clusterVar = sceneGraph.lookupVariable(CLUSTER_VARIABLE, scene) as QueryVariable;
       const promDSVar = sceneGraph.lookupVariable(PROM_DS_VARIABLE, scene) as DataSourceVariable;
       const clusterVarSub = clusterVar?.subscribeToState((state) => {
+        // check if options were returned once the variable is done loading.
+        if (variableShouldBeCleared(state.options, state.value, state.loading)) {
+          clusterVar.changeValueTo("");
+        }
         const newSelectedCluster = state.value.toString();
         try {
           const newPromDs = clusterMappings[newSelectedCluster]?.promDs;
@@ -96,6 +100,13 @@ export function getNamespacesScene(telemetryClient: TelemetryClient): SceneAppPa
         }
       });
       
+      // if datasource changes, make sure subscription variable gets cleared
+      const subVariable = sceneGraph.lookupVariable(SUBSCRIPTION_VARIABLE, scene) as QueryVariable;
+      const subVariableSub = subVariable?.subscribeToState((state) => {
+        if (variableShouldBeCleared(state.options, state.value, state.loading)) {
+          subVariable.changeValueTo("");
+        }
+      });
       // make sure that mappings are updated if cluster data changes
       const clusterDataSub = clusterData.subscribeToState((state) => {
         if (state.data?.state === "Done") {
@@ -119,8 +130,9 @@ export function getNamespacesScene(telemetryClient: TelemetryClient): SceneAppPa
         }
       });
       return () => {
-        clusterVarSub.unsubscribe();
-        clusterDataSub.unsubscribe();
+        clusterVarSub?.unsubscribe();
+        clusterDataSub?.unsubscribe();
+        subVariableSub?.unsubscribe();
       }
     });
     const clusterOverviewTab = new SceneAppPage({

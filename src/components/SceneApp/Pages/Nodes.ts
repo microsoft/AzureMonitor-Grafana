@@ -3,12 +3,12 @@ import { TelemetryClient } from "telemetry/telemetry";
 import { ReportType } from "telemetry/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
-import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE } from "../../../constants";
+import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, SUBSCRIPTION_VARIABLE } from "../../../constants";
 import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
 import { GetNodeOverviewQueries, TransformNodeOverviewData } from "../Queries/NodeOverviewQueries";
 import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType, getSceneQueryRunner } from "../Queries/queryUtil";
-import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables } from "./sceneUtils";
+import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables, variableShouldBeCleared } from "./sceneUtils";
 
 export function getOverviewByNodeScene(telemetryClient: TelemetryClient): SceneAppPage {
     const sceneTitle = "Nodes";
@@ -107,6 +107,10 @@ export function getOverviewByNodeScene(telemetryClient: TelemetryClient): SceneA
         // make sure if cluster changes we rerun queries for newly selected clusters
         const clusterVar = sceneGraph.lookupVariable(CLUSTER_VARIABLE, scene) as QueryVariable;
         const clusterVarSub = clusterVar?.subscribeToState((state) => {
+            // check if options were returned once the variable is done loading.
+            if (variableShouldBeCleared(state.options, state.value, state.loading)) {
+                clusterVar.changeValueTo("");
+            }
             const newSelectedCluster = state.value.toString();
             try {
                 const newQueries = GetNodeOverviewQueries(clusterMappings, [newSelectedCluster]);
@@ -120,6 +124,14 @@ export function getOverviewByNodeScene(telemetryClient: TelemetryClient): SceneA
                     trigger: "cluster_change"
                   });
                 throw new Error(stringify(e));
+            }
+        });
+        
+        // if datasource changes, make sure subscription variable gets cleared
+        const subVariable = sceneGraph.lookupVariable(SUBSCRIPTION_VARIABLE, scene) as QueryVariable;
+        const subVariableSub = subVariable?.subscribeToState((state) => {
+            if (variableShouldBeCleared(state.options, state.value, state.loading)) {
+            subVariable.changeValueTo("");
             }
         });
 
@@ -145,8 +157,9 @@ export function getOverviewByNodeScene(telemetryClient: TelemetryClient): SceneA
             }
         });
         return () => {
-            clusterVarSub.unsubscribe();
-            clusterDataSub.unsubscribe();
+            clusterVarSub?.unsubscribe();
+            clusterDataSub?.unsubscribe();
+            subVariableSub?.unsubscribe();
         }
     });
 

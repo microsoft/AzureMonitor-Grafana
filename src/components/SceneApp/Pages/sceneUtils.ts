@@ -1,9 +1,9 @@
-import { EmbeddedScene, SceneFlexLayout, SceneFlexItem, PanelBuilders, SceneRouteMatch, SceneAppPage, behaviors, DataSourceVariable, QueryVariable, CustomVariable, TextBoxVariable } from "@grafana/scenes";
-import { AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE } from "../../../constants";
-import { azure_monitor_queries } from "../Queries/queries";
-import { getDataSourcesVariableForType, getSubscriptionVariable, getResourceGraphVariable } from "../Variables/variables";
+import { behaviors, CustomVariable, DataSourceVariable, EmbeddedScene, PanelBuilders, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRouteMatch, TextBoxVariable, VariableValue, VariableValueOption } from "@grafana/scenes";
 import { TelemetryClient } from "telemetry/telemetry";
 import { ReportType } from "telemetry/types";
+import { AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE } from "../../../constants";
+import { azure_monitor_queries } from "../Queries/queries";
+import { getDataSourcesVariableForType, getResourceGraphVariable, getSubscriptionVariable } from "../Variables/variables";
 
 export function getGenericSceneAppPage(title: string, url: string, getScene: (routeMatch: SceneRouteMatch<{}>) => EmbeddedScene) {
     return new SceneAppPage({
@@ -38,7 +38,7 @@ export function getSharedSceneVariables(drilldownScene: boolean) {
     variables.push(getDataSourcesVariableForType("grafana-azure-monitor-datasource", AZMON_DS_VARIABLE, "Azure Monitor Datasource", drilldownScene));
     variables.push(getSubscriptionVariable(drilldownScene));
     variables.push(getResourceGraphVariable(azure_monitor_queries["clustersVariableQuery"], `\$${SUBSCRIPTION_VARIABLE}`, CLUSTER_VARIABLE, "AKS Cluster", "Select a cluster", false));
-    variables.push(getDataSourcesVariableForType("prometheus", PROM_DS_VARIABLE, "Prometheus Datasource", true))
+    variables.push(getDataSourcesVariableForType("prometheus", PROM_DS_VARIABLE, "Prometheus Datasource", true));
   
     return variables;
 }
@@ -68,4 +68,35 @@ export function getBehaviorsForVariables(variables: Array<DataSourceVariable | Q
             }
         })
     });
+}
+
+/**
+ * This function checks whether the variable needs to be cleared
+ * if the available options are empty, variable should be cleared
+ * if the available options are not empty, but the current selected value is not part of the available options, variable should be cleared
+ * if the variable is still loading, variable should not be cleared
+ * if the variable options are not empty, and the current selected value is part of the available options, variable should not be cleared
+ * @param variableOptions available variable options
+ * @param currentVariableValue currently selected variable value
+ * @param variableIsLoading whether the variable is still loading or not
+ */
+export function variableShouldBeCleared(variableOptions: VariableValueOption[], currentVariableValue: VariableValue, variableIsLoading: boolean | undefined) {
+    if (variableIsLoading) {
+        return false;
+    }
+
+    if (variableOptions.length === 0 && currentVariableValue !== "") {
+        return true;
+    }
+
+    const currentValues = Array.isArray(currentVariableValue) ? currentVariableValue : [currentVariableValue];
+    const optionValues = variableOptions.map(option => option.value);
+
+    for (const value of currentValues) {
+        if (!optionValues.includes(value)) {
+            return true;
+        }
+    }
+
+    return false;
 }
