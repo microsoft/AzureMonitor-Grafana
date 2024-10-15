@@ -48,7 +48,7 @@ export function getDataSourcesVariableForType(dsType: string, name: string, labe
         label: label,
         pluginId: dsType,
         hide: hide ? VariableHide.hideVariable : VariableHide.dontHide,
-      });
+    });
 }
 
 export function getPrometheusVariable(name: string, label: string, query: string, includeAll?: boolean) {
