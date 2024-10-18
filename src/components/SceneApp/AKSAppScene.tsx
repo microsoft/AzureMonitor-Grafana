@@ -1,16 +1,16 @@
-import React, { useContext } from "react";
+import { usePluginContext } from "@grafana/data";
 import { useSceneApp } from "@grafana/scenes";
-import { getSceneApp } from "./SceneApp";
-import { PluginPropsContext } from "utils/utils.plugin";
+import React, { useContext } from "react";
+import { Reporter } from "reporter/reporter";
 import { AKSPluginProps } from "types";
-import { usePluginInteractionReporter } from "@grafana/runtime";
-import { TelemetryClient } from "telemetry/telemetry";
+import { PluginPropsContext } from "utils/utils.plugin";
+import { getSceneApp } from "./SceneApp";
 
 export function AKSAppScene() {
     const { configState, setConfigState } = useContext(PluginPropsContext) as AKSPluginProps;
-    const report = usePluginInteractionReporter();
-    const telemetryClient = new TelemetryClient(report);
-    const scene = useSceneApp(() => getSceneApp(configState, setConfigState, telemetryClient));
+    const pluginContext = usePluginContext();
+    const pluginReporter = new Reporter(pluginContext);
+    const scene = useSceneApp(() => getSceneApp(configState, setConfigState, pluginReporter));
   
     return <scene.Component model={scene} />;
   }

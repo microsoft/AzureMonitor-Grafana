@@ -1,6 +1,6 @@
 import { EmbeddedScene, PanelBuilders, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from "@grafana/scenes";
-import { TelemetryClient } from "telemetry/telemetry";
-import { ReportType } from "telemetry/types";
+import { Reporter } from "reporter/reporter";
+import { ReportType } from "reporter/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
 import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, SUBSCRIPTION_VARIABLE } from "../../../constants";
@@ -10,7 +10,7 @@ import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType, getSceneQueryRunner } from "../Queries/queryUtil";
 import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables, variableShouldBeCleared } from "./sceneUtils";
 
-export function getOverviewByNodeScene(telemetryClient: TelemetryClient): SceneAppPage {
+export function getOverviewByNodeScene(pluginReporter: Reporter): SceneAppPage {
     const sceneTitle = "Nodes";
     const sceneUrl = `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/nodes`;
     const reporter = "Scene.Main.NodesScene";
@@ -20,7 +20,7 @@ export function getOverviewByNodeScene(telemetryClient: TelemetryClient): SceneA
     const bothDatasourcesMissing = azMonDatasources.length === 0 && promDatasources.length === 0;
     if (azMonDatasources.length === 0) {
       const textToShow = bothDatasourcesMissing ? "Azure Monitor or Prometheus" : "Azure Monitor";
-      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene(textToShow, reporter, telemetryClient));
+      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene(textToShow, reporter, pluginReporter));
     }
 
     // get cluster data and initialize mappings
@@ -29,7 +29,7 @@ export function getOverviewByNodeScene(telemetryClient: TelemetryClient): SceneA
 
     // check if there is at least one prom datasource
     if (promDatasources.length === 0) {
-      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene("Prometheus", reporter, telemetryClient));
+      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene("Prometheus", reporter, pluginReporter));
     }
 
     // build data scene
@@ -39,7 +39,7 @@ export function getOverviewByNodeScene(telemetryClient: TelemetryClient): SceneA
     const transformedNodeOverviewData = TransformNodeOverviewData(nodeOverviewData);
     
     const getScene = () => {
-        telemetryClient.reportPageView("grafana_plugin_page_view", {
+        pluginReporter.reportPageView("grafana_plugin_page_view", {
             reporter: reporter,
             type: ReportType.PageView,
         });
@@ -48,7 +48,7 @@ export function getOverviewByNodeScene(telemetryClient: TelemetryClient): SceneA
             $variables: new SceneVariableSet({
               variables: variables,
             }),
-            $behaviors: getBehaviorsForVariables(variables, telemetryClient),
+            $behaviors: getBehaviorsForVariables(variables, pluginReporter),
             controls: [new VariableValueSelectors({}), new SceneTimePicker({}), new SceneRefreshPicker({ })],
             $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
             body: new SceneFlexLayout({
@@ -117,7 +117,7 @@ export function getOverviewByNodeScene(telemetryClient: TelemetryClient): SceneA
                 nodeOverviewData.setState({ queries: newQueries });
                 nodeOverviewData.runQueries();
             } catch (e) {
-                telemetryClient.reportException("grafana_plugin_runqueries_failed", {
+                pluginReporter.reportException("grafana_plugin_runqueries_failed", {
                     reporter: reporter,
                     exception: e instanceof Error ? e : new Error(stringify(e)),
                     type: ReportType.Exception,
@@ -146,7 +146,7 @@ export function getOverviewByNodeScene(telemetryClient: TelemetryClient): SceneA
                     nodeOverviewData.setState({ queries: newQueries });
                     nodeOverviewData.runQueries();
                 } catch (e) {
-                    telemetryClient.reportException("grafana_plugin_runqueries_failed", {
+                    pluginReporter.reportException("grafana_plugin_runqueries_failed", {
                         reporter: reporter,
                         exception: e instanceof Error ? e : new Error(stringify(e)),
                         type: ReportType.Exception,

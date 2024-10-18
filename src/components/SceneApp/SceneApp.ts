@@ -1,5 +1,6 @@
 import { PanelPlugin } from "@grafana/data";
 import { SceneApp, SceneAppPage, sceneUtils } from "@grafana/scenes";
+import { Reporter } from "reporter/reporter";
 import { AZURE_MONITORING_PLUGIN_ID } from "../../constants";
 import SceneTitle from "./CustomComponents/sceneTitle";
 import { getclustersScene } from "./Pages/Clusters";
@@ -8,7 +9,6 @@ import { getOverviewByNodeScene } from "./Pages/Nodes";
 import { getClusterByWorkloadScene } from "./Pages/Workloads";
 import { CustomTable, CustomTableVizFieldOptions, CustomTableVizOptions } from "./PanelVisualizations/CustomTable";
 import { ConfigurationState } from "./SceneObjects/types";
-import { TelemetryClient } from "telemetry/telemetry";
 
 const customTable = new PanelPlugin<CustomTableVizOptions, CustomTableVizFieldOptions>(CustomTable).useFieldConfig({
   useCustomConfig(builder) {
@@ -21,11 +21,11 @@ const customTable = new PanelPlugin<CustomTableVizOptions, CustomTableVizFieldOp
   },
 });
 sceneUtils.registerRuntimePanelPlugin({ pluginId: 'azure-monitor-app-custom-table', plugin: customTable });
-export function getSceneApp(_configState: Partial<ConfigurationState>, _setConfigState: (configState: Partial<ConfigurationState>) => void, telemetryClient: TelemetryClient): SceneApp {
-    const namespacesTab = getNamespacesScene(telemetryClient);
-    const clustersTab = getclustersScene(telemetryClient);
-    const workloadsTab = getClusterByWorkloadScene(telemetryClient);
-    const nodesTab = getOverviewByNodeScene(telemetryClient);
+export function getSceneApp(_configState: Partial<ConfigurationState>, _setConfigState: (configState: Partial<ConfigurationState>) => void, pluginReporter: Reporter): SceneApp {
+    const namespacesTab = getNamespacesScene(pluginReporter);
+    const clustersTab = getclustersScene(pluginReporter);
+    const workloadsTab = getClusterByWorkloadScene(pluginReporter);
+    const nodesTab = getOverviewByNodeScene(pluginReporter);
     const myAppPage = new SceneAppPage({
         title: 'Azure Cloud Native Monitoring',
         url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation`,
