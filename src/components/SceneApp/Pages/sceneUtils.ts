@@ -1,6 +1,6 @@
 import { behaviors, CustomVariable, DataSourceVariable, EmbeddedScene, PanelBuilders, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRouteMatch, TextBoxVariable, VariableValue, VariableValueOption } from "@grafana/scenes";
-import { TelemetryClient } from "telemetry/telemetry";
-import { ReportType } from "telemetry/types";
+import { Reporter } from "reporter/reporter";
+import { ReportType } from "reporter/types";
 import { AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE } from "../../../constants";
 import { azure_monitor_queries } from "../Queries/queries";
 import { getDataSourcesVariableForType, getResourceGraphVariable, getSubscriptionVariable } from "../Variables/variables";
@@ -12,8 +12,8 @@ export function getGenericSceneAppPage(title: string, url: string, getScene: (ro
         getScene: getScene,
     });
 }
-export function getMissingDatasourceScene(missingDs: string, reporter: string, telemetryClient: TelemetryClient) {
-    telemetryClient.reportPageView("grafana_plugin_missingdsscene_view", {
+export function getMissingDatasourceScene(missingDs: string, reporter: string, pluginReporter: Reporter) {
+    pluginReporter.reportPageView("grafana_plugin_missingdsscene_view", {
         reporter: reporter,
         missingDatasource: missingDs,
         type: ReportType.PageView,
@@ -43,13 +43,13 @@ export function getSharedSceneVariables(drilldownScene: boolean) {
     return variables;
 }
 
-export function getBehaviorsForVariables(variables: Array<DataSourceVariable | QueryVariable | CustomVariable | TextBoxVariable>, telemetryClient: TelemetryClient) {
+export function getBehaviorsForVariables(variables: Array<DataSourceVariable | QueryVariable | CustomVariable | TextBoxVariable>, pluginReporter: Reporter) {
     const variableNames = variables.map((v) => v.state.name);   
     return variableNames.map((name) => {
         return new behaviors.ActWhenVariableChanged({
             variableName: name,
             onChange: (variable) => {
-                telemetryClient.reportEvent("grafana_plugin_variable_changed", {
+                pluginReporter.reportEvent("grafana_plugin_variable_changed", {
                     variableName: variable.state.name, 
                     variableType: variable.state.type,
                     variableValue: variable.state.$data,
@@ -57,7 +57,7 @@ export function getBehaviorsForVariables(variables: Array<DataSourceVariable | Q
                 });
 
                 if (variable.state.error) {
-                    telemetryClient.reportException("grafana_plugin_variable_error", {
+                    pluginReporter.reportException("grafana_plugin_variable_error", {
                         variableName: variable.state.name,
                         variableType: variable.state.type,
                         variableValue: variable.state.$data,

@@ -1,7 +1,7 @@
 import { DataSourceVariable, EmbeddedScene, PanelBuilders, QueryVariable, SceneAppPage, SceneAppPageLike, SceneFlexItem, SceneFlexLayout, SceneQueryRunner, SceneRefreshPicker, SceneRouteMatch, SceneTimePicker, SceneVariableSet, VariableValueSelectors, sceneGraph } from "@grafana/scenes";
 import { GraphThresholdsStyleMode, ThresholdsMode } from "@grafana/schema";
-import { TelemetryClient } from "telemetry/telemetry";
-import { ReportType } from "telemetry/types";
+import { Reporter } from "reporter/reporter";
+import { ReportType } from "reporter/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
 import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, POD_VAR, PROM_DS_VARIABLE, WORKLOAD_VAR } from "../../../constants";
@@ -24,7 +24,7 @@ function getPodWithLogsVariables() {
     return variables;
 }
 
-function getPodWithLogsDrilldownScene(telemetryClient: TelemetryClient) {
+function getPodWithLogsDrilldownScene(pluginReporter: Reporter) {
     // get cluster data and initialize mappings
     const clusterData = GetClustersQuery(azure_monitor_queries['clustersQuery']);
     let clusterMappings: Record<string, ClusterMapping> = {};
@@ -143,7 +143,7 @@ function getPodWithLogsDrilldownScene(telemetryClient: TelemetryClient) {
         $variables: new SceneVariableSet({
             variables: variables,
         }),
-        $behaviors: getBehaviorsForVariables(variables, telemetryClient),
+        $behaviors: getBehaviorsForVariables(variables, pluginReporter),
         controls: [new VariableValueSelectors({}), new SceneTimePicker({}), new SceneRefreshPicker({})],
         body: new SceneFlexLayout({
           children: [
@@ -350,7 +350,7 @@ function getPodWithLogsDrilldownScene(telemetryClient: TelemetryClient) {
         }),
       });
 
-      telemetryClient.reportPageView("grafana_plugin_page_view", {
+      pluginReporter.reportPageView("grafana_plugin_page_view", {
         reporter: "Scene.Drilldown.PodWithLogs",
         refererer: "Scene.Drilldown.ComputeResources",
         type: ReportType.PageView,
@@ -368,7 +368,7 @@ function getPodWithLogsDrilldownScene(telemetryClient: TelemetryClient) {
                         promDSVar.changeValueTo(newPromDs.uid);
                     }
                 } catch (e) {
-                    telemetryClient.reportException("grafana_plugin_promdsvarchange_failed", {
+                    pluginReporter.reportException("grafana_plugin_promdsvarchange_failed", {
                         reporter: "Scene.Drilldown.PodWithLogs",
                         refererer: "Scene.Drilldown.ComputeResources",
                         exception: e instanceof Error ? e : new Error(stringify(e)),
@@ -436,7 +436,7 @@ function getPodWithLogsDrilldownScene(telemetryClient: TelemetryClient) {
                         podContainerLogsData.runQueries();
                     }
                 } catch (e) {
-                    telemetryClient.reportException("grafana_plugin_runqueries_failed", {
+                    pluginReporter.reportException("grafana_plugin_runqueries_failed", {
                         reporter: "Scene.Drilldown.PodWithLogs",
                         refererer: "Scene.Drilldown.ComputeResources",
                         exception: e instanceof Error ? e : new Error(stringify(e)),
@@ -457,11 +457,11 @@ function getPodWithLogsDrilldownScene(telemetryClient: TelemetryClient) {
       return scene
 }
 
-export function getPodWithLogsDrillDownPage(_: SceneRouteMatch<{}>, parent: SceneAppPageLike, telemetryClient: TelemetryClient) {
+export function getPodWithLogsDrillDownPage(_: SceneRouteMatch<{}>, parent: SceneAppPageLike, pluginReporter: Reporter) {
     return new SceneAppPage({
         url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources/pods/logs/drilldown`,
         title: `Pod with Logs`,
-        getScene: () => getPodWithLogsDrilldownScene(telemetryClient),
+        getScene: () => getPodWithLogsDrilldownScene(pluginReporter),
         getParentPage: () => parent,
     });
 }

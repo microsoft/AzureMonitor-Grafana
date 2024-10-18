@@ -1,10 +1,10 @@
 import { EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, sceneGraph, SceneQueryRunner, SceneRefreshPicker, SceneTimePicker, SceneVariableSet, VariableValueSelectors, VizPanel } from "@grafana/scenes";
-import { TelemetryClient } from "telemetry/telemetry";
-import { ReportType } from "telemetry/types";
+import { Reporter } from "reporter/reporter";
+import { ReportType } from "reporter/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
 import { AGG_VAR, AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, SUBSCRIPTION_VARIABLE } from "../../../constants";
-import { GetClusterStatsQueries, GetClustersQuery, TransformData } from "../Queries/ClusterMappingQueries";
+import { GetClustersQuery, GetClusterStatsQueries, TransformData } from "../Queries/ClusterMappingQueries";
 import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType } from "../Queries/queryUtil";
 import { getCustomVariable, getDataSourcesVariableForType, getSubscriptionVariable } from "../Variables/variables";
@@ -12,7 +12,7 @@ import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceS
 
 
 
-export function getclustersScene(telemetryClient: TelemetryClient): SceneAppPage {
+export function getclustersScene(pluginReporter: Reporter): SceneAppPage {
     const sceneTitle = "Clusters";
     const sceneUrl = `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/clusters;`
     // always check first that there is at least one azure monitor datasource
@@ -22,12 +22,12 @@ export function getclustersScene(telemetryClient: TelemetryClient): SceneAppPage
     const bothDatasourcesMissing = azMonDatasources.length === 0 && promDatasources.length === 0;
     if (azMonDatasources.length === 0) {
       const textToShow = bothDatasourcesMissing ? "Azure Monitor or Prometheus" : "Azure Monitor";
-      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene(textToShow, reporter, telemetryClient));
+      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene(textToShow, reporter, pluginReporter));
     }
 
     // check if there is at least one prom datasource
     if (promDatasources.length === 0) {
-      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene("Prometheus", reporter, telemetryClient));
+      return getGenericSceneAppPage(sceneTitle, sceneUrl, () => getMissingDatasourceScene("Prometheus", reporter, pluginReporter));
     }
     let clusterMappings: Record<string, ClusterMapping> = {};
     const clusterData = GetClustersQuery(azure_monitor_queries["clustersQuery"]);
@@ -40,7 +40,7 @@ export function getclustersScene(telemetryClient: TelemetryClient): SceneAppPage
     ];
 
     const getScene = () => {
-      telemetryClient.reportPageView("grafana_plugin_page_view", {
+      pluginReporter.reportPageView("grafana_plugin_page_view", {
         reporter: reporter,
         type: ReportType.PageView,
       });
@@ -49,7 +49,7 @@ export function getclustersScene(telemetryClient: TelemetryClient): SceneAppPage
       $variables: new SceneVariableSet({
         variables: variables
       }),
-      $behaviors: getBehaviorsForVariables(variables, telemetryClient),
+      $behaviors: getBehaviorsForVariables(variables, pluginReporter),
       controls: [ new VariableValueSelectors({}), new SceneTimePicker({}), new SceneRefreshPicker({}) ],
       body: new SceneFlexLayout({
         direction: "column",
@@ -88,7 +88,7 @@ export function getclustersScene(telemetryClient: TelemetryClient): SceneAppPage
             queries: clusterStatsQueries });
             clusterTrendData.runQueries();
           } catch (e) {
-            telemetryClient.reportException("grafana_plugin_runqueries_failed", {
+            pluginReporter.reportException("grafana_plugin_runqueries_failed", {
               reporter: reporter,
               exception: e instanceof Error ? e : new Error(stringify(e)),
               type: ReportType.Exception,
