@@ -56,14 +56,7 @@ In your Grafana instance:
 1. Search for Azure Cloud Native Monitoring and click install
 
 #### Locally
-1. Clone this repository
-    ```
-    git clone https://github.com/aep-edge-microsoft/AzureMonitor-Grafana.git
-    ```
-1. Open in Visual Studio Code and click `Ctrl` + `Shift` + `P`
-1. Search for and click on `Rebuild and Reopen in Container`
-1. Click `Ctrl` + `Shift` + `B`, this will start running the necessary `frontend` and `backend` tasks
-1. Navigate to `localhost:3000`
+Please see [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 <!-----------------------[  Deployment (CI/CD)  ]-----------<optional> section below--------------------->
 ### Deployment (CI/CD)
