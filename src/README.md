@@ -1,4 +1,4 @@
-# Azure Cloud Native Monitoring
+# Azure Cloud Native Monitoring ![Static Badge](https://img.shields.io/badge/preview-blue)
 
 ## Overview
 

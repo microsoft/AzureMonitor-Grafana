@@ -1,5 +1,8 @@
 # Grafana Azure Cloud Native Monitoring
 
+[![Releases Badge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Frepos%2Fmicrosoft%2FAzureMonitor-Grafana%2Freleases%2Flatest&query=%24.name&label=version&color=green&link=https%3A%2F%2Fgithub.com%2Fmicrosoft%2FAzureMonitor-Grafana%2Freleases)](https://github.com/microsoft/AzureMonitor-Grafana/releases)
+![Preview Badge](https://img.shields.io/badge/preview-blue)
+
 A Grafana cloud-native app plugin designed to enhance monitoring capabilities.
 
 -----------------------------------------------------------------
@@ -56,14 +59,7 @@ In your Grafana instance:
 1. Search for Azure Cloud Native Monitoring and click install
 
 #### Locally
-1. Clone this repository
-    ```
-    git clone https://github.com/aep-edge-microsoft/AzureMonitor-Grafana.git
-    ```
-1. Open in Visual Studio Code and click `Ctrl` + `Shift` + `P`
-1. Search for and click on `Rebuild and Reopen in Container`
-1. Click `Ctrl` + `Shift` + `B`, this will start running the necessary `frontend` and `backend` tasks
-1. Navigate to `localhost:3000`
+Please see [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 <!-----------------------[  Deployment (CI/CD)  ]-----------<optional> section below--------------------->
 ### Deployment (CI/CD)
