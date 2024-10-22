@@ -1,5 +1,7 @@
 # Grafana Azure Cloud Native Monitoring
 
+![Static Badge](https://img.shields.io/badge/preview-blue)
+
 A Grafana cloud-native app plugin designed to enhance monitoring capabilities.
 
 -----------------------------------------------------------------
