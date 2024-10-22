@@ -1,6 +1,6 @@
 # Grafana Azure Cloud Native Monitoring
 
-![Releases Badge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Frepos%2Fmicrosoft%2FAzureMonitor-Grafana%2Freleases%2Flatest&query=%24.name&label=version&color=green&link=https%3A%2F%2Fgithub.com%2Fmicrosoft%2FAzureMonitor-Grafana%2Freleases)
+[![Releases Badge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Frepos%2Fmicrosoft%2FAzureMonitor-Grafana%2Freleases%2Flatest&query=%24.name&label=version&color=green&link=https%3A%2F%2Fgithub.com%2Fmicrosoft%2FAzureMonitor-Grafana%2Freleases)](https://github.com/microsoft/AzureMonitor-Grafana/releases)
 ![Preview Badge](https://img.shields.io/badge/preview-blue)
 
 A Grafana cloud-native app plugin designed to enhance monitoring capabilities.
