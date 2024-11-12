@@ -40,7 +40,7 @@
           "esbenp.prettier-vscode",
           "dbaeumer.vscode-eslint",
           "editorconfig.editorconfig",
-          "bungcip.better-toml",
+          "tamasfe.even-better-toml",
           "ms-azuretools.vscode-docker",
           "eamodio.gitlens",
           "ms-cst-e.vscode-devskim",

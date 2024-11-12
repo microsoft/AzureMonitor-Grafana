@@ -77,9 +77,20 @@ const transformTrendData: (clusterData: SceneQueryRunner) => CustomTransformOper
         );
 }
 
+export const GetClusterToSubscription = (clusterData: SceneQueryRunner) => {
+    const clusters = clusterData.state.data?.series.find((s) => s.refId === "clusters")?.fields[0]?.values ?? [];
+    const subscriptionIds = clusterData.state.data?.series.find((s) => s.refId === "clusters")?.fields.find((f) => f.name === "subscriptionId")?.values ?? [];
+    const clusterToSubscription = new Map<string, string>();
+    for (const cluster of clusters) {
+        clusterToSubscription.set(cluster, subscriptionIds[clusters.indexOf(cluster)]);
+    }
+    return clusterToSubscription;
+}
+
 function TransformStatsData(data: DataFrame[], clusterData: SceneQueryRunner): DataFrame[] {
     const clusters = clusterData.state.data?.series.find((s) => s.refId === "clusters")?.fields[0]?.values ?? [];
     const workspaces = clusterData.state.data?.series.find((s) => s.refId === "workspaces");
+    const clusterToSubscription = GetClusterToSubscription(clusterData);
     const filteredClusters = clusters.map((cluster) => {
         const [amw, _] = getAMWToGrana(workspaces?.fields[0].values ?? [], workspaces?.fields[1].values ?? [], cluster);
 
@@ -96,7 +107,7 @@ function TransformStatsData(data: DataFrame[], clusterData: SceneQueryRunner): D
         name: "Cluster",
         type: FieldType.string,
         config : {
-            custom: getClustersCustomFieldConfig(),
+            custom: getClustersCustomFieldConfig(clusterToSubscription),
         },
         values: []
     };
@@ -193,6 +204,7 @@ function TransformStatsData(data: DataFrame[], clusterData: SceneQueryRunner): D
             nodesReady.values.push(undefined);
         }
     }
+    //clusterField.config.custom = clusterToSubscription;
     const tableFrame: DataFrame = {
         fields: [clusterField, cpuUtilTrend, memUtilTrend, nodesReady],
         length: filteredClusters.length,
@@ -228,15 +240,16 @@ function getNodesReadyFieldConfig() {
     return nodesReadyFieldConfig;
 }
 
-function getClustersCustomFieldConfig() {
+function getClustersCustomFieldConfig(clusterToSubscription: Map<string, string>) {
     const clusterOptions: TableCustomCellOptions = {
         type: TableCellDisplayMode.Custom,
         cellComponent: (props) => {
             const cellValue = (props.value as string);
+            const subscriptionId = clusterToSubscription.get(cellValue) ?? "$_all";
             const isUnmonitored = cellValue.endsWith("_unmonitored") ?? false;
             const newCellValue = isUnmonitored ? `${cellValue.substring(0, cellValue.length - 12)} (Unmonitored)` : cellValue;
             const aksIcon = AksIcon({ greyOut: isUnmonitored });
-            const interpolatedLink = interpolateVariables(`/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces?var-${CLUSTER_VARIABLE}=${newCellValue}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}`);
+            const interpolatedLink = interpolateVariables(`/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces?var-${CLUSTER_VARIABLE}=${newCellValue}&var-${SUBSCRIPTION_VARIABLE}=${subscriptionId}&\${${AZMON_DS_VARIABLE}:queryparam}`);
             const link = isUnmonitored ? undefined : interpolatedLink;
 
             return CellWithIcon({ cellValue: newCellValue, type: "custom", customIcon: aksIcon, link });
