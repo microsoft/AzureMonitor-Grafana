@@ -4,7 +4,7 @@ import { TableCellDisplayMode, TableCustomCellOptions, TableFieldOptions } from 
 import { AksIcon } from "components/img/AKSIcon";
 import { Observable, map } from "rxjs";
 import { ClusterMapping } from "types";
-import { AGG_VAR, AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, SUBSCRIPTION_VARIABLE } from "../../../constants";
+import { AGG_VAR, AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, SUBSCRIPTION_VARIABLE, VAR_ALL } from "../../../constants";
 import CellWithIcon from "../CustomComponents/cellWithIcon";
 import { getColorFieldConfig } from "../Visualizations/utils";
 import { castFieldNameToAgg, formatReadyTotal, getReducerValueFor, interpolateVariables } from "./dataUtil";
@@ -245,7 +245,7 @@ function getClustersCustomFieldConfig(clusterToSubscription: Map<string, string>
         type: TableCellDisplayMode.Custom,
         cellComponent: (props) => {
             const cellValue = (props.value as string);
-            const subscriptionId = clusterToSubscription.get(cellValue) ?? "$_all";
+            const subscriptionId = clusterToSubscription.get(cellValue) ?? VAR_ALL;
             const isUnmonitored = cellValue.endsWith("_unmonitored") ?? false;
             const newCellValue = isUnmonitored ? `${cellValue.substring(0, cellValue.length - 12)} (Unmonitored)` : cellValue;
             const aksIcon = AksIcon({ greyOut: isUnmonitored });
