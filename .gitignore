@@ -37,6 +37,7 @@ e2e-results/
 
 /grafana/data/
 /grafana/source/
+/grafana/plugins/
 
 # azureauth binaries
 *.deb

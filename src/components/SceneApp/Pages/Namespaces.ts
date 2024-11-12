@@ -1,9 +1,9 @@
-import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from "@grafana/scenes";
+import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, sceneGraph, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel } from "@grafana/scenes";
 import { Reporter } from "reporter/reporter";
 import { ReportType } from "reporter/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
-import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE } from "../../../constants";
+import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE, VAR_ALL } from "../../../constants";
 import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
 import { GetClusterOverviewSceneQueries, TranformClusterOverviewData } from "../Queries/ClusterOverviewQueries";
 import { azure_monitor_queries } from "../Queries/queries";
@@ -37,7 +37,7 @@ export function getNamespacesScene(pluginReporter: Reporter): SceneAppPage {
 
     const clusterOverviewQueries = GetClusterOverviewSceneQueries();
     const clusterOverviewData = getSceneQueryRunner(clusterOverviewQueries);
-    const transformedClusterOverviewData = TranformClusterOverviewData(clusterOverviewData);
+    const transformedClusterOverviewData = TranformClusterOverviewData(clusterOverviewData, clusterData);
 
     const getScene = () => {
       pluginReporter.reportPageView("grafana_plugin_page_view", {
@@ -104,7 +104,7 @@ export function getNamespacesScene(pluginReporter: Reporter): SceneAppPage {
       const subVariable = sceneGraph.lookupVariable(SUBSCRIPTION_VARIABLE, scene) as QueryVariable;
       const subVariableSub = subVariable?.subscribeToState((state) => {
         if (variableShouldBeCleared(state.options, state.value, state.loading)) {
-          subVariable.changeValueTo("");
+          subVariable.changeValueTo(VAR_ALL);
         }
       });
       // make sure that mappings are updated if cluster data changes

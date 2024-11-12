@@ -3,7 +3,7 @@ import { Reporter } from "reporter/reporter";
 import { ReportType } from "reporter/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
-import { AGG_VAR, AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, SUBSCRIPTION_VARIABLE } from "../../../constants";
+import { AGG_VAR, AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, SUBSCRIPTION_VARIABLE, VAR_ALL } from "../../../constants";
 import { GetClustersQuery, GetClusterStatsQueries, TransformData } from "../Queries/ClusterMappingQueries";
 import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType } from "../Queries/queryUtil";
@@ -72,7 +72,7 @@ export function getclustersScene(pluginReporter: Reporter): SceneAppPage {
   };
 
     const scene = getScene();
-    scene.addActivationHandler(() => {  
+    scene.addActivationHandler(() => {
       const clusterDataSub = clusterData.subscribeToState((state) => {
         if (state.data?.state === "Done") {
           const workspaceData = state.data?.series.filter((s) => s.refId === "workspaces");
@@ -103,7 +103,7 @@ export function getclustersScene(pluginReporter: Reporter): SceneAppPage {
       const subVariable = sceneGraph.lookupVariable(SUBSCRIPTION_VARIABLE, scene) as QueryVariable;
       const subVariableSub = subVariable?.subscribeToState((state) => {
         if (variableShouldBeCleared(state.options, state.value, state.loading)) {
-          subVariable.changeValueTo("");
+          subVariable.changeValueTo(VAR_ALL);
         }
       });
 

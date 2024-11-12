@@ -3,7 +3,7 @@ import { Reporter } from 'reporter/reporter';
 import { ReportType } from 'reporter/types';
 import { ClusterMapping } from 'types';
 import { stringify } from 'utils/stringify';
-import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE } from '../../../constants';
+import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE, VAR_ALL } from '../../../constants';
 import { GetClusterByWorkloadQueries, TransfomClusterByWorkloadData } from '../Queries/ClusterByWorkloadQueries';
 import { GetClustersQuery } from '../Queries/ClusterMappingQueries';
 import { azure_monitor_queries } from '../Queries/queries';
@@ -120,18 +120,18 @@ export function getClusterByWorkloadScene(pluginReporter: Reporter) {
       const subVariable = sceneGraph.lookupVariable(SUBSCRIPTION_VARIABLE, scene) as QueryVariable;
       const subVariableSub = subVariable?.subscribeToState((state) => {
         if (variableShouldBeCleared(state.options, state.value, state.loading)) {
-          subVariable.changeValueTo("");
+          subVariable.changeValueTo(VAR_ALL);
         }
       });
       
       // make sure that if cluster changes, namespace gets cleared:
-      const namespaceVar = sceneGraph.lookupVariable(NS_VARIABLE, scene) as QueryVariable;  
-      const namespaceVarSub = namespaceVar?.subscribeToState((state) => {
-        // check if options were returned once the variable is done loading.
-        if (!state.loading && state.options.length === 0 && state.value.toString() !== "") {
-          namespaceVar.changeValueTo("");
+      const sceneVars = sceneGraph.getVariables(scene);
+      const nsVar = sceneVars.getByName(NS_VARIABLE) as QueryVariable;
+      const namespaceVarSub = nsVar.subscribeToState((state) => {
+        if (variableShouldBeCleared(state.options, state.value, sceneVars.isVariableLoadingOrWaitingToUpdate(nsVar))) {
+          nsVar.changeValueTo(VAR_ALL);
         }
-      }); 
+      });
       // make sure that mappings are updated if cluster data changes
       const clusterDataSub = clusterData.subscribeToState((state) => {
         if (state.data?.state === "Done") {

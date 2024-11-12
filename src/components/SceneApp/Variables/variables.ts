@@ -18,6 +18,7 @@ export function getSubscriptionVariable(hide?: boolean) {
         },
         isMulti: true,
         includeAll: true,
+        defaultToAll: true,
         hide: hide ? VariableHide.hideVariable : VariableHide.dontHide,
     });
 }

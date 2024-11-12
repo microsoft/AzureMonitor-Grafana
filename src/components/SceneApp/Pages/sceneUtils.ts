@@ -87,6 +87,8 @@ export function variableShouldBeCleared(variableOptions: VariableValueOption[], 
 
     if (variableOptions.length === 0 && currentVariableValue !== "") {
         return true;
+    } else if (variableOptions.length > 0 && currentVariableValue === "") {
+        return true;
     }
 
     const currentValues = Array.isArray(currentVariableValue) ? currentVariableValue : [currentVariableValue];

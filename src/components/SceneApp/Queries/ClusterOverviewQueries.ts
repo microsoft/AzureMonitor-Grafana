@@ -2,7 +2,8 @@ import { DataFrame, DataLink } from '@grafana/data';
 import { CustomTransformOperator, SceneDataTransformer, SceneQueryRunner } from '@grafana/scenes';
 import { DataSourceRef } from '@grafana/schema';
 import { Observable, map } from 'rxjs';
-import { AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE } from '../../../constants';
+import { AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE, VAR_ALL } from '../../../constants';
+import { GetClusterToSubscription } from './ClusterMappingQueries';
 import { getCustomFieldConfigBadge, getValidInvalidCustomFieldConfig } from './dataUtil';
 import { getAzureResourceGraphQuery, getPrometheusQuery } from './queryUtil';
 
@@ -19,7 +20,7 @@ export function GetClusterOverviewSceneQueries() {
   return [...[promSceneQuery], azureSceneQueries];
 }
 
-export function TranformClusterOverviewData(data: SceneQueryRunner) {
+export function TranformClusterOverviewData(data: SceneQueryRunner, clustersData: SceneQueryRunner) {
   const transformedData = new SceneDataTransformer({
     $data: data,
     transformations: [
@@ -67,7 +68,7 @@ export function TranformClusterOverviewData(data: SceneQueryRunner) {
           },
         },
       },
-      customTranformCellOptions(),
+      customTranformCellOptions(clustersData),
       {
         id: 'organize',
         options: {
@@ -91,22 +92,29 @@ export function TranformClusterOverviewData(data: SceneQueryRunner) {
   return transformedData;
 }
 
-const customTranformCellOptions: () => CustomTransformOperator =
-() =>
+const customTranformCellOptions: (clustersData: SceneQueryRunner) => CustomTransformOperator =
+(clusterData) =>
 () =>
 (source: Observable<DataFrame[]>) => {
     return source.pipe(
-        map(dataFrames => GetIconsOnCells(dataFrames))
+        map(dataFrames => GetIconsOnCells(dataFrames, clusterData))
     );
 }
 
-function GetIconsOnCells(dataFrames: DataFrame[]): DataFrame[] {
+function GetIconsOnCells(dataFrames: DataFrame[], clustersData: SceneQueryRunner): DataFrame[] {
+  const clusterToSubscription = GetClusterToSubscription(clustersData);
   const newFrames: DataFrame[] = [];
   for (const frame of dataFrames) {
-    const newFields = frame.fields.map((field) => {
+    const clusters = frame.fields.find((field) => field.name.includes("cluster"));
+    const newFields = frame.fields.map((field, ind) => {
+      const cluster = clusters?.values?.at(ind);
+      let subscription = VAR_ALL;
+      if (cluster && clusterToSubscription.has(cluster)) {
+        subscription = clusterToSubscription.get(cluster) || VAR_ALL;
+      }
       const fieldWithConfig = {
         ...field,
-        config: getFieldConfigForField(field.name)
+        config: getFieldConfigForField(field.name, subscription)
       }
       return fieldWithConfig;
     });
@@ -119,7 +127,7 @@ function GetIconsOnCells(dataFrames: DataFrame[]): DataFrame[] {
   return newFrames;
 }
 
-function getFieldConfigForField(name: string) {
+function getFieldConfigForField(name: string, subscriptionId: string) {
   const alertLinks: DataLink[] = [
     {
       title: "Drill down to Alert Summary",
@@ -131,7 +139,7 @@ function getFieldConfigForField(name: string) {
   const namespaceLinks: DataLink[] = [
     {
       title: "Go to Workload",
-      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workloads?namespace=\${__data.fields.namespace}&\${${CLUSTER_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}&\${__url_time_range}`,
+      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workloads?var-${NS_VARIABLE}=\${__data.fields.namespace}&var-${SUBSCRIPTION_VARIABLE}=${subscriptionId}&\${${CLUSTER_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}&\${__url_time_range}`,
       targetBlank: false
     }
   ]
