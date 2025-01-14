@@ -3,9 +3,10 @@ import { getTemplateSrv } from "@grafana/runtime";
 import { TableCellDisplayMode } from "@grafana/schema";
 import { Badge, BadgeColor, TableCustomCellOptions, TableFieldOptions } from "@grafana/ui";
 import React from "react";
-import { AZURE_MONITORING_PLUGIN_ID } from "../../../constants";
+import { ROUTES } from "../../../constants";
 import CellWithIcon from "../CustomComponents/cellWithIcon";
 import { ReducerFunctions } from "./types";
+import { prefixRoute } from "utils/utils.routing";
 
 export function getReducerValueFor(reducerFunction: ReducerFunctions, numbers: number[]): number | null {
     if (numbers.length === 0) {
@@ -89,12 +90,7 @@ export function interpolateVariables(message: string): string {
     return templateSrv.replace(message);
 }
 
-// all scenes share the same base path, this ensures that the url is consistent and templatized where possible
-export function getSceneURL(path?: string) {
-  return `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation${!!path ? `/${path}` : ""}`;
-}
-
 // drilldown urls have some query parmeters in common, this ensures parameter consistency
 export function getDataLink(basePath: string, urlParameters?: string) {
-  return `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/${basePath}?\${__url_time_range}${!!urlParameters ? `&${urlParameters}` : ""}`;
+  return `${prefixRoute(ROUTES.Home)}/${basePath}?\${__url_time_range}${!!urlParameters ? `&${urlParameters}` : ""}`;
 }
