@@ -145,7 +145,7 @@ export function getTableVisualizationNetworkUsage() {
         dataLinks: [
             {
                 title: "Drilldown to Logs",
-                url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources/pods/logs/drilldown?var-${POD_VAR}=\${__data.fields.pod}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${${NS_VARIABLE}:queryparam}&\${${NS_VARIABLE}:queryparam}&\${__url_time_range}`
+                url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources/pods/logs/drilldown?var-${POD_VAR}=\${__data.fields.pod}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${${NS_VARIABLE}:queryparam}&\${${WORKLOAD_VAR}:queryparam}&\${__url_time_range}`
             }
         ]
     });
