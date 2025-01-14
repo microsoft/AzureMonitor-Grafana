@@ -9,6 +9,7 @@ import { getOverviewByNodeScene } from "./Pages/Nodes";
 import { getClusterByWorkloadScene } from "./Pages/Workloads";
 import { CustomTable, CustomTableVizFieldOptions, CustomTableVizOptions } from "./PanelVisualizations/CustomTable";
 import { ConfigurationState } from "./SceneObjects/types";
+import { getSceneURL } from "./Queries/dataUtil";
 
 const customTable = new PanelPlugin<CustomTableVizOptions, CustomTableVizFieldOptions>(CustomTable).useFieldConfig({
   useCustomConfig(builder) {
@@ -28,7 +29,7 @@ export function getSceneApp(_configState: Partial<ConfigurationState>, _setConfi
     const nodesTab = getOverviewByNodeScene(pluginReporter);
     const myAppPage = new SceneAppPage({
         title: 'Azure Cloud Native Monitoring',
-        url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation`,
+        url: getSceneURL(),
         tabs: [clustersTab, namespacesTab, workloadsTab, nodesTab],
         renderTitle: (title: string) => {
           return SceneTitle({ title });

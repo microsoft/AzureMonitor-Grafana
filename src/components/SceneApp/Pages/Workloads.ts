@@ -3,9 +3,10 @@ import { Reporter } from 'reporter/reporter';
 import { ReportType } from 'reporter/types';
 import { ClusterMapping } from 'types';
 import { stringify } from 'utils/stringify';
-import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE, VAR_ALL } from '../../../constants';
+import { CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE, VAR_ALL } from '../../../constants';
 import { GetClusterByWorkloadQueries, TransfomClusterByWorkloadData } from '../Queries/ClusterByWorkloadQueries';
 import { GetClustersQuery } from '../Queries/ClusterMappingQueries';
+import { getSceneURL } from '../Queries/dataUtil';
 import { azure_monitor_queries } from '../Queries/queries';
 import { createMappingFromSeries, getInstanceDatasourcesForType, getPromDatasource, getSceneQueryRunner } from '../Queries/queryUtil';
 import { getPrometheusVariable } from '../Variables/variables';
@@ -23,7 +24,7 @@ function getWorkloadsVariables() {
 
 export function getClusterByWorkloadScene(pluginReporter: Reporter) {
   const sceneTitle = 'Workloads';
-  const sceneUrl = `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workloads`;
+  const sceneUrl = getSceneURL("workloads");
   // always check first that there is at least one azure monitor datasource
   const azMonDatasources = getInstanceDatasourcesForType('grafana-azure-monitor-datasource');
   const promDatasources = getInstanceDatasourcesForType('prometheus');
@@ -164,17 +165,16 @@ export function getClusterByWorkloadScene(pluginReporter: Reporter) {
   const sceneAppPage =  new SceneAppPage({
     title: 'Workloads',
     getScene: () => scene,
-    url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workloads`,
+    url: sceneUrl,
   });
 
   sceneAppPage.setState({ drilldowns: [
     {
-      routePath: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workloads/alertsummary/:namespace`,
+      routePath: getSceneURL("workloads/alertsummary/:namespace"),
       getPage: (routeMatch, parent) => getAlertSummaryDrilldownPage(routeMatch, parent, "workloads", pluginReporter),
     },
     {
-      routePath:
-        `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources`,
+      routePath: getSceneURL("workload/computeresources"),
       getPage: (routeMatch, parent) => getComputeResourcesDrilldownPage(routeMatch, parent, pluginReporter),
     },
   ]});

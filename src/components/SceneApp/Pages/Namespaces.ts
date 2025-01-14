@@ -3,18 +3,19 @@ import { Reporter } from "reporter/reporter";
 import { ReportType } from "reporter/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
-import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE, VAR_ALL } from "../../../constants";
+import { CLUSTER_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE, VAR_ALL } from "../../../constants";
 import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
 import { GetClusterOverviewSceneQueries, TranformClusterOverviewData } from "../Queries/ClusterOverviewQueries";
 import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType, getPromDatasource, getSceneQueryRunner } from "../Queries/queryUtil";
 import { getAlertSummaryDrilldownPage } from "./AlertSummaryDrilldown";
 import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables, variableShouldBeCleared } from "./sceneUtils";
+import { getSceneURL } from "../Queries/dataUtil";
 
 
 export function getNamespacesScene(pluginReporter: Reporter): SceneAppPage {
     const sceneTitle = "Namespaces";
-    const sceneUrl = `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces`;
+    const sceneUrl = getSceneURL("namespaces");
     const reporter = "Scene.Main.NamespacesScene";
     // always check first that there is at least one azure monitor datasource
     const azMonDatasources = getInstanceDatasourcesForType("grafana-azure-monitor-datasource");
@@ -136,11 +137,11 @@ export function getNamespacesScene(pluginReporter: Reporter): SceneAppPage {
     });
     const clusterOverviewTab = new SceneAppPage({
       title: "Namespaces",
-      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces`,
+      url: sceneUrl,
       getScene: () => scene,
       drilldowns: [
         {
-          routePath: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces/alertsummary/:namespace`,
+          routePath: getSceneURL("namespaces/alertsummary/:namespace"),
           getPage: (routeMatch, parent) => getAlertSummaryDrilldownPage(routeMatch, parent, "namespaces", pluginReporter)
         },
       ]

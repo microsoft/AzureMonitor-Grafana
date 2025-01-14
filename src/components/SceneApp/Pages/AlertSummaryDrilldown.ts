@@ -1,9 +1,9 @@
 import { EmbeddedScene, SceneAppPage, SceneAppPageLike, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneRouteMatch, SceneTimePicker, SceneVariableSet, VariableValueSelectors } from "@grafana/scenes";
 import { Reporter } from "reporter/reporter";
-import { AZURE_MONITORING_PLUGIN_ID } from "../../../constants";
 import { GetPlatformAlertSumary, GetPromAlertsSummary, GetSummaryDetailsSceneQuery, GetTotalAlertsSummary } from "../Queries/AlertSumQueries";
 import { getStatViz, getTableVisualizationAlertSummaryDetails } from "../Visualizations/AlertSummaryViz";
 import { getBehaviorsForVariables, getSharedSceneVariables } from "./sceneUtils";
+import { getSceneURL } from "../Queries/dataUtil";
 
 function getAlertSummaryDrilldownScene(namespace: string, pluginReporter: Reporter) {
     // alertDetails 
@@ -71,7 +71,7 @@ export function getAlertSummaryDrilldownPage(routeMatch: SceneRouteMatch<{ names
     const namespace = decodeURIComponent(routeMatch.params.namespace);
     return new SceneAppPage({
       // Set up a particular namespace drill-down URL
-      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/${sourcePage}/alertsummary/${encodeURIComponent(namespace)}`,
+      url: getSceneURL(`${sourcePage}/alertsummary/${encodeURIComponent(namespace)}`),
       // Important: Set this up for breadcrumbs to be built
       getParentPage: () => parent,
       title: `Alert Summary for namespace ${namespace}`,
