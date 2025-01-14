@@ -195,6 +195,22 @@ export function TransfomClusterByWorkloadData(data: SceneQueryRunner, pluginRepo
                 renameByName: {}
               }
           },
+          {
+            id: "filterByValue",
+            options: {
+              filters: [
+                {
+                  fieldName: "Workload",
+                  config: {
+                    id: "isNotNull",
+                    options: {}
+                  }
+                }
+              ],
+              type: "include",
+              match: "all"
+            }
+          }
         ]
     });
 
