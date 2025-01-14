@@ -128,7 +128,7 @@ export function getClusterByWorkloadScene(pluginReporter: Reporter) {
       const sceneVars = sceneGraph.getVariables(scene);
       const nsVar = sceneVars.getByName(NS_VARIABLE) as QueryVariable;
       const namespaceVarSub = nsVar.subscribeToState((state) => {
-        if (variableShouldBeCleared(state.options, state.value, sceneVars.isVariableLoadingOrWaitingToUpdate(nsVar))) {
+        if (variableShouldBeCleared(state.options, state.value, state.loading)) {
           nsVar.changeValueTo(VAR_ALL);
         }
       });
