@@ -42,7 +42,7 @@ export function getTableVisualizationCPUQuota() {
         dataLinks: [
             {
                 title: "Drilldown to Logs",
-                url: getDataLink(`${ROUTES.Workloads}/${ROUTES.ComputeResources}/${ROUTES.PodsDrilldown}`, `var-${POD_VAR}=\${__data.fields.pod}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${${NS_VARIABLE}:queryparam}&\${${WORKLOAD_VAR}:queryparam}`)
+                url: getDataLink(`${ROUTES.Workloads}/${ROUTES.ComputeResources}/${ROUTES.PodsDrilldown}`, false, false, `var-${POD_VAR}=\${__data.fields.pod}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${${NS_VARIABLE}:queryparam}&\${${WORKLOAD_VAR}:queryparam}`)
             }
         ]
     });
@@ -94,7 +94,7 @@ export function getTableVisualizationMemoryQuota() {
         dataLinks: [
             {
                 title: "Drilldown to Logs",
-                url: getDataLink(`${ROUTES.Workloads}/${ROUTES.ComputeResources}/${ROUTES.PodsDrilldown}`, `var-${POD_VAR}=\${__data.fields.pod}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${${NS_VARIABLE}:queryparam}&\${${WORKLOAD_VAR}:queryparam}`)
+                url: getDataLink(`${ROUTES.Workloads}/${ROUTES.ComputeResources}/${ROUTES.PodsDrilldown}`, false, false, `var-${POD_VAR}=\${__data.fields.pod}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${${NS_VARIABLE}:queryparam}&\${${WORKLOAD_VAR}:queryparam}`)
             }
         ]
     });
@@ -146,7 +146,7 @@ export function getTableVisualizationNetworkUsage() {
         dataLinks: [
             {
                 title: "Drilldown to Logs",
-                url: getDataLink(`${ROUTES.Workloads}/${ROUTES.ComputeResources}/${ROUTES.PodsDrilldown}`, `var-${POD_VAR}=\${__data.fields.pod}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${${NS_VARIABLE}:queryparam}&\${${WORKLOAD_VAR}:queryparam}`)
+                url: getDataLink(`${ROUTES.Workloads}/${ROUTES.ComputeResources}/${ROUTES.PodsDrilldown}`, false, false, `var-${POD_VAR}=\${__data.fields.pod}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${${NS_VARIABLE}:queryparam}&\${${WORKLOAD_VAR}:queryparam}`)
             }
         ]
     });
