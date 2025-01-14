@@ -4,7 +4,7 @@ import { TableCellDisplayMode, TableCustomCellOptions, TableFieldOptions } from 
 import { AksIcon } from "components/img/AKSIcon";
 import { Observable, map } from "rxjs";
 import { ClusterMapping } from "types";
-import { AGG_VAR, AZMON_DS_VARIABLE, CLUSTER_VARIABLE, SUBSCRIPTION_VARIABLE, VAR_ALL } from "../../../constants";
+import { AGG_VAR, AZMON_DS_VARIABLE, CLUSTER_VARIABLE, ROUTES, SUBSCRIPTION_VARIABLE, VAR_ALL } from "../../../constants";
 import CellWithIcon from "../CustomComponents/cellWithIcon";
 import { getColorFieldConfig } from "../Visualizations/utils";
 import { castFieldNameToAgg, formatReadyTotal, getDataLink, getReducerValueFor, interpolateVariables } from "./dataUtil";
@@ -249,7 +249,7 @@ function getClustersCustomFieldConfig(clusterToSubscription: Map<string, string>
             const isUnmonitored = cellValue.endsWith("_unmonitored") ?? false;
             const newCellValue = isUnmonitored ? `${cellValue.substring(0, cellValue.length - 12)} (Unmonitored)` : cellValue;
             const aksIcon = AksIcon({ greyOut: isUnmonitored });
-            const interpolatedLink = interpolateVariables(getDataLink("namespaces", `var-${CLUSTER_VARIABLE}=${newCellValue}&var-${SUBSCRIPTION_VARIABLE}=${subscriptionId}&\${${AZMON_DS_VARIABLE}:queryparam}`));
+            const interpolatedLink = interpolateVariables(getDataLink(ROUTES.Namespaces, `var-${CLUSTER_VARIABLE}=${newCellValue}&var-${SUBSCRIPTION_VARIABLE}=${subscriptionId}&\${${AZMON_DS_VARIABLE}:queryparam}`));
             const link = isUnmonitored ? undefined : interpolatedLink;
 
             return CellWithIcon({ cellValue: newCellValue, type: "custom", customIcon: aksIcon, link });

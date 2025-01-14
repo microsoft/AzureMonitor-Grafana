@@ -3,7 +3,6 @@ import { getTemplateSrv } from "@grafana/runtime";
 import { TableCellDisplayMode } from "@grafana/schema";
 import { Badge, BadgeColor, TableCustomCellOptions, TableFieldOptions } from "@grafana/ui";
 import React from "react";
-import { ROUTES } from "../../../constants";
 import CellWithIcon from "../CustomComponents/cellWithIcon";
 import { ReducerFunctions } from "./types";
 import { prefixRoute } from "utils/utils.routing";
@@ -92,5 +91,5 @@ export function interpolateVariables(message: string): string {
 
 // drilldown urls have some query parmeters in common, this ensures parameter consistency
 export function getDataLink(basePath: string, urlParameters?: string) {
-  return `${prefixRoute(ROUTES.Home)}/${basePath}?\${__url_time_range}${!!urlParameters ? `&${urlParameters}` : ""}`;
+  return `${prefixRoute(basePath)}?\${__url_time_range}${!!urlParameters ? `&${urlParameters}` : ""}`;
 }
