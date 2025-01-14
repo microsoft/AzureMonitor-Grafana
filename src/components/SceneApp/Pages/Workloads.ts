@@ -1,4 +1,4 @@
-import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from '@grafana/scenes';
+import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from '@grafana/scenes';
 import { Reporter } from 'reporter/reporter';
 import { ReportType } from 'reporter/types';
 import { ClusterMapping } from 'types';
@@ -61,7 +61,6 @@ export function getClusterByWorkloadScene(pluginReporter: Reporter) {
       }),
       $behaviors: getBehaviorsForVariables(variables, pluginReporter),
       controls: [new VariableValueSelectors({}), new SceneTimePicker({}), new SceneRefreshPicker({})],
-      $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
       body: new SceneFlexLayout({
         direction: 'column',
         children: [

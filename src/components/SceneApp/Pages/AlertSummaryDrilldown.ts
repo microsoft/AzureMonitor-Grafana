@@ -1,4 +1,4 @@
-import { EmbeddedScene, SceneAppPage, SceneAppPageLike, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneRouteMatch, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors } from "@grafana/scenes";
+import { EmbeddedScene, SceneAppPage, SceneAppPageLike, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneRouteMatch, SceneTimePicker, SceneVariableSet, VariableValueSelectors } from "@grafana/scenes";
 import { Reporter } from "reporter/reporter";
 import { AZURE_MONITORING_PLUGIN_ID } from "../../../constants";
 import { GetPlatformAlertSumary, GetPromAlertsSummary, GetSummaryDetailsSceneQuery, GetTotalAlertsSummary } from "../Queries/AlertSumQueries";
@@ -29,7 +29,6 @@ function getAlertSummaryDrilldownScene(namespace: string, pluginReporter: Report
         }),
         $behaviors: getBehaviorsForVariables(variables, pluginReporter),
         controls: [new VariableValueSelectors({}), new SceneTimePicker({}), new SceneRefreshPicker({})],
-        $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
         body: new SceneFlexLayout({
             direction: 'column',
             children: [

@@ -1,4 +1,4 @@
-import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, sceneGraph, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel } from "@grafana/scenes";
+import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, sceneGraph, SceneRefreshPicker, SceneTimePicker, SceneVariableSet, VariableValueSelectors, VizPanel } from "@grafana/scenes";
 import { Reporter } from "reporter/reporter";
 import { ReportType } from "reporter/types";
 import { ClusterMapping } from "types";
@@ -51,7 +51,6 @@ export function getNamespacesScene(pluginReporter: Reporter): SceneAppPage {
         }),
         $behaviors: getBehaviorsForVariables(variables, pluginReporter),
         controls: [new VariableValueSelectors({}), new SceneTimePicker({}), new SceneRefreshPicker({})],
-        $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
         body: new SceneFlexLayout({
           direction: 'column',
           children: [
