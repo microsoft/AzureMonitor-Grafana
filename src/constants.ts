@@ -11,7 +11,6 @@ export enum ROUTES {
   Nodes = "nodes",
   // drilldowns
   AlertSummary = "alertsummary",
-  Workload = "workload",
   ComputeResources = "computeresources",
   PodsDrilldown = "pods/logs/drilldown",
 }

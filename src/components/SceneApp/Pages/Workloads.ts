@@ -174,7 +174,7 @@ export function getClusterByWorkloadScene(pluginReporter: Reporter) {
       getPage: (routeMatch, parent) => getAlertSummaryDrilldownPage(routeMatch, parent, "workloads", pluginReporter),
     },
     {
-      routePath: prefixRoute(`${ROUTES.Workload}/${ROUTES.ComputeResources}`),
+      routePath: prefixRoute(`${ROUTES.Workloads}/${ROUTES.ComputeResources}`),
       getPage: (routeMatch, parent) => getComputeResourcesDrilldownPage(routeMatch, parent, pluginReporter),
     },
   ]});

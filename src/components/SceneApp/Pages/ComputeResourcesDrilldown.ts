@@ -260,14 +260,14 @@ export function getComputeResourcesDrilldownPage(_: SceneRouteMatch<{}>, parent:
   
     return new SceneAppPage({
       // Set up a particular namespace drill-down URL
-      url: prefixRoute(`${ROUTES.Workload}/${ROUTES.ComputeResources}`),
+      url: prefixRoute(`${ROUTES.Workloads}/${ROUTES.ComputeResources}`),
       // Important: Set this up for breadcrumbs to be built
       getParentPage: () => parent,
       title: `Compute Resources`,
       getScene: () => getComputeResourcesDrilldownScene(pluginReporter),
       drilldowns: [
         {
-            routePath: prefixRoute(`${ROUTES.Workload}/${ROUTES.ComputeResources}/${ROUTES.PodsDrilldown}`),
+            routePath: prefixRoute(`${ROUTES.Workloads}/${ROUTES.ComputeResources}/${ROUTES.PodsDrilldown}`),
             getPage: (routeMatch, parent) => getPodWithLogsDrillDownPage(routeMatch, parent, pluginReporter)
         }
       ]

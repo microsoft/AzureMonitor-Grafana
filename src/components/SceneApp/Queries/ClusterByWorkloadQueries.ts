@@ -266,7 +266,7 @@ function getFieldConfigForField(name: string) {
   const workloadLinks: DataLink[] = [
     {
       title: "Drill down to Compute Resources",
-      url: getDataLink(`${ROUTES.Workload}/${ROUTES.ComputeResources}`, `var-${NS_VARIABLE}=\${__data.fields.namespace}&var-${WORKLOAD_VAR}=\${__data.fields.workload}&\${${PROM_DS_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${${SUBSCRIPTION_VARIABLE}:queryparam}`),
+      url: getDataLink(`${ROUTES.Workloads}/${ROUTES.ComputeResources}`, `var-${NS_VARIABLE}=\${__data.fields.namespace}&var-${WORKLOAD_VAR}=\${__data.fields.workload}&\${${PROM_DS_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${${SUBSCRIPTION_VARIABLE}:queryparam}`),
       targetBlank: false
     }
   ];

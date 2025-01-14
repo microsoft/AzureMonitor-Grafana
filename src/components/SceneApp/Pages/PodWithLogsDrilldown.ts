@@ -460,7 +460,7 @@ function getPodWithLogsDrilldownScene(pluginReporter: Reporter) {
 
 export function getPodWithLogsDrillDownPage(_: SceneRouteMatch<{}>, parent: SceneAppPageLike, pluginReporter: Reporter) {
     return new SceneAppPage({
-        url: prefixRoute(`${ROUTES.Workload}/${ROUTES.ComputeResources}/${ROUTES.PodsDrilldown}`),
+        url: prefixRoute(`${ROUTES.Workloads}/${ROUTES.ComputeResources}/${ROUTES.PodsDrilldown}`),
         title: `Pod with Logs`,
         getScene: () => getPodWithLogsDrilldownScene(pluginReporter),
         getParentPage: () => parent,
