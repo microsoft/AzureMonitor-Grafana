@@ -3,18 +3,19 @@ import { Reporter } from "reporter/reporter";
 import { ReportType } from "reporter/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
-import { AGG_VAR, AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, SUBSCRIPTION_VARIABLE, VAR_ALL } from "../../../constants";
+import { AGG_VAR, AZMON_DS_VARIABLE, ROUTES, SUBSCRIPTION_VARIABLE, VAR_ALL } from "../../../constants";
 import { GetClustersQuery, GetClusterStatsQueries, TransformData } from "../Queries/ClusterMappingQueries";
 import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType } from "../Queries/queryUtil";
 import { getCustomVariable, getDataSourcesVariableForType, getSubscriptionVariable } from "../Variables/variables";
 import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceScene, variableShouldBeCleared } from "./sceneUtils";
+import { prefixRoute } from "utils/utils.routing";
 
 
 
 export function getclustersScene(pluginReporter: Reporter): SceneAppPage {
     const sceneTitle = "Clusters";
-    const sceneUrl = `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/clusters;`
+    const sceneUrl = prefixRoute(ROUTES.Clusters);
     // always check first that there is at least one azure monitor datasource
     const azMonDatasources = getInstanceDatasourcesForType("grafana-azure-monitor-datasource");
     const promDatasources = getInstanceDatasourcesForType("prometheus");

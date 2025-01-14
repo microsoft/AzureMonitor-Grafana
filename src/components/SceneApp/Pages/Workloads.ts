@@ -1,9 +1,9 @@
-import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from '@grafana/scenes';
+import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneTimePicker, SceneVariableSet, VariableValueSelectors, VizPanel, sceneGraph } from '@grafana/scenes';
 import { Reporter } from 'reporter/reporter';
 import { ReportType } from 'reporter/types';
 import { ClusterMapping } from 'types';
 import { stringify } from 'utils/stringify';
-import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE, VAR_ALL } from '../../../constants';
+import { CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, ROUTES, SUBSCRIPTION_VARIABLE, VAR_ALL } from '../../../constants';
 import { GetClusterByWorkloadQueries, TransfomClusterByWorkloadData } from '../Queries/ClusterByWorkloadQueries';
 import { GetClustersQuery } from '../Queries/ClusterMappingQueries';
 import { azure_monitor_queries } from '../Queries/queries';
@@ -12,6 +12,7 @@ import { getPrometheusVariable } from '../Variables/variables';
 import { getAlertSummaryDrilldownPage } from './AlertSummaryDrilldown';
 import { getComputeResourcesDrilldownPage } from './ComputeResourcesDrilldown';
 import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables, variableShouldBeCleared } from './sceneUtils';
+import { prefixRoute } from 'utils/utils.routing';
 
 function getWorkloadsVariables() {
   const namespaceVariableRaw = `label_values(kube_namespace_status_phase{cluster =~ \"\${${CLUSTER_VARIABLE}}\"},namespace)`;
@@ -23,7 +24,7 @@ function getWorkloadsVariables() {
 
 export function getClusterByWorkloadScene(pluginReporter: Reporter) {
   const sceneTitle = 'Workloads';
-  const sceneUrl = `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workloads`;
+  const sceneUrl = prefixRoute(ROUTES.Workloads);
   // always check first that there is at least one azure monitor datasource
   const azMonDatasources = getInstanceDatasourcesForType('grafana-azure-monitor-datasource');
   const promDatasources = getInstanceDatasourcesForType('prometheus');
@@ -61,7 +62,6 @@ export function getClusterByWorkloadScene(pluginReporter: Reporter) {
       }),
       $behaviors: getBehaviorsForVariables(variables, pluginReporter),
       controls: [new VariableValueSelectors({}), new SceneTimePicker({}), new SceneRefreshPicker({})],
-      $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
       body: new SceneFlexLayout({
         direction: 'column',
         children: [
@@ -165,17 +165,16 @@ export function getClusterByWorkloadScene(pluginReporter: Reporter) {
   const sceneAppPage =  new SceneAppPage({
     title: 'Workloads',
     getScene: () => scene,
-    url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workloads`,
+    url: sceneUrl,
   });
 
   sceneAppPage.setState({ drilldowns: [
     {
-      routePath: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workloads/alertsummary/:namespace`,
+      routePath: prefixRoute(`${ROUTES.Workloads}/${ROUTES.AlertSummary}/:namespace`),
       getPage: (routeMatch, parent) => getAlertSummaryDrilldownPage(routeMatch, parent, "workloads", pluginReporter),
     },
     {
-      routePath:
-        `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources`,
+      routePath: prefixRoute(`${ROUTES.Workloads}/${ROUTES.ComputeResources}`),
       getPage: (routeMatch, parent) => getComputeResourcesDrilldownPage(routeMatch, parent, pluginReporter),
     },
   ]});

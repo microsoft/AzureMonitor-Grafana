@@ -4,10 +4,10 @@ import { TableCellDisplayMode, TableCustomCellOptions, TableFieldOptions } from 
 import { AksIcon } from "components/img/AKSIcon";
 import { Observable, map } from "rxjs";
 import { ClusterMapping } from "types";
-import { AGG_VAR, AZMON_DS_VARIABLE, AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, SUBSCRIPTION_VARIABLE, VAR_ALL } from "../../../constants";
+import { AGG_VAR, CLUSTER_VARIABLE, ROUTES, SUBSCRIPTION_VARIABLE, VAR_ALL } from "../../../constants";
 import CellWithIcon from "../CustomComponents/cellWithIcon";
 import { getColorFieldConfig } from "../Visualizations/utils";
-import { castFieldNameToAgg, formatReadyTotal, getReducerValueFor, interpolateVariables } from "./dataUtil";
+import { castFieldNameToAgg, formatReadyTotal, getDataLink, getReducerValueFor, interpolateVariables } from "./dataUtil";
 import { azure_monitor_queries } from "./queries";
 import { getAMWToGrana, getAzureResourceGraphQuery, getLogAnalyticsQuery, getPrometheusQuery } from "./queryUtil";
 
@@ -249,7 +249,7 @@ function getClustersCustomFieldConfig(clusterToSubscription: Map<string, string>
             const isUnmonitored = cellValue.endsWith("_unmonitored") ?? false;
             const newCellValue = isUnmonitored ? `${cellValue.substring(0, cellValue.length - 12)} (Unmonitored)` : cellValue;
             const aksIcon = AksIcon({ greyOut: isUnmonitored });
-            const interpolatedLink = interpolateVariables(`/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces?var-${CLUSTER_VARIABLE}=${newCellValue}&var-${SUBSCRIPTION_VARIABLE}=${subscriptionId}&\${${AZMON_DS_VARIABLE}:queryparam}`);
+            const interpolatedLink = interpolateVariables(getDataLink(ROUTES.Namespaces, true, false, `var-${CLUSTER_VARIABLE}=${newCellValue}&var-${SUBSCRIPTION_VARIABLE}=${subscriptionId}`));
             const link = isUnmonitored ? undefined : interpolatedLink;
 
             return CellWithIcon({ cellValue: newCellValue, type: "custom", customIcon: aksIcon, link });

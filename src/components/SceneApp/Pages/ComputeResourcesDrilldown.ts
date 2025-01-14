@@ -3,7 +3,7 @@ import { Reporter } from "reporter/reporter";
 import { ReportType } from "reporter/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
-import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, WORKLOAD_VAR } from "../../../constants";
+import { CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, ROUTES, WORKLOAD_VAR } from "../../../constants";
 import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
 import { GetAvgContainerBandwithReceivedSceneQuery, GetAvgContainerBandwithTransmittedSceneQuery, GetCPUQuotaSceneQuery, GetCPUUsageSceneQuery, GetMemoryQuotaPromSceneQueries, GetMemoryUsageSceneQuery, GetNetworkUsageSceneQueries, GetRateofReceivedPacketsDroppedSceneQuery, GetRateofReceivedPacketsSceneQuery, GetRateofTransmittedPacketsDroppedSceneQuery, GetRateofTransmittedPacketsSceneQuery, GetReceiveBandwidthSceneQuery, GetTransmitBandwidthSceneQuery, TransformData } from "../Queries/ComputeResourcesQueries";
 import { azure_monitor_queries } from "../Queries/queries";
@@ -12,6 +12,7 @@ import { getPrometheusVariable, getTextVariable } from "../Variables/variables";
 import { getTableVisualizationCPUQuota, getTableVisualizationMemoryQuota, getTableVisualizationNetworkUsage, getTimeSeriesVisualization } from "../Visualizations/ComputeResourcesViz";
 import { getPodWithLogsDrillDownPage } from "./PodWithLogsDrilldown";
 import { getBehaviorsForVariables, getSharedSceneVariables } from "./sceneUtils";
+import { prefixRoute } from "utils/utils.routing";
 
 function getComputeResourcesVariables() {
     const variables: Array<DataSourceVariable | QueryVariable | TextBoxVariable> = getSharedSceneVariables(true);
@@ -259,14 +260,14 @@ export function getComputeResourcesDrilldownPage(_: SceneRouteMatch<{}>, parent:
   
     return new SceneAppPage({
       // Set up a particular namespace drill-down URL
-      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources`,
+      url: prefixRoute(`${ROUTES.Workloads}/${ROUTES.ComputeResources}`),
       // Important: Set this up for breadcrumbs to be built
       getParentPage: () => parent,
       title: `Compute Resources`,
       getScene: () => getComputeResourcesDrilldownScene(pluginReporter),
       drilldowns: [
         {
-            routePath: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources/pods/logs/drilldown`,
+            routePath: prefixRoute(`${ROUTES.Workloads}/${ROUTES.ComputeResources}/${ROUTES.PodsDrilldown}`),
             getPage: (routeMatch, parent) => getPodWithLogsDrillDownPage(routeMatch, parent, pluginReporter)
         }
       ]

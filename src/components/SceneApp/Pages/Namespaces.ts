@@ -1,20 +1,21 @@
-import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, sceneGraph, SceneRefreshPicker, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors, VizPanel } from "@grafana/scenes";
+import { DataSourceVariable, EmbeddedScene, QueryVariable, SceneAppPage, SceneFlexItem, SceneFlexLayout, sceneGraph, SceneRefreshPicker, SceneTimePicker, SceneVariableSet, VariableValueSelectors, VizPanel } from "@grafana/scenes";
 import { Reporter } from "reporter/reporter";
 import { ReportType } from "reporter/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
-import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE, VAR_ALL } from "../../../constants";
+import { CLUSTER_VARIABLE, PROM_DS_VARIABLE, ROUTES, SUBSCRIPTION_VARIABLE, VAR_ALL } from "../../../constants";
 import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
 import { GetClusterOverviewSceneQueries, TranformClusterOverviewData } from "../Queries/ClusterOverviewQueries";
 import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType, getPromDatasource, getSceneQueryRunner } from "../Queries/queryUtil";
 import { getAlertSummaryDrilldownPage } from "./AlertSummaryDrilldown";
 import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables, variableShouldBeCleared } from "./sceneUtils";
+import { prefixRoute } from "utils/utils.routing";
 
 
 export function getNamespacesScene(pluginReporter: Reporter): SceneAppPage {
     const sceneTitle = "Namespaces";
-    const sceneUrl = `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces`;
+    const sceneUrl = prefixRoute(ROUTES.Namespaces);
     const reporter = "Scene.Main.NamespacesScene";
     // always check first that there is at least one azure monitor datasource
     const azMonDatasources = getInstanceDatasourcesForType("grafana-azure-monitor-datasource");
@@ -51,7 +52,6 @@ export function getNamespacesScene(pluginReporter: Reporter): SceneAppPage {
         }),
         $behaviors: getBehaviorsForVariables(variables, pluginReporter),
         controls: [new VariableValueSelectors({}), new SceneTimePicker({}), new SceneRefreshPicker({})],
-        $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
         body: new SceneFlexLayout({
           direction: 'column',
           children: [
@@ -137,11 +137,11 @@ export function getNamespacesScene(pluginReporter: Reporter): SceneAppPage {
     });
     const clusterOverviewTab = new SceneAppPage({
       title: "Namespaces",
-      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces`,
+      url: sceneUrl,
       getScene: () => scene,
       drilldowns: [
         {
-          routePath: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces/alertsummary/:namespace`,
+          routePath: prefixRoute(`${ROUTES.Namespaces}/${ROUTES.AlertSummary}/:namespace`),
           getPage: (routeMatch, parent) => getAlertSummaryDrilldownPage(routeMatch, parent, "namespaces", pluginReporter)
         },
       ]

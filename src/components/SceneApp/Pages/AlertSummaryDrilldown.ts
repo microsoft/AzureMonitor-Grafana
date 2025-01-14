@@ -1,9 +1,10 @@
-import { EmbeddedScene, SceneAppPage, SceneAppPageLike, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneRouteMatch, SceneTimePicker, SceneTimeRange, SceneVariableSet, VariableValueSelectors } from "@grafana/scenes";
+import { EmbeddedScene, SceneAppPage, SceneAppPageLike, SceneFlexItem, SceneFlexLayout, SceneRefreshPicker, SceneRouteMatch, SceneTimePicker, SceneVariableSet, VariableValueSelectors } from "@grafana/scenes";
 import { Reporter } from "reporter/reporter";
-import { AZURE_MONITORING_PLUGIN_ID } from "../../../constants";
 import { GetPlatformAlertSumary, GetPromAlertsSummary, GetSummaryDetailsSceneQuery, GetTotalAlertsSummary } from "../Queries/AlertSumQueries";
 import { getStatViz, getTableVisualizationAlertSummaryDetails } from "../Visualizations/AlertSummaryViz";
 import { getBehaviorsForVariables, getSharedSceneVariables } from "./sceneUtils";
+import { ROUTES } from "../../../constants";
+import { prefixRoute } from "utils/utils.routing";
 
 function getAlertSummaryDrilldownScene(namespace: string, pluginReporter: Reporter) {
     // alertDetails 
@@ -29,7 +30,6 @@ function getAlertSummaryDrilldownScene(namespace: string, pluginReporter: Report
         }),
         $behaviors: getBehaviorsForVariables(variables, pluginReporter),
         controls: [new VariableValueSelectors({}), new SceneTimePicker({}), new SceneRefreshPicker({})],
-        $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
         body: new SceneFlexLayout({
             direction: 'column',
             children: [
@@ -72,7 +72,7 @@ export function getAlertSummaryDrilldownPage(routeMatch: SceneRouteMatch<{ names
     const namespace = decodeURIComponent(routeMatch.params.namespace);
     return new SceneAppPage({
       // Set up a particular namespace drill-down URL
-      url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/${sourcePage}/alertsummary/${encodeURIComponent(namespace)}`,
+      url: prefixRoute(`${sourcePage}/${ROUTES.AlertSummary}/${encodeURIComponent(namespace)}`),
       // Important: Set this up for breadcrumbs to be built
       getParentPage: () => parent,
       title: `Alert Summary for namespace ${namespace}`,
