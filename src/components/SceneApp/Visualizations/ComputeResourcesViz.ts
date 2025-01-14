@@ -1,7 +1,8 @@
 import { PanelBuilders } from "@grafana/scenes";
 import { FieldColorModeId, StackingMode, VisibilityMode } from "@grafana/schema";
-import { AZURE_MONITORING_PLUGIN_ID, CLUSTER_VARIABLE, NS_VARIABLE, POD_VAR, SUBSCRIPTION_VARIABLE, WORKLOAD_VAR } from "../../../constants";
+import { CLUSTER_VARIABLE, NS_VARIABLE, POD_VAR, SUBSCRIPTION_VARIABLE, WORKLOAD_VAR } from "../../../constants";
 import { applyOverrideForTableViz } from "./utils";
+import { getDataLink } from "../Queries/dataUtil";
 
 export function getTableVisualizationCPUQuota() {
     const tableViz = PanelBuilders.table().setTitle("CPU Quota");
@@ -41,7 +42,7 @@ export function getTableVisualizationCPUQuota() {
         dataLinks: [
             {
                 title: "Drilldown to Logs",
-                url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources/pods/logs/drilldown?var-${POD_VAR}=\${__data.fields.pod}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${${NS_VARIABLE}:queryparam}&\${${WORKLOAD_VAR}:queryparam}&\${__url_time_range}`
+                url: getDataLink("workload/computeresources/pods/logs/drilldown", `var-${POD_VAR}=\${__data.fields.pod}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${${NS_VARIABLE}:queryparam}&\${${WORKLOAD_VAR}:queryparam}`)
             }
         ]
     });
@@ -93,7 +94,7 @@ export function getTableVisualizationMemoryQuota() {
         dataLinks: [
             {
                 title: "Drilldown to Logs",
-                url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources/pods/logs/drilldown?var-${POD_VAR}=\${__data.fields.pod}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${${NS_VARIABLE}:queryparam}&\${${WORKLOAD_VAR}:queryparam}&\${__url_time_range}`
+                url: getDataLink("workload/computeresources/pods/logs/drilldown", `var-${POD_VAR}=\${__data.fields.pod}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${${NS_VARIABLE}:queryparam}&\${${WORKLOAD_VAR}:queryparam}`)
             }
         ]
     });
@@ -145,7 +146,7 @@ export function getTableVisualizationNetworkUsage() {
         dataLinks: [
             {
                 title: "Drilldown to Logs",
-                url: `/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/workload/computeresources/pods/logs/drilldown?var-${POD_VAR}=\${__data.fields.pod}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${${NS_VARIABLE}:queryparam}&\${${WORKLOAD_VAR}:queryparam}&\${__url_time_range}`
+                url: getDataLink("workload/computeresources/pods/logs/drilldown", `var-${POD_VAR}=\${__data.fields.pod}&\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${${NS_VARIABLE}:queryparam}&\${${WORKLOAD_VAR}:queryparam}`)
             }
         ]
     });
