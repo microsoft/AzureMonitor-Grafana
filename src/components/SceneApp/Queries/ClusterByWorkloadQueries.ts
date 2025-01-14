@@ -4,7 +4,7 @@ import { DataSourceRef } from "@grafana/schema";
 import { Reporter } from "reporter/reporter";
 import { ReportType } from "reporter/types";
 import { Observable, map } from "rxjs";
-import { AZMON_DS_VARIABLE, CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, ROUTES, SUBSCRIPTION_VARIABLE, WORKLOAD_VAR } from "../../../constants";
+import { CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, ROUTES, SUBSCRIPTION_VARIABLE, WORKLOAD_VAR } from "../../../constants";
 import { formatReadyTotal, getCustomFieldConfigBadge, getDataLink, getValidInvalidCustomFieldConfig } from "./dataUtil";
 import { getAzureResourceGraphQuery, getPrometheusQuery } from "./queryUtil";
 
@@ -266,7 +266,7 @@ function getFieldConfigForField(name: string) {
   const workloadLinks: DataLink[] = [
     {
       title: "Drill down to Compute Resources",
-      url: getDataLink(`${ROUTES.Workloads}/${ROUTES.ComputeResources}`, `var-${NS_VARIABLE}=\${__data.fields.namespace}&var-${WORKLOAD_VAR}=\${__data.fields.workload}&\${${PROM_DS_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}&\${${SUBSCRIPTION_VARIABLE}:queryparam}`),
+      url: getDataLink(`${ROUTES.Workloads}/${ROUTES.ComputeResources}`, true, true, `var-${NS_VARIABLE}=\${__data.fields.namespace}&var-${WORKLOAD_VAR}=\${__data.fields.workload}&\${${CLUSTER_VARIABLE}:queryparam}&\${${SUBSCRIPTION_VARIABLE}:queryparam}`),
       targetBlank: false
     }
   ];
@@ -274,7 +274,7 @@ function getFieldConfigForField(name: string) {
   const alertLinks: DataLink[] = [
     {
       title: "Drill down to Alert Summary",
-      url: getDataLink(`${ROUTES.Workloads}/${ROUTES.AlertSummary}/\${__data.fields.namespace}`, `\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}`),
+      url: getDataLink(`${ROUTES.Workloads}/${ROUTES.AlertSummary}/\${__data.fields.namespace}`, true, false, `\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}`),
       targetBlank: false
     }
   ];

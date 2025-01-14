@@ -2,7 +2,7 @@ import { DataFrame, DataLink } from '@grafana/data';
 import { CustomTransformOperator, SceneDataTransformer, SceneQueryRunner } from '@grafana/scenes';
 import { DataSourceRef } from '@grafana/schema';
 import { Observable, map } from 'rxjs';
-import { AZMON_DS_VARIABLE, CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, ROUTES, SUBSCRIPTION_VARIABLE, VAR_ALL } from '../../../constants';
+import { CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, ROUTES, SUBSCRIPTION_VARIABLE, VAR_ALL } from '../../../constants';
 import { GetClusterToSubscription } from './ClusterMappingQueries';
 import { getCustomFieldConfigBadge, getDataLink, getValidInvalidCustomFieldConfig } from './dataUtil';
 import { getAzureResourceGraphQuery, getPrometheusQuery } from './queryUtil';
@@ -131,7 +131,7 @@ function getFieldConfigForField(name: string, subscriptionId: string) {
   const alertLinks: DataLink[] = [
     {
       title: "Drill down to Alert Summary",
-      url: getDataLink(`${ROUTES.Namespaces}/${ROUTES.AlertSummary}/\${__data.fields.namespace}`,`\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}`),
+      url: getDataLink(`${ROUTES.Namespaces}/${ROUTES.AlertSummary}/\${__data.fields.namespace}`, true, false,`\${${SUBSCRIPTION_VARIABLE}:queryparam}&\${${CLUSTER_VARIABLE}:queryparam}`),
       targetBlank: false
     }
   ];
@@ -139,7 +139,7 @@ function getFieldConfigForField(name: string, subscriptionId: string) {
   const namespaceLinks: DataLink[] = [
     {
       title: "Go to Workload",
-      url: getDataLink(ROUTES.Workloads, `var-${NS_VARIABLE}=\${__data.fields.namespace}&var-${SUBSCRIPTION_VARIABLE}=${subscriptionId}&\${${CLUSTER_VARIABLE}:queryparam}&\${${AZMON_DS_VARIABLE}:queryparam}`),
+      url: getDataLink(ROUTES.Workloads, true, false, `var-${NS_VARIABLE}=\${__data.fields.namespace}&var-${SUBSCRIPTION_VARIABLE}=${subscriptionId}&\${${CLUSTER_VARIABLE}:queryparam}`),
       targetBlank: false
     }
   ]

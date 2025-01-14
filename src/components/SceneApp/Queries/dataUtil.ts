@@ -3,9 +3,10 @@ import { getTemplateSrv } from "@grafana/runtime";
 import { TableCellDisplayMode } from "@grafana/schema";
 import { Badge, BadgeColor, TableCustomCellOptions, TableFieldOptions } from "@grafana/ui";
 import React from "react";
+import { prefixRoute } from "utils/utils.routing";
+import { AZMON_DS_VARIABLE, PROM_DS_VARIABLE } from "../../../constants";
 import CellWithIcon from "../CustomComponents/cellWithIcon";
 import { ReducerFunctions } from "./types";
-import { prefixRoute } from "utils/utils.routing";
 
 export function getReducerValueFor(reducerFunction: ReducerFunctions, numbers: number[]): number | null {
     if (numbers.length === 0) {
@@ -90,6 +91,10 @@ export function interpolateVariables(message: string): string {
 }
 
 // drilldown urls have some query parmeters in common, this ensures parameter consistency
-export function getDataLink(basePath: string, urlParameters?: string) {
-  return `${prefixRoute(basePath)}?\${__url_time_range}${!!urlParameters ? `&${urlParameters}` : ""}`;
+export function getDataLink(basePath: string, addAzmonDs: boolean, addPromDs: boolean, urlParameters?: string) {
+  const azmonDSParam = addAzmonDs ? `&\${${AZMON_DS_VARIABLE}:queryparam}` : "";
+  const promDSParam = addPromDs ? `&\${${PROM_DS_VARIABLE}:queryparam}` : "";
+  const additionalParams = urlParameters ? `&${urlParameters}` : "";
+
+  return `${prefixRoute(basePath)}?\${__url_time_range}${azmonDSParam}${promDSParam}${additionalParams}`;
 }
