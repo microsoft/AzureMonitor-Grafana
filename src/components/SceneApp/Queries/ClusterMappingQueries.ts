@@ -249,7 +249,7 @@ function getClustersCustomFieldConfig(clusterToSubscription: Map<string, string>
             const isUnmonitored = cellValue.endsWith("_unmonitored") ?? false;
             const newCellValue = isUnmonitored ? `${cellValue.substring(0, cellValue.length - 12)} (Unmonitored)` : cellValue;
             const aksIcon = AksIcon({ greyOut: isUnmonitored });
-            const interpolatedLink = interpolateVariables(`/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces?var-${CLUSTER_VARIABLE}=${newCellValue}&var-${SUBSCRIPTION_VARIABLE}=${subscriptionId}&\${${AZMON_DS_VARIABLE}:queryparam}`);
+            const interpolatedLink = interpolateVariables(`/a/${AZURE_MONITORING_PLUGIN_ID}/clusternavigation/namespaces?var-${CLUSTER_VARIABLE}=${newCellValue}&var-${SUBSCRIPTION_VARIABLE}=${subscriptionId}&\${${AZMON_DS_VARIABLE}:queryparam}&\${__url_time_range}`);
             const link = isUnmonitored ? undefined : interpolatedLink;
 
             return CellWithIcon({ cellValue: newCellValue, type: "custom", customIcon: aksIcon, link });
