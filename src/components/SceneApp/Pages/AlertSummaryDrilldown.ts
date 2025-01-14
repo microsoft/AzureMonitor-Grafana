@@ -3,7 +3,8 @@ import { Reporter } from "reporter/reporter";
 import { GetPlatformAlertSumary, GetPromAlertsSummary, GetSummaryDetailsSceneQuery, GetTotalAlertsSummary } from "../Queries/AlertSumQueries";
 import { getStatViz, getTableVisualizationAlertSummaryDetails } from "../Visualizations/AlertSummaryViz";
 import { getBehaviorsForVariables, getSharedSceneVariables } from "./sceneUtils";
-import { getSceneURL } from "../Queries/dataUtil";
+import { ROUTES } from "../../../constants";
+import { prefixRoute } from "utils/utils.routing";
 
 function getAlertSummaryDrilldownScene(namespace: string, pluginReporter: Reporter) {
     // alertDetails 
@@ -71,7 +72,7 @@ export function getAlertSummaryDrilldownPage(routeMatch: SceneRouteMatch<{ names
     const namespace = decodeURIComponent(routeMatch.params.namespace);
     return new SceneAppPage({
       // Set up a particular namespace drill-down URL
-      url: getSceneURL(`${sourcePage}/alertsummary/${encodeURIComponent(namespace)}`),
+      url: prefixRoute(`${sourcePage}/${ROUTES.AlertSummary}/${encodeURIComponent(namespace)}`),
       // Important: Set this up for breadcrumbs to be built
       getParentPage: () => parent,
       title: `Alert Summary for namespace ${namespace}`,

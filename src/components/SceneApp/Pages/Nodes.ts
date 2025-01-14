@@ -3,17 +3,17 @@ import { Reporter } from "reporter/reporter";
 import { ReportType } from "reporter/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
-import { CLUSTER_VARIABLE, SUBSCRIPTION_VARIABLE } from "../../../constants";
+import { CLUSTER_VARIABLE, ROUTES, SUBSCRIPTION_VARIABLE } from "../../../constants";
 import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
 import { GetNodeOverviewQueries, TransformNodeOverviewData } from "../Queries/NodeOverviewQueries";
 import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType, getSceneQueryRunner } from "../Queries/queryUtil";
 import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables, variableShouldBeCleared } from "./sceneUtils";
-import { getSceneURL } from "../Queries/dataUtil";
+import { prefixRoute } from "utils/utils.routing";
 
 export function getOverviewByNodeScene(pluginReporter: Reporter): SceneAppPage {
     const sceneTitle = "Nodes";
-    const sceneUrl = getSceneURL("nodes");
+    const sceneUrl = prefixRoute(ROUTES.Nodes);
     const reporter = "Scene.Main.NodesScene";
     // always check first that there is at least one azure monitor datasource
     const azMonDatasources = getInstanceDatasourcesForType("grafana-azure-monitor-datasource");

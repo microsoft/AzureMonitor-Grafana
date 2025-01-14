@@ -4,7 +4,7 @@ import { Reporter } from "reporter/reporter";
 import { ReportType } from "reporter/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
-import { CLUSTER_VARIABLE, NS_VARIABLE, POD_VAR, PROM_DS_VARIABLE, WORKLOAD_VAR } from "../../../constants";
+import { CLUSTER_VARIABLE, NS_VARIABLE, POD_VAR, PROM_DS_VARIABLE, ROUTES, WORKLOAD_VAR } from "../../../constants";
 import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
 import { GetCPUQuotaQueries, GetCPUThrottlingQueries, GetCPUUsageQuery, GetCurrentStorageIOQueries, GetIOPSQueries, GetIOPSRWQueries, GetLASceneQueryFor, GetMemoryQuotaQueries, GetMemoryUsageQueries, GetRateQueriesFor, GetThroughputQueries, GetThrouputQueries, TransformCPUQuotaData, TransformCPUUsageData, TransformCurrentStorageData, TransformMemoryQuotaData } from "../Queries/PodWithLogsQueries";
 import { azure_monitor_queries } from "../Queries/queries";
@@ -13,7 +13,7 @@ import { getPrometheusVariable } from "../Variables/variables";
 import { applyOverridesCPUUsage, getTableVizCPUQuota, getTableVizCurrentStorage, getTableVizMemoryQuota, getTimeSeriesViz } from "../Visualizations/PodsWithLogsViz";
 import { getThresholdsConfig } from "../Visualizations/utils";
 import { getBehaviorsForVariables, getSharedSceneVariables } from "./sceneUtils";
-import { getSceneURL } from "../Queries/dataUtil";
+import { prefixRoute } from "utils/utils.routing";
 
 function getPodWithLogsVariables() {
     const variables = getSharedSceneVariables(true);
@@ -460,7 +460,7 @@ function getPodWithLogsDrilldownScene(pluginReporter: Reporter) {
 
 export function getPodWithLogsDrillDownPage(_: SceneRouteMatch<{}>, parent: SceneAppPageLike, pluginReporter: Reporter) {
     return new SceneAppPage({
-        url: getSceneURL("workload/computeresources/pods/logs/drilldown"),
+        url: prefixRoute(`${ROUTES.Workload}/${ROUTES.ComputeResources}/${ROUTES.PodsDrilldown}`),
         title: `Pod with Logs`,
         getScene: () => getPodWithLogsDrilldownScene(pluginReporter),
         getParentPage: () => parent,

@@ -3,19 +3,19 @@ import { Reporter } from "reporter/reporter";
 import { ReportType } from "reporter/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
-import { CLUSTER_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE, VAR_ALL } from "../../../constants";
+import { CLUSTER_VARIABLE, PROM_DS_VARIABLE, ROUTES, SUBSCRIPTION_VARIABLE, VAR_ALL } from "../../../constants";
 import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
 import { GetClusterOverviewSceneQueries, TranformClusterOverviewData } from "../Queries/ClusterOverviewQueries";
 import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType, getPromDatasource, getSceneQueryRunner } from "../Queries/queryUtil";
 import { getAlertSummaryDrilldownPage } from "./AlertSummaryDrilldown";
 import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables, variableShouldBeCleared } from "./sceneUtils";
-import { getSceneURL } from "../Queries/dataUtil";
+import { prefixRoute } from "utils/utils.routing";
 
 
 export function getNamespacesScene(pluginReporter: Reporter): SceneAppPage {
     const sceneTitle = "Namespaces";
-    const sceneUrl = getSceneURL("namespaces");
+    const sceneUrl = prefixRoute(ROUTES.Namespaces);
     const reporter = "Scene.Main.NamespacesScene";
     // always check first that there is at least one azure monitor datasource
     const azMonDatasources = getInstanceDatasourcesForType("grafana-azure-monitor-datasource");
@@ -141,7 +141,7 @@ export function getNamespacesScene(pluginReporter: Reporter): SceneAppPage {
       getScene: () => scene,
       drilldowns: [
         {
-          routePath: getSceneURL("namespaces/alertsummary/:namespace"),
+          routePath: prefixRoute(`${ROUTES.Namespaces}/${ROUTES.AlertSummary}/:namespace`),
           getPage: (routeMatch, parent) => getAlertSummaryDrilldownPage(routeMatch, parent, "namespaces", pluginReporter)
         },
       ]

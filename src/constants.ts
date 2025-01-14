@@ -3,10 +3,17 @@ import pluginJson from './plugin.json';
 export const PLUGIN_BASE_URL = `/a/${pluginJson.id}`;
 
 export enum ROUTES {
-  One = 'one',
-  Two = 'two',
-  Three = 'three',
-  Four = 'four',
+  Home = "clusternavigation",
+  // main views
+  Clusters = "clusters",
+  Namespaces = "namespaces",
+  Workloads = "workloads",
+  Nodes = "nodes",
+  // drilldowns
+  AlertSummary = "alertsummary",
+  Workload = "workload",
+  ComputeResources = "computeresources",
+  PodsDrilldown = "pods/logs/drilldown",
 }
 
 export const SUBSCRIPTION_VARIABLE = "subscription";
