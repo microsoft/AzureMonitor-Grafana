@@ -6,7 +6,7 @@ import { stringify } from "utils/stringify";
 import { prefixRoute } from "utils/utils.routing";
 import { CLUSTER_VARIABLE, PROM_DS_VARIABLE, ROUTES, SUBSCRIPTION_VARIABLE, VAR_ALL } from "../../../constants";
 import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
-import { GetClusterOverviewSceneQueries, TranformClusterOverviewData } from "../Queries/ClusterOverviewQueries";
+import { GetClusterOverviewSceneQueries, TranformClusterOverviewData } from "../Queries/ClusterByNamespaceQueries";
 import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType, getPromDatasource, getSceneQueryRunner } from "../Queries/queryUtil";
 import { getAlertSummaryDrilldownPage } from "./AlertSummaryDrilldown";
@@ -36,9 +36,9 @@ export function getNamespacesScene(pluginReporter: Reporter): SceneAppPage {
     }
     const variables = getSharedSceneVariables(false);
 
-    const clusterOverviewQueries = GetClusterOverviewSceneQueries(clusterMappings, "");
-    const clusterOverviewData = getSceneQueryRunner(clusterOverviewQueries);
-    const transformedClusterOverviewData = TranformClusterOverviewData(clusterOverviewData, clusterData);
+    const clusterByNamespaceQueries = GetClusterOverviewSceneQueries(clusterMappings, "");
+    const clusterByNamespaceData = getSceneQueryRunner(clusterByNamespaceQueries);
+    const transformedClusterOverviewData = TranformClusterOverviewData(clusterByNamespaceData, clusterData);
 
     const getScene = () => {
       pluginReporter.reportPageView("grafana_plugin_page_view", {
@@ -121,12 +121,12 @@ export function getNamespacesScene(pluginReporter: Reporter): SceneAppPage {
             } else if (!promDs && !!selectedCluster) {
               // add report interaction
               const namespacesQueries = GetClusterOverviewSceneQueries(clusterMappings, selectedCluster);
-              clusterOverviewData.setState({ datasource: {
+              clusterByNamespaceData.setState({ datasource: {
                 type: 'datasource',
                 uid: '-- Mixed --',
               }, 
               queries: namespacesQueries });
-              clusterOverviewData.runQueries();
+              clusterByNamespaceData.runQueries();
             }
           } catch (e) {
             pluginReporter.reportException("grafana_plugin_promdsvarchange_failed", {

@@ -1,4 +1,3 @@
-import { DataSourceInstanceSettings } from "@grafana/data";
 import { getDataSourceSrv } from "@grafana/runtime";
 import { SceneQueryRunner } from "@grafana/scenes";
 import { DataQuery, DataSourceRef } from "@grafana/schema";
