@@ -114,7 +114,7 @@ export function getNamespacesScene(pluginReporter: Reporter): SceneAppPage {
           const clusterData = state.data?.series.filter((s) => s.refId === "clusters");
           try {
             clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values);
-            const promDs = getPromDatasource(clusterMappings, promDatasources);
+            const promDs = getPromDatasource(clusterMappings);
             const selectedCluster = clusterVar.state.value.toString();
             if (!!promDs && promDs.uid) {
               promDSVar.changeValueTo(promDs.uid);

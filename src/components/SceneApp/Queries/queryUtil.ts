@@ -143,7 +143,7 @@ export function getAMWToGrana(workspaces: string[], workspaceIds: string[], clus
     return [amw, workspaceId];
 }
  
-export function getPromDatasource(clusterMappings: Record<string, ClusterMapping>, datasources:  DataSourceInstanceSettings[]) {
+export function getPromDatasource(clusterMappings: Record<string, ClusterMapping>) {
     const promDatasourceFromMapping = Object.entries(clusterMappings).find(([_, clusterMapping]) => clusterMapping.promDs !== undefined);
     if (!!promDatasourceFromMapping) {
         return promDatasourceFromMapping[1].promDs;
