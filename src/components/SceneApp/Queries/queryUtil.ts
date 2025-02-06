@@ -149,7 +149,7 @@ export function getPromDatasource(clusterMappings: Record<string, ClusterMapping
         return promDatasourceFromMapping[1].promDs;
     }
 
-    return datasources.find((ds) => ds.type === "prometheus");
+    return undefined;
 }
 
 export function getInstanceDatasourcesForType(dsType: string) {
