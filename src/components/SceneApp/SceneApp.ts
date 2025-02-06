@@ -10,16 +10,7 @@ import { CustomTable, CustomTableVizFieldOptions, CustomTableVizOptions } from "
 import { ConfigurationState } from "./SceneObjects/types";
 import { prefixRoute } from "utils/utils.routing";
 
-const customTable = new PanelPlugin<CustomTableVizOptions, CustomTableVizFieldOptions>(CustomTable).useFieldConfig({
-  useCustomConfig(builder) {
-    builder.addNumberInput({
-      path: 'numericOption',
-      name: 'Numeric option',
-      description: 'A numeric option',
-      defaultValue: 1,
-    });
-  },
-});
+const customTable = new PanelPlugin<CustomTableVizOptions, CustomTableVizFieldOptions>(CustomTable);
 sceneUtils.registerRuntimePanelPlugin({ pluginId: 'azure-monitor-app-custom-table', plugin: customTable });
 export function getSceneApp(_configState: Partial<ConfigurationState>, _setConfigState: (configState: Partial<ConfigurationState>) => void, pluginReporter: Reporter): SceneApp {
     const namespacesTab = getNamespacesScene(pluginReporter);
