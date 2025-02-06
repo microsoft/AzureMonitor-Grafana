@@ -3,6 +3,7 @@ import { Reporter } from "reporter/reporter";
 import { ReportType } from "reporter/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
+import { prefixRoute } from "utils/utils.routing";
 import { CLUSTER_VARIABLE, PROM_DS_VARIABLE, ROUTES, SUBSCRIPTION_VARIABLE, VAR_ALL } from "../../../constants";
 import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
 import { GetClusterOverviewSceneQueries, TranformClusterOverviewData } from "../Queries/ClusterOverviewQueries";
@@ -10,7 +11,6 @@ import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType, getPromDatasource, getSceneQueryRunner } from "../Queries/queryUtil";
 import { getAlertSummaryDrilldownPage } from "./AlertSummaryDrilldown";
 import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables, variableShouldBeCleared } from "./sceneUtils";
-import { prefixRoute } from "utils/utils.routing";
 
 
 export function getNamespacesScene(pluginReporter: Reporter): SceneAppPage {
@@ -36,7 +36,7 @@ export function getNamespacesScene(pluginReporter: Reporter): SceneAppPage {
     }
     const variables = getSharedSceneVariables(false);
 
-    const clusterOverviewQueries = GetClusterOverviewSceneQueries();
+    const clusterOverviewQueries = GetClusterOverviewSceneQueries(clusterMappings, "");
     const clusterOverviewData = getSceneQueryRunner(clusterOverviewQueries);
     const transformedClusterOverviewData = TranformClusterOverviewData(clusterOverviewData, clusterData);
 
@@ -115,8 +115,18 @@ export function getNamespacesScene(pluginReporter: Reporter): SceneAppPage {
           try {
             clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values);
             const promDs = getPromDatasource(clusterMappings, promDatasources);
+            const selectedCluster = clusterVar.state.value.toString();
             if (!!promDs && promDs.uid) {
               promDSVar.changeValueTo(promDs.uid);
+            } else if (!promDs && !!selectedCluster) {
+              // add report interaction
+              const namespacesQueries = GetClusterOverviewSceneQueries(clusterMappings, selectedCluster);
+              clusterOverviewData.setState({ datasource: {
+                type: 'datasource',
+                uid: '-- Mixed --',
+              }, 
+              queries: namespacesQueries });
+              clusterOverviewData.runQueries();
             }
           } catch (e) {
             pluginReporter.reportException("grafana_plugin_promdsvarchange_failed", {
