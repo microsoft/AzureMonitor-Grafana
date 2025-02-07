@@ -16,13 +16,9 @@ export function GetClusterOverviewSceneQueries(clusterMappings: Record<string, C
   const clusterMetadata = clusterMappings[selectedCluster];
   const queries: SceneDataQuery[] = [];
   if (!!clusterMetadata?.cluster) {
-    if (!!clusterMetadata.law) {
-      const azureQuery = `alertsmanagementresources\r\n| where subscriptionId in~ (\${${SUBSCRIPTION_VARIABLE}})\r\n| where type == "microsoft.alertsmanagement/alerts"\r\n| extend ruleType = properties.essentials.monitorService\r\n| where ruleType == "Prometheus"\r\n| join kind=leftouter (ResourceContainers | where type==\'microsoft.resources/subscriptions\' and subscriptionId in~ (\${${SUBSCRIPTION_VARIABLE}}) | project SubName=name, subscriptionId) on subscriptionId\r\n| project   AlertName = properties.context.labels.alertname,Cluster = properties.context.labels.cluster ,Container = properties.context.labels.container,namespace = tostring(properties.context.labels.namespace) ,pod = properties.context.labels.pod\r\n| where Cluster =~ "\${${CLUSTER_VARIABLE}}"| summarize Alerts= count() by namespace`;
-      const azureSceneQueries = getAzureResourceGraphQuery(azureQuery, `\$${SUBSCRIPTION_VARIABLE}`, 'B');
-      queries.push(azureSceneQueries);
-
-    }
-
+    const azureQuery = `alertsmanagementresources\r\n| where subscriptionId in~ (\${${SUBSCRIPTION_VARIABLE}})\r\n| where type == "microsoft.alertsmanagement/alerts"\r\n| extend ruleType = properties.essentials.monitorService\r\n| where ruleType == "Prometheus"\r\n| join kind=leftouter (ResourceContainers | where type==\'microsoft.resources/subscriptions\' and subscriptionId in~ (\${${SUBSCRIPTION_VARIABLE}}) | project SubName=name, subscriptionId) on subscriptionId\r\n| project   AlertName = properties.context.labels.alertname,Cluster = properties.context.labels.cluster ,Container = properties.context.labels.container,namespace = tostring(properties.context.labels.namespace) ,pod = properties.context.labels.pod\r\n| where Cluster =~ "\${${CLUSTER_VARIABLE}}"| summarize Alerts= count() by namespace`;
+    const azureSceneQueries = getAzureResourceGraphQuery(azureQuery, `\$${SUBSCRIPTION_VARIABLE}`, 'B');
+    queries.push(azureSceneQueries);
     if (!!clusterMetadata.promDs?.uid) {
       const promQueryRaw = `last_over_time((kube_namespace_status_phase{cluster =~ "\${${CLUSTER_VARIABLE}}"}[1m]))`;
       const promSceneQuery = getPrometheusQuery(promQueryRaw, 'A', 'table', promDs);

@@ -118,16 +118,15 @@ export function getNamespacesScene(pluginReporter: Reporter): SceneAppPage {
             const selectedCluster = clusterVar.state.value.toString();
             if (!!promDs && promDs.uid) {
               promDSVar.changeValueTo(promDs.uid);
-            } else if (!promDs && !!selectedCluster) {
-              // add report interaction
-              const namespacesQueries = GetClusterOverviewSceneQueries(clusterMappings, selectedCluster);
-              clusterByNamespaceData.setState({ datasource: {
-                type: 'datasource',
-                uid: '-- Mixed --',
-              }, 
-              queries: namespacesQueries });
-              clusterByNamespaceData.runQueries();
-            }
+            } 
+            // rerun queries with populated cluster mappings to ensure that queries are run only if the relevant data is available
+            const namespacesQueries = GetClusterOverviewSceneQueries(clusterMappings, selectedCluster);
+            clusterByNamespaceData.setState({ datasource: {
+              type: 'datasource',
+              uid: '-- Mixed --',
+            }, 
+            queries: namespacesQueries });
+            clusterByNamespaceData.runQueries();
           } catch (e) {
             pluginReporter.reportException("grafana_plugin_promdsvarchange_failed", {
               reporter: reporter,
