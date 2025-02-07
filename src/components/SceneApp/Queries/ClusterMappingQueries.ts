@@ -58,7 +58,7 @@ export function GetClusterStatsQueries(clusterMappings: Record<string, ClusterMa
             queries.push(getLogAnalyticsQuery(podReadyCount, law, `${cluster}_NODES_READY_${String.fromCharCode(idx)}`, false, "time_series"));
             idx++;
         }
-        if (promDS?.type && promDS.uid) {
+        if (promDS?.type && promDS?.uid) {
             queries.push(getPrometheusQuery(cpuUtilRaw, `${cluster}_CPUUtil_${String.fromCharCode(idx)}`, "time_series", promDS, undefined, 2, undefined, false));
             idx++;
             queries.push(getPrometheusQuery(memUtilRaw, `${cluster}_MemUtil_${String.fromCharCode(idx)}`, "time_series", promDS, "", 2, undefined, false));
