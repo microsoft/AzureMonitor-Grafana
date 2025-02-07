@@ -3,6 +3,7 @@ import { Reporter } from 'reporter/reporter';
 import { ReportType } from 'reporter/types';
 import { ClusterMapping } from 'types';
 import { stringify } from 'utils/stringify';
+import { prefixRoute } from 'utils/utils.routing';
 import { CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, ROUTES, SUBSCRIPTION_VARIABLE, VAR_ALL } from '../../../constants';
 import { GetClusterByWorkloadQueries, TransfomClusterByWorkloadData } from '../Queries/ClusterByWorkloadQueries';
 import { GetClustersQuery } from '../Queries/ClusterMappingQueries';
@@ -12,7 +13,6 @@ import { getPrometheusVariable } from '../Variables/variables';
 import { getAlertSummaryDrilldownPage } from './AlertSummaryDrilldown';
 import { getComputeResourcesDrilldownPage } from './ComputeResourcesDrilldown';
 import { getBehaviorsForVariables, getGenericSceneAppPage, getMissingDatasourceScene, getSharedSceneVariables, variableShouldBeCleared } from './sceneUtils';
-import { prefixRoute } from 'utils/utils.routing';
 
 function getWorkloadsVariables() {
   const namespaceVariableRaw = `label_values(kube_namespace_status_phase{cluster =~ \"\${${CLUSTER_VARIABLE}}\"},namespace)`;
@@ -46,7 +46,7 @@ export function getClusterByWorkloadScene(pluginReporter: Reporter) {
 
   // build data scene
   const variables = getWorkloadsVariables();
-  const clusterByWorkloadQueries = GetClusterByWorkloadQueries()
+  const clusterByWorkloadQueries = GetClusterByWorkloadQueries(clusterMappings, "");
   const clusterByWorkloadData = getSceneQueryRunner(clusterByWorkloadQueries);
   const transformedData = TransfomClusterByWorkloadData(clusterByWorkloadData, pluginReporter);
 
@@ -140,9 +140,18 @@ export function getClusterByWorkloadScene(pluginReporter: Reporter) {
           try {
             clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values);
             const promDs = getPromDatasource(clusterMappings);
+            const selectedCluster = clusterVar.state.value.toString();
             if (!!promDs && promDs.uid) {
               promDSVar.changeValueTo(promDs.uid);
             }
+            // rerun queries with populated cluster mappings to ensure that queries are run only if the relevant data is available
+            const workloadQueries = GetClusterByWorkloadQueries(clusterMappings, selectedCluster);
+            clusterByWorkloadData.setState({ datasource: {
+              type: 'datasource',
+              uid: '-- Mixed --',
+            }, 
+            queries: workloadQueries });
+            clusterByWorkloadData.runQueries();
           } catch (e) {
             pluginReporter.reportException("grafana_plugin_promdsvarchange_failed", {
               reporter: reporter,
