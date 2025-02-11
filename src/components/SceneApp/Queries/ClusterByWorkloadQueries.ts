@@ -1,5 +1,5 @@
 import { DataFrame, DataLink } from "@grafana/data";
-import { CustomTransformOperator, SceneDataTransformer, SceneQueryRunner } from "@grafana/scenes";
+import { CustomTransformOperator, SceneDataQuery, SceneDataTransformer, SceneQueryRunner } from "@grafana/scenes";
 import { DataSourceRef } from "@grafana/schema";
 import { Reporter } from "reporter/reporter";
 import { ReportType } from "reporter/types";
@@ -7,29 +7,41 @@ import { Observable, map } from "rxjs";
 import { CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, ROUTES, SUBSCRIPTION_VARIABLE, WORKLOAD_VAR } from "../../../constants";
 import { formatReadyTotal, getCustomFieldConfigBadge, getDataLink, getValidInvalidCustomFieldConfig } from "./dataUtil";
 import { getAzureResourceGraphQuery, getPrometheusQuery } from "./queryUtil";
+import { ClusterMapping } from "types";
 
-export function GetClusterByWorkloadQueries() {
+export function GetClusterByWorkloadQueries(clusterMappings: Record<string, ClusterMapping>, selectedCluster: string) {
     const promDs: DataSourceRef = {
       type: "prometheus",
       uid: `\${${PROM_DS_VARIABLE}}`
     }; 
-    const azureQueryRaw = `alertsmanagementresources\r\n| where type == \"microsoft.alertsmanagement/alerts\"\r\n| extend ruleType = properties.essentials.monitorService, cluster = properties.context.labels.cluster\r\n| where ruleType == \"Prometheus\" and tolower(cluster) == tolower("\${${CLUSTER_VARIABLE}}") \r\n| project   AlertName = properties.context.labels.alertname,Cluster = properties.context.labels.cluster ,container = tostring(properties.context.labels.container),namespace = properties.context.labels.namespace ,pod = properties.context.labels.pod\r\n| summarize Alerts = count() by container\r\n`;
-    const promQueriesRaw = [
-      `kube_pod_container_info * on(pod) group_left(namespace, workload, workload_type)  namespace_workload_pod:kube_pod_owner:relabel{workload_type=\"deployment\", cluster =~ \"\${${CLUSTER_VARIABLE}}\", namespace =~ \"\${${NS_VARIABLE}}\"}`,
-      `kube_pod_container_info * on(pod) group_left(namespace, workload, workload_type)  namespace_workload_pod:kube_pod_owner:relabel{workload_type=\"deployment\", cluster =~ \"\${${CLUSTER_VARIABLE}}\", namespace =~ \"\${${NS_VARIABLE}}\"} * on(workload) group_left sum by (workload) (label_replace(max(kube_deployment_status_replicas_available {namespace =~ \"\${${NS_VARIABLE}}\"}) by (deployment,namespace,cluster), \"workload\",\"$1\",\"deployment\",\"(.+)\"))`,
-      `kube_pod_container_info * on(pod) group_left(namespace, workload, workload_type)  namespace_workload_pod:kube_pod_owner:relabel{workload_type=\"deployment\", cluster =~ \"\${${CLUSTER_VARIABLE}}\", namespace =~ \"\${${NS_VARIABLE}}\"} * on(workload) group_left sum by (workload) (label_replace(max(kube_deployment_status_replicas_ready{namespace =~ \"\${${NS_VARIABLE}}\"}) by (deployment,namespace,cluster), \"workload\",\"$1\",\"deployment\",\"(.+)\"))`,
-      `kube_pod_container_info * on(pod) group_left(namespace, workload, workload_type)  namespace_workload_pod:kube_pod_owner:relabel{workload_type=\"deployment\", cluster =~ \"\${${CLUSTER_VARIABLE}}\", namespace =~ \"\${${NS_VARIABLE}}\"} * on(workload) group_left sum by (workload) (label_replace(max(kube_deployment_status_replicas_updated {namespace =~ \"\${${NS_VARIABLE}}\"}) by (deployment,namespace,cluster), \"workload\",\"$1\",\"deployment\",\"(.+)\"))`,
-      `kube_pod_container_info * on(pod) group_left(namespace, workload, workload_type)  namespace_workload_pod:kube_pod_owner:relabel{workload_type=\"deployment\", cluster =~ \"\${${CLUSTER_VARIABLE}}\", namespace =~ \"\${${NS_VARIABLE}}\"} * on(workload) group_left sum by (workload) (label_replace(max(kube_deployment_spec_replicas {namespace =~ \"\${${NS_VARIABLE}}\"}) by (deployment,namespace,cluster), \"workload\",\"$1\",\"deployment\",\"(.+)\"))`
-    ];
-    let idx = 'B'.charCodeAt(0);
-    const promQueries = [];
-    const azureSceneQuery = getAzureResourceGraphQuery(azureQueryRaw, `\$${SUBSCRIPTION_VARIABLE}`, 'A');
-    for (const query of promQueriesRaw) {
-      promQueries.push(getPrometheusQuery(query, String.fromCharCode(idx), 'table', promDs));
-      idx++;
+    const clusterMetadata = clusterMappings[selectedCluster];
+    const queries: SceneDataQuery[] = [];
+    if (!!clusterMetadata?.cluster) {
+      // add azure query
+      const azureQueryRaw = `alertsmanagementresources\r\n| where type == \"microsoft.alertsmanagement/alerts\"\r\n| extend ruleType = properties.essentials.monitorService, cluster = properties.context.labels.cluster\r\n| where ruleType == \"Prometheus\" and tolower(cluster) == tolower("\${${CLUSTER_VARIABLE}}") \r\n| project   AlertName = properties.context.labels.alertname,Cluster = properties.context.labels.cluster ,container = tostring(properties.context.labels.container),namespace = properties.context.labels.namespace ,pod = properties.context.labels.pod\r\n| summarize Alerts = count() by container\r\n`;
+      const azureSceneQuery = getAzureResourceGraphQuery(azureQueryRaw, `\$${SUBSCRIPTION_VARIABLE}`, 'A');
+      queries.push(azureSceneQuery);
+
+      if (!!clusterMetadata.promDs?.uid) {
+        // add prom queries
+        const promQueriesRaw = [
+          `kube_pod_container_info * on(pod) group_left(namespace, workload, workload_type)  namespace_workload_pod:kube_pod_owner:relabel{workload_type=\"deployment\", cluster =~ \"\${${CLUSTER_VARIABLE}}\", namespace =~ \"\${${NS_VARIABLE}}\"}`,
+          `kube_pod_container_info * on(pod) group_left(namespace, workload, workload_type)  namespace_workload_pod:kube_pod_owner:relabel{workload_type=\"deployment\", cluster =~ \"\${${CLUSTER_VARIABLE}}\", namespace =~ \"\${${NS_VARIABLE}}\"} * on(workload) group_left sum by (workload) (label_replace(max(kube_deployment_status_replicas_available {namespace =~ \"\${${NS_VARIABLE}}\"}) by (deployment,namespace,cluster), \"workload\",\"$1\",\"deployment\",\"(.+)\"))`,
+          `kube_pod_container_info * on(pod) group_left(namespace, workload, workload_type)  namespace_workload_pod:kube_pod_owner:relabel{workload_type=\"deployment\", cluster =~ \"\${${CLUSTER_VARIABLE}}\", namespace =~ \"\${${NS_VARIABLE}}\"} * on(workload) group_left sum by (workload) (label_replace(max(kube_deployment_status_replicas_ready{namespace =~ \"\${${NS_VARIABLE}}\"}) by (deployment,namespace,cluster), \"workload\",\"$1\",\"deployment\",\"(.+)\"))`,
+          `kube_pod_container_info * on(pod) group_left(namespace, workload, workload_type)  namespace_workload_pod:kube_pod_owner:relabel{workload_type=\"deployment\", cluster =~ \"\${${CLUSTER_VARIABLE}}\", namespace =~ \"\${${NS_VARIABLE}}\"} * on(workload) group_left sum by (workload) (label_replace(max(kube_deployment_status_replicas_updated {namespace =~ \"\${${NS_VARIABLE}}\"}) by (deployment,namespace,cluster), \"workload\",\"$1\",\"deployment\",\"(.+)\"))`,
+          `kube_pod_container_info * on(pod) group_left(namespace, workload, workload_type)  namespace_workload_pod:kube_pod_owner:relabel{workload_type=\"deployment\", cluster =~ \"\${${CLUSTER_VARIABLE}}\", namespace =~ \"\${${NS_VARIABLE}}\"} * on(workload) group_left sum by (workload) (label_replace(max(kube_deployment_spec_replicas {namespace =~ \"\${${NS_VARIABLE}}\"}) by (deployment,namespace,cluster), \"workload\",\"$1\",\"deployment\",\"(.+)\"))`
+        ];
+        let idx = 'B'.charCodeAt(0);
+        const promQueries = [];
+        for (const query of promQueriesRaw) {
+          promQueries.push(getPrometheusQuery(query, String.fromCharCode(idx), 'table', promDs));
+          idx++;
+        }
+        queries.push(...promQueries);
+      }
     }
 
-    return [azureSceneQuery, ...promQueries];
+    return queries;
 }
 
 export function TransfomClusterByWorkloadData(data: SceneQueryRunner, pluginReporter: Reporter) {

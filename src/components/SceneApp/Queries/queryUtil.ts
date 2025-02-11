@@ -1,4 +1,3 @@
-import { DataSourceInstanceSettings } from "@grafana/data";
 import { getDataSourceSrv } from "@grafana/runtime";
 import { SceneQueryRunner } from "@grafana/scenes";
 import { DataQuery, DataSourceRef } from "@grafana/schema";
@@ -143,13 +142,13 @@ export function getAMWToGrana(workspaces: string[], workspaceIds: string[], clus
     return [amw, workspaceId];
 }
  
-export function getPromDatasource(clusterMappings: Record<string, ClusterMapping>, datasources:  DataSourceInstanceSettings[]) {
+export function getPromDatasource(clusterMappings: Record<string, ClusterMapping>) {
     const promDatasourceFromMapping = Object.entries(clusterMappings).find(([_, clusterMapping]) => clusterMapping.promDs !== undefined);
     if (!!promDatasourceFromMapping) {
         return promDatasourceFromMapping[1].promDs;
     }
 
-    return datasources.find((ds) => ds.type === "prometheus");
+    return undefined;
 }
 
 export function getInstanceDatasourcesForType(dsType: string) {

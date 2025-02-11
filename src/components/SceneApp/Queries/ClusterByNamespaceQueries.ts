@@ -1,23 +1,32 @@
 import { DataFrame, DataLink } from '@grafana/data';
-import { CustomTransformOperator, SceneDataTransformer, SceneQueryRunner } from '@grafana/scenes';
+import { CustomTransformOperator, SceneDataQuery, SceneDataTransformer, SceneQueryRunner } from '@grafana/scenes';
 import { DataSourceRef } from '@grafana/schema';
 import { Observable, map } from 'rxjs';
 import { CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, ROUTES, SUBSCRIPTION_VARIABLE, VAR_ALL } from '../../../constants';
 import { GetClusterToSubscription } from './ClusterMappingQueries';
 import { getCustomFieldConfigBadge, getDataLink, getValidInvalidCustomFieldConfig } from './dataUtil';
 import { getAzureResourceGraphQuery, getPrometheusQuery } from './queryUtil';
+import { ClusterMapping } from 'types';
 
-export function GetClusterOverviewSceneQueries() {
+export function GetClusterOverviewSceneQueries(clusterMappings: Record<string, ClusterMapping>, selectedCluster: string) {
   const promDs: DataSourceRef = {
     type: "prometheus",
     uid: `\${${PROM_DS_VARIABLE}}`
   };
-  const azureQuery = `alertsmanagementresources\r\n| where subscriptionId in~ (\${${SUBSCRIPTION_VARIABLE}})\r\n| where type == "microsoft.alertsmanagement/alerts"\r\n| extend ruleType = properties.essentials.monitorService\r\n| where ruleType == "Prometheus"\r\n| join kind=leftouter (ResourceContainers | where type==\'microsoft.resources/subscriptions\' and subscriptionId in~ (\${${SUBSCRIPTION_VARIABLE}}) | project SubName=name, subscriptionId) on subscriptionId\r\n| project   AlertName = properties.context.labels.alertname,Cluster = properties.context.labels.cluster ,Container = properties.context.labels.container,namespace = tostring(properties.context.labels.namespace) ,pod = properties.context.labels.pod\r\n| where Cluster =~ "\${${CLUSTER_VARIABLE}}"| summarize Alerts= count() by namespace`;
-  const promQueryRaw = `last_over_time((kube_namespace_status_phase{cluster =~ "\${${CLUSTER_VARIABLE}}"}[1m]))`;
-  const promSceneQuery = getPrometheusQuery(promQueryRaw, 'A', 'table', promDs);
-  const azureSceneQueries = getAzureResourceGraphQuery(azureQuery, `\$${SUBSCRIPTION_VARIABLE}`, 'B');
-  
-  return [...[promSceneQuery], azureSceneQueries];
+  const clusterMetadata = clusterMappings[selectedCluster];
+  const queries: SceneDataQuery[] = [];
+  if (!!clusterMetadata?.cluster) {
+    const azureQuery = `alertsmanagementresources\r\n| where subscriptionId in~ (\${${SUBSCRIPTION_VARIABLE}})\r\n| where type == "microsoft.alertsmanagement/alerts"\r\n| extend ruleType = properties.essentials.monitorService\r\n| where ruleType == "Prometheus"\r\n| join kind=leftouter (ResourceContainers | where type==\'microsoft.resources/subscriptions\' and subscriptionId in~ (\${${SUBSCRIPTION_VARIABLE}}) | project SubName=name, subscriptionId) on subscriptionId\r\n| project   AlertName = properties.context.labels.alertname,Cluster = properties.context.labels.cluster ,Container = properties.context.labels.container,namespace = tostring(properties.context.labels.namespace) ,pod = properties.context.labels.pod\r\n| where Cluster =~ "\${${CLUSTER_VARIABLE}}"| summarize Alerts= count() by namespace`;
+    const azureSceneQueries = getAzureResourceGraphQuery(azureQuery, `\$${SUBSCRIPTION_VARIABLE}`, 'B');
+    queries.push(azureSceneQueries);
+    if (!!clusterMetadata.promDs?.uid) {
+      const promQueryRaw = `last_over_time((kube_namespace_status_phase{cluster =~ "\${${CLUSTER_VARIABLE}}"}[1m]))`;
+      const promSceneQuery = getPrometheusQuery(promQueryRaw, 'A', 'table', promDs);
+      queries.push(promSceneQuery);
+    }
+  }
+
+  return queries;
 }
 
 export function TranformClusterOverviewData(data: SceneQueryRunner, clustersData: SceneQueryRunner) {
