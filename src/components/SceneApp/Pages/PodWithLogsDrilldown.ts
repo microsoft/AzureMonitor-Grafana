@@ -4,16 +4,16 @@ import { Reporter } from "reporter/reporter";
 import { ReportType } from "reporter/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
+import { prefixRoute } from "utils/utils.routing";
 import { CLUSTER_VARIABLE, NS_VARIABLE, POD_VAR, PROM_DS_VARIABLE, ROUTES, WORKLOAD_VAR } from "../../../constants";
 import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
 import { GetCPUQuotaQueries, GetCPUThrottlingQueries, GetCPUUsageQuery, GetCurrentStorageIOQueries, GetIOPSQueries, GetIOPSRWQueries, GetLASceneQueryFor, GetMemoryQuotaQueries, GetMemoryUsageQueries, GetRateQueriesFor, GetThroughputQueries, GetThrouputQueries, TransformCPUQuotaData, TransformCPUUsageData, TransformCurrentStorageData, TransformMemoryQuotaData } from "../Queries/PodWithLogsQueries";
 import { azure_monitor_queries } from "../Queries/queries";
-import { createMappingFromSeries, getSceneQueryRunner } from "../Queries/queryUtil";
+import { createMappingFromSeries, getPromDatasource, getSceneQueryRunner } from "../Queries/queryUtil";
 import { getPrometheusVariable } from "../Variables/variables";
 import { applyOverridesCPUUsage, getTableVizCPUQuota, getTableVizCurrentStorage, getTableVizMemoryQuota, getTimeSeriesViz } from "../Visualizations/PodsWithLogsViz";
 import { getThresholdsConfig } from "../Visualizations/utils";
 import { getBehaviorsForVariables, getSharedSceneVariables } from "./sceneUtils";
-import { prefixRoute } from "utils/utils.routing";
 
 function getPodWithLogsVariables() {
     const variables = getSharedSceneVariables(true);
@@ -385,6 +385,11 @@ function getPodWithLogsDrilldownScene(pluginReporter: Reporter) {
                 const workspaceData = state.data?.series.filter((s) => s.refId === "workspaces");
                 const clusterData = state.data?.series.filter((s) => s.refId === "clusters");
                 clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values, clusterData[0]?.fields[2]?.values);
+                const selectedCluster = clusterVar.state.value.toString();
+                const promDs = getPromDatasource(clusterMappings, selectedCluster);
+                if (!!promDs && promDs.uid) {
+                    promDSVar.changeValueTo(promDs.uid);
+                } 
 
                 // once the cluster mappings are fetched, run all the queries
                 const kubeWarningEventsQueries = GetLASceneQueryFor("KubeWarningEvents", clusterVar.getValue().toString(), clusterMappings, "table", undefined);
