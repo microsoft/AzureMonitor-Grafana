@@ -2,8 +2,8 @@ import { getDataSourceSrv } from "@grafana/runtime";
 import { SceneQueryRunner } from "@grafana/scenes";
 import { DataQuery, DataSourceRef } from "@grafana/schema";
 import { ClusterMapping } from "types";
-import { MetricsQueryDimensionFiter } from "./types";
 import { AZMON_DS_VARIABLE } from "../../../constants";
+import { MetricsQueryDimensionFiter } from "./types";
 
 
 export function getAzureResourceGraphQuery(query: string, subscription: string, refId: string) {
@@ -142,8 +142,8 @@ export function getAMWToGrana(workspaces: string[], workspaceIds: string[], clus
     return [amw, workspaceId];
 }
  
-export function getPromDatasource(clusterMappings: Record<string, ClusterMapping>) {
-    const promDatasourceFromMapping = Object.entries(clusterMappings).find(([_, clusterMapping]) => clusterMapping.promDs !== undefined);
+export function getPromDatasource(clusterMappings: Record<string, ClusterMapping>, cluster: string) {
+    const promDatasourceFromMapping = Object.entries(clusterMappings).find(([name, clusterMapping]) => name === cluster && clusterMapping.promDs !== undefined);
     if (!!promDatasourceFromMapping) {
         return promDatasourceFromMapping[1].promDs;
     }
