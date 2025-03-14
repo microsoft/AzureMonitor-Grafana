@@ -5,8 +5,8 @@ import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
 import { prefixRoute } from "utils/utils.routing";
 import { CLUSTER_VARIABLE, PROM_DS_VARIABLE, ROUTES, SUBSCRIPTION_VARIABLE, VAR_ALL } from "../../../constants";
-import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
 import { GetClusterOverviewSceneQueries, TranformClusterOverviewData } from "../Queries/ClusterByNamespaceQueries";
+import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
 import { azure_monitor_queries } from "../Queries/queries";
 import { createMappingFromSeries, getInstanceDatasourcesForType, getPromDatasource, getSceneQueryRunner } from "../Queries/queryUtil";
 import { getAlertSummaryDrilldownPage } from "./AlertSummaryDrilldown";
@@ -114,10 +114,10 @@ export function getNamespacesScene(pluginReporter: Reporter): SceneAppPage {
           const clusterData = state.data?.series.filter((s) => s.refId === "clusters");
           try {
             clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values);
-            const promDs = getPromDatasource(clusterMappings);
             const selectedCluster = clusterVar.state.value.toString();
+            const promDs = getPromDatasource(clusterMappings, selectedCluster);
             if (!!promDs && promDs.uid) {
-              promDSVar.changeValueTo(promDs.uid);
+                promDSVar.changeValueTo(promDs.uid);
             } 
             // rerun queries with populated cluster mappings to ensure that queries are run only if the relevant data is available
             const namespacesQueries = GetClusterOverviewSceneQueries(clusterMappings, selectedCluster);

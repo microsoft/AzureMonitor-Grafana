@@ -3,16 +3,16 @@ import { Reporter } from "reporter/reporter";
 import { ReportType } from "reporter/types";
 import { ClusterMapping } from "types";
 import { stringify } from "utils/stringify";
+import { prefixRoute } from "utils/utils.routing";
 import { CLUSTER_VARIABLE, NS_VARIABLE, PROM_DS_VARIABLE, ROUTES, WORKLOAD_VAR } from "../../../constants";
 import { GetClustersQuery } from "../Queries/ClusterMappingQueries";
 import { GetAvgContainerBandwithReceivedSceneQuery, GetAvgContainerBandwithTransmittedSceneQuery, GetCPUQuotaSceneQuery, GetCPUUsageSceneQuery, GetMemoryQuotaPromSceneQueries, GetMemoryUsageSceneQuery, GetNetworkUsageSceneQueries, GetRateofReceivedPacketsDroppedSceneQuery, GetRateofReceivedPacketsSceneQuery, GetRateofTransmittedPacketsDroppedSceneQuery, GetRateofTransmittedPacketsSceneQuery, GetReceiveBandwidthSceneQuery, GetTransmitBandwidthSceneQuery, TransformData } from "../Queries/ComputeResourcesQueries";
 import { azure_monitor_queries } from "../Queries/queries";
-import { createMappingFromSeries, getSceneQueryRunner } from "../Queries/queryUtil";
+import { createMappingFromSeries, getPromDatasource, getSceneQueryRunner } from "../Queries/queryUtil";
 import { getPrometheusVariable, getTextVariable } from "../Variables/variables";
 import { getTableVisualizationCPUQuota, getTableVisualizationMemoryQuota, getTableVisualizationNetworkUsage, getTimeSeriesVisualization } from "../Visualizations/ComputeResourcesViz";
 import { getPodWithLogsDrillDownPage } from "./PodWithLogsDrilldown";
 import { getBehaviorsForVariables, getSharedSceneVariables } from "./sceneUtils";
-import { prefixRoute } from "utils/utils.routing";
 
 function getComputeResourcesVariables() {
     const variables: Array<DataSourceVariable | QueryVariable | TextBoxVariable> = getSharedSceneVariables(true);
@@ -235,7 +235,12 @@ function getComputeResourcesDrilldownScene(pluginReporter: Reporter) {
           const workspaceData = state.data?.series.filter((s) => s.refId === "workspaces");
           const clusterData = state.data?.series.filter((s) => s.refId === "clusters");
           try {
-              clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values);
+                clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values);
+                const selectedCluster = clusterVar.state.value.toString();
+                const promDs = getPromDatasource(clusterMappings, selectedCluster);
+                if (!!promDs && promDs.uid) {
+                    promDSVar.changeValueTo(promDs.uid);
+                } 
             } catch (e) {
               pluginReporter.reportException("grafana_plugin_createclustermappings_failed", {
                   reporter: "Scene.Drilldown.ComputeResources",
