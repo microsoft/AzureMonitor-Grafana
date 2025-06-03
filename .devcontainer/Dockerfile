@@ -1,10 +1,10 @@
-FROM mcr.microsoft.com/vscode/devcontainers/go
+FROM mcr.microsoft.com/vscode/devcontainers/go:latest
 
 RUN umask 0002 && . /usr/local/share/nvm/nvm.sh && nvm install 20 2>&1
 
 USER vscode
 
-ARG GRAFANA_VERSION=11.2.0
+ARG GRAFANA_VERSION=11.6.2
 
 RUN echo "Installing Tools" && \
   # Air
