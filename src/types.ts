@@ -13,5 +13,6 @@ export interface ClusterMapping {
     workspaceId?: string;
     amw?: string
     promDs?: DataSourceRef;
+    promEndpoint?: string;
     law?: string;
 }

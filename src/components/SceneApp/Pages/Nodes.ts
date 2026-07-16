@@ -141,7 +141,7 @@ export function getOverviewByNodeScene(pluginReporter: Reporter): SceneAppPage {
                 const workspaceData = state.data?.series.filter((s) => s.refId === "workspaces");
                 const clusterData = state.data?.series.filter((s) => s.refId === "clusters");
                 try {
-                    clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values, clusterData[0]?.fields[2]?.values);
+                    clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values, clusterData[0]?.fields[2]?.values, workspaceData[0]?.fields[2]?.values);
                     const newQueries = GetNodeOverviewQueries(clusterMappings, [clusterVar.state.value.toString()]);
                     nodeOverviewData.setState({ queries: newQueries });
                     nodeOverviewData.runQueries();

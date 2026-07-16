@@ -80,7 +80,7 @@ export function getclustersScene(pluginReporter: Reporter): SceneAppPage {
           const clusterData = state.data?.series.filter((s) => s.refId === "clusters");
   
           try {
-            clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values, clusterData[0]?.fields[2]?.values);
+            clusterMappings = createMappingFromSeries(workspaceData[0]?.fields[0]?.values, workspaceData[0]?.fields[1]?.values, clusterData[0]?.fields[0]?.values, clusterData[0]?.fields[1]?.values, clusterData[0]?.fields[2]?.values, workspaceData[0]?.fields[2]?.values);
             const clusterStatsQueries = GetClusterStatsQueries(clusterMappings);
             clusterTrendData.setState({ datasource: {
               type: 'datasource',

@@ -1,6 +1,7 @@
 import { getDataSourceSrv } from "@grafana/runtime";
 import { SceneQueryRunner } from "@grafana/scenes";
 import { DataQuery, DataSourceRef } from "@grafana/schema";
+import { DataSourceInstanceSettings } from "@grafana/data";
 import { ClusterMapping } from "types";
 import { AZMON_DS_VARIABLE } from "../../../constants";
 import { MetricsQueryDimensionFiter } from "./types";
@@ -98,13 +99,13 @@ export function getSceneQueryRunner(queries: DataQuery[]): SceneQueryRunner {
 
     return new SceneQueryRunner(mixedQuery);
 }
-export function createMappingFromSeries(workspaces: string[], workspaceIds: string[], clusters: string[], clusterIds: string[],  laws?: string[]): Record<string, ClusterMapping> {
+export function createMappingFromSeries(workspaces: string[], workspaceIds: string[], clusters: string[], clusterIds: string[], laws?: string[], promEndpoints?: string[]): Record<string, ClusterMapping> {
     const datasourceSrv  = getDataSourceSrv();
     const promDatasources = datasourceSrv.getList().filter((ds) => PROM_DS_TYPES.includes(ds.type)) ?? [];
     const clusterMappings: Record<string, ClusterMapping> = {};
     for (let clusterIdx = 0; clusterIdx < clusters.length; clusterIdx++) {
       const cluster = clusters[clusterIdx];
-      const [amw, workspaceId] = getAMWToGrana(workspaces, workspaceIds, cluster);
+      const [amw, workspaceId, promEndpoint] = getAMWToGrana(workspaces, workspaceIds, cluster, promEndpoints);
       let law = "";
       let clusterId = "";
       let promDs = undefined
@@ -112,7 +113,7 @@ export function createMappingFromSeries(workspaces: string[], workspaceIds: stri
       clusterId = clusterIds[clusterIdx];
   
       if (!!amw) {
-        promDs = promDatasources.find((ds) => (ds.jsonData as any)?.directUrl.toLowerCase().includes(amw.toLowerCase()));
+        promDs = matchPromDatasource(promDatasources, promEndpoint, amw);
       }
   
       const clusterMapping: ClusterMapping = {
@@ -120,6 +121,7 @@ export function createMappingFromSeries(workspaces: string[], workspaceIds: stri
         workspaceId: workspaceId,
         amw: amw,
         promDs: promDs,
+        promEndpoint: promEndpoint,
         law: law,
         clusterId: clusterId
       }
@@ -130,10 +132,46 @@ export function createMappingFromSeries(workspaces: string[], workspaceIds: stri
     return clusterMappings;
 }
 
-export function getAMWToGrana(workspaces: string[], workspaceIds: string[], cluster: string): [string, string | undefined] {
+// Extracts the lowercased host from a URL, tolerating undefined/malformed input.
+export function safeHost(url?: string): string {
+    if (!url) {
+        return "";
+    }
+    try {
+        return new URL(url).host.toLowerCase();
+    } catch {
+        return url.toLowerCase();
+    }
+}
+
+// The query URL Grafana uses for a Prometheus datasource. `directUrl` is the
+// unproxied endpoint Grafana injects at runtime; fall back to `url`.
+function getDatasourceQueryUrl(ds: DataSourceInstanceSettings): string {
+    return (ds.jsonData as { directUrl?: string })?.directUrl ?? ds.url ?? "";
+}
+
+// Resolve the Prometheus datasource for an Azure Monitor Workspace.
+// Primary match is exact host equality against the AMW's Prometheus query
+// endpoint (robust in multi-AMW environments). Falls back to the prior
+// name-substring behavior (null-safe) so resolution is never worse than before.
+function matchPromDatasource(promDatasources: DataSourceInstanceSettings[], promEndpoint: string | undefined, amw: string) {
+    const targetHost = safeHost(promEndpoint);
+    if (!!targetHost) {
+        const byEndpoint = promDatasources.find((ds) => safeHost(getDatasourceQueryUrl(ds)) === targetHost);
+        if (byEndpoint) {
+            return byEndpoint;
+        }
+    }
+
+    const amwLower = amw.toLowerCase();
+    return promDatasources.find((ds) => getDatasourceQueryUrl(ds).toLowerCase().includes(amwLower));
+}
+
+export function getAMWToGrana(workspaces: string[], workspaceIds: string[], cluster: string, promEndpoints?: string[]): [string, string | undefined, string | undefined] {
     const workspaceId = workspaceIds.find((id) => id.toLowerCase().includes(cluster.toLowerCase()));
     let idIdx = -1;
     let amw = "";
+    let promEndpoint: string | undefined = undefined;
 
     if (!!workspaceId) {
         idIdx = workspaceIds.indexOf(workspaceId);
@@ -141,9 +179,10 @@ export function getAMWToGrana(workspaces: string[], workspaceIds: string[], clus
 
     if (idIdx !== -1) {
         amw = workspaces[idIdx];
+        promEndpoint = promEndpoints?.[idIdx];
     }
 
-    return [amw, workspaceId];
+    return [amw, workspaceId, promEndpoint];
 }
  
 export function getPromDatasource(clusterMappings: Record<string, ClusterMapping>, cluster: string) {

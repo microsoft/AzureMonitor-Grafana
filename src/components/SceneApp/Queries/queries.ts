@@ -65,7 +65,13 @@ const workspaceNameAzure =
     | summarize associatedGrafanas=make_list(grafanaObject) by azureMonitorWorkspaceResourceId) on azureMonitorWorkspaceResourceId
   | extend amwToGrafana = pack("azureMonitorWorkspaceResourceId", azureMonitorWorkspaceResourceId, "associatedGrafanas", associatedGrafanas)
   | summarize amwToGrafanas=make_list(amwToGrafana) by dcrId, dcraName, id
-  | project workspace = tostring(split(amwToGrafanas[0].azureMonitorWorkspaceResourceId, "/")[-1]), id`;
+  | extend amwResourceId = tostring(amwToGrafanas[0].azureMonitorWorkspaceResourceId)
+  | join kind=leftouter (
+      resources
+      | where type =~ "microsoft.monitor/accounts"
+      | project amwResourceId = tolower(id), prometheusQueryEndpoint = tostring(properties.metrics.prometheusQueryEndpoint)
+    ) on amwResourceId
+  | project workspace = tostring(split(amwResourceId, "/")[-1]), id, promEndpoint = prometheusQueryEndpoint`;
 
 export const azure_monitor_queries: QueryMap = {
   namespacesQuery: namespacesQueryAzure,
