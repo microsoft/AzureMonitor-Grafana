@@ -3,7 +3,7 @@ import { VariableHide } from "@grafana/schema";
 import { AZMON_DS_VARIABLE, PROM_DS_VARIABLE, SUBSCRIPTION_VARIABLE } from "../../../constants";
 import { getAzureResourceGraphQuery } from "../Queries/queryUtil";
 
-export function getSubscriptionVariable(hide?: boolean) {
+export function getSubscriptionVariable(hide?: boolean, multi = true) {
     return new QueryVariable({
         name: SUBSCRIPTION_VARIABLE,
         label: "Subscription",
@@ -16,9 +16,9 @@ export function getSubscriptionVariable(hide?: boolean) {
             queryType: "Azure Subscriptions",
             refId: "A",
         },
-        isMulti: true,
-        includeAll: true,
-        defaultToAll: true,
+        isMulti: multi,
+        includeAll: multi,
+        defaultToAll: multi,
         hide: hide ? VariableHide.hideVariable : VariableHide.dontHide,
     });
 }

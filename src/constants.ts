@@ -9,6 +9,7 @@ export enum ROUTES {
   Namespaces = "namespaces",
   Workloads = "workloads",
   Nodes = "nodes",
+  HealthModels = "healthmodels",
   // drilldowns
   AlertSummary = "alertsummary",
   ComputeResources = "computeresources",

@@ -7,7 +7,7 @@
   "backend": true,
   "executable": "gpx_azure_cloudnative_monitoring",
   "info": {
-    "keywords": ["app", "azure", "cloud", "native", "aks", "kubernetes", "monitoring"],
+    "keywords": ["app", "azure", "cloud", "native", "aks", "kubernetes", "monitoring", "health models", "cloudhealth"],
     "description": "Monitor your Azure Cloud Native services",
     "author": {
       "name": "Microsoft"
@@ -32,7 +32,7 @@
   "includes": [
     {
       "type": "page",
-      "name": "Page One",
+      "name": "Azure Cloud Native Monitoring",
       "path": "/a/%PLUGIN_ID%/clusternavigation",
       "role": "Admin",
       "addToNav": true,

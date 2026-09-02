@@ -14,6 +14,8 @@ This Grafana App Plugin provides a seamless and enhanced monitoring experience f
 
 **Enhanced Troubleshooting**: It improves the AKS troubleshooting experience by providing better navigation, a range of supported visualizations, and keeping users in the same context.
 
+**Health Models (preview)**: It shows the health of an Azure Health Model's entities, as a dependency graph and as per-entity health timelines.
+
 ## Requirements
 
 This plugin works with Azure Monitor Datasource and Prometheus datasource configured with the Azure Monitor managed service for Prometheus. Please make sure you have configured in your instance:

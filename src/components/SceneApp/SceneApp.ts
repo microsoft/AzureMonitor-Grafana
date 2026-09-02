@@ -6,6 +6,7 @@ import { getclustersScene } from "./Pages/Clusters";
 import { getNamespacesScene } from "./Pages/Namespaces";
 import { getOverviewByNodeScene } from "./Pages/Nodes";
 import { getClusterByWorkloadScene } from "./Pages/Workloads";
+import { getHealthModelsScene } from "./Pages/HealthModels";
 import { CustomTable, CustomTableVizFieldOptions, CustomTableVizOptions } from "./PanelVisualizations/CustomTable";
 import { ConfigurationState } from "./SceneObjects/types";
 import { prefixRoute } from "utils/utils.routing";
@@ -17,10 +18,11 @@ export function getSceneApp(_configState: Partial<ConfigurationState>, _setConfi
     const clustersTab = getclustersScene(pluginReporter);
     const workloadsTab = getClusterByWorkloadScene(pluginReporter);
     const nodesTab = getOverviewByNodeScene(pluginReporter);
+    const healthModelsTab = getHealthModelsScene(pluginReporter);
     const myAppPage = new SceneAppPage({
         title: 'Azure Cloud Native Monitoring',
         url: prefixRoute(""),
-        tabs: [clustersTab, namespacesTab, workloadsTab, nodesTab],
+        tabs: [clustersTab, namespacesTab, workloadsTab, nodesTab, healthModelsTab],
         renderTitle: (title: string) => {
           return SceneTitle({ title });
         },

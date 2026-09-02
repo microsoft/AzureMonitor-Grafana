@@ -12,7 +12,7 @@ export function getGenericSceneAppPage(title: string, url: string, getScene: (ro
         getScene: getScene,
     });
 }
-export function getMissingDatasourceScene(missingDs: string, reporter: string, pluginReporter: Reporter) {
+export function getMissingDatasourceScene(missingDs: string, reporter: string, pluginReporter: Reporter, requiredDatasources = "Azure Monitor and Prometheus datasources") {
     pluginReporter.reportPageView("grafana_plugin_missingdsscene_view", {
         reporter: reporter,
         missingDatasource: missingDs,
@@ -26,7 +26,7 @@ export function getMissingDatasourceScene(missingDs: string, reporter: string, p
                     width: '100%',
                     height: 300,
                     body: PanelBuilders.text().setTitle("").setOption('content', 
-                        `> ### ⚠️ No ${missingDs} datasources found <br>\n> ##### This plugin requires Azure Monitor and Prometheus datasources to work.  \n> ##### Please go to [connections](/connections/datasources) configure the appropriate datasources. For more information, see our [documentation](/plugins/${AZURE_MONITORING_PLUGIN_ID})`).setDisplayMode("transparent").build(),
+                        `> ### ⚠️ No ${missingDs} datasources found <br>\n> ##### This page requires ${requiredDatasources} to work.  \n> ##### Please go to [connections](/connections/datasources) configure the appropriate datasources. For more information, see our [documentation](/plugins/${AZURE_MONITORING_PLUGIN_ID})`).setDisplayMode("transparent").build(),
                 }),
             ],
         }),
